@@ -1,0 +1,9 @@
+{
+  "devDependencies": {
+    "@types/node": "^22.13.4"
+  },
+  "dependencies": {
+    "@heroicons/react": "^2.2.0",
+    "dotenv": "^16.4.7"
+  }
+}

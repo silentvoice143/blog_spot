@@ -1,0 +1,10 @@
+.env
+dist
+build
+node_modules
+client/.env
+app/.env
+app/firebase
+app/dist
+client/node_modules
+app/node_modules

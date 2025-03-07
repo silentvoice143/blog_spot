@@ -1,0 +1,28 @@
+.category-wrapper{
+    display: flex;
+    flex-direction: column;
+    position:sticky;
+    top:70px;
+}
+
+.category-wrapper h1{
+    
+    font-size: 2rem;
+}
+
+.category-item{
+    color:#8f8f8f;
+    width:100%;
+    border-bottom:0.3123px solid #e2e2e2;
+    text-align: center;
+    padding:16px 24px;
+
+}
+.category-wrapper h1{
+    color:black;
+    
+}
+
+.category-item:hover{
+    color:black;
+}
