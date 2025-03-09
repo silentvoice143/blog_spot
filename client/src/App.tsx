@@ -21,6 +21,7 @@ import CreatePost from "./pages/create/create-post";
 import { LoaderProvider, useLoader } from "./context/LoaderProvider";
 import { Loader } from "./components/loader";
 import Post from "./pages/post";
+import EditPost from "./pages/edit/edit-post";
 
 const PrivateRoute = ({ isAuthenticated, setAuthentication }, ...props) => {
   console.log(isAuthenticated);
@@ -73,6 +74,7 @@ function App() {
               >
                 <Route path="/" element={<Home />} />
                 <Route path="/post/create" element={<CreatePost />}></Route>
+                <Route path="/post/edit/:id" element={<EditPost />}></Route>
               </Route>
 
               <Route

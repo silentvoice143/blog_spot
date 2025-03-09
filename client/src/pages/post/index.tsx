@@ -7,7 +7,7 @@ import { DataContext } from "@/context/Dataprovider";
 import { useLoader } from "@/context/LoaderProvider";
 import { addComment, getpostdetail } from "@/services/apiService";
 import { useContext, useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 export type PostType = {
   title: string;
@@ -26,6 +26,7 @@ function Post() {
   const { id } = useParams();
   const { setLoading } = useLoader();
   const { account } = useContext(DataContext);
+  const navigate = useNavigate();
   const [postData, setPostData] = useState<PostType>();
   const [commentText, setCommentText] = useState("");
 
@@ -82,9 +83,16 @@ function Post() {
         {postData ? (
           <>
             <div className="flex justify-end">
-              <Button variant="outline">Edit</Button>
+              <Button
+                variant="outline"
+                onClick={() => navigate(`/post/edit/${postData._id}`)}
+              >
+                Edit
+              </Button>
               {postData.status !== "publish" && (
-                <Button variant="outline">Publish</Button>
+                <Button variant="outline" className="border-green-400">
+                  Publish
+                </Button>
               )}
             </div>
             <h1 className="px-0 font-semibold text-40-48 placeholder:text-gray-secondary2 text-gray-secondary1">

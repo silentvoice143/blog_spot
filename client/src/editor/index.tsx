@@ -18,14 +18,15 @@ import { SlashCommands } from "./plugins/slash-commands";
 import { suggestion } from "./slash/suggestion";
 import { ImageUploadPlugin } from "./plugins/image-upload";
 import FloatingMenuToolbar from "./floating-menu";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Placeholder from "@tiptap/extension-placeholder";
 
 const content =
   "<h1>Hello World!</h1> <p>hey world lets see the way you dont know to see in this world having the way to use the callibre of a human being it so enthugistic to look forward in the hello world.</p>";
 
-const Tiptap = ({ value, onChange, placeholder }) => {
+const Tiptap = ({ value = "", onChange, placeholder }) => {
   // define your extension array
+  const [isMounted, setIsMounted] = useState(false);
   const extensions = [
     StarterKit,
     Underline,
@@ -49,9 +50,9 @@ const Tiptap = ({ value, onChange, placeholder }) => {
   ];
   const editor = useEditor({
     extensions,
-    content: value,
+    content: value || "",
     onUpdate: ({ editor }) => {
-      onChange(editor.getHTML()); // Send HTML content to parent component
+      queueMicrotask(() => onChange(editor.getHTML()));
     },
     editorProps: {
       attributes: {
@@ -59,14 +60,29 @@ const Tiptap = ({ value, onChange, placeholder }) => {
           "prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-auto focus:outline-none text-roboto",
       },
     },
+    immediatelyRender: false,
   });
 
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) {
+    return <div className={`border rounded-lg  min-h-[300px]`} />;
+  }
+
+  if (!editor) {
+    return null;
+  }
+
   return (
-    <>
-      <EditorContent editor={editor} />
-      {editor && <FloatingMenuToolbar editor={editor} />}
-      {editor && <ToolMenu editor={editor} />}
-    </>
+    editor && (
+      <>
+        <EditorContent editor={editor} />
+        <FloatingMenuToolbar editor={editor} />
+        <ToolMenu editor={editor} />
+      </>
+    )
   );
 };
 

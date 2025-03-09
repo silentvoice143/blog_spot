@@ -45,7 +45,7 @@ export default function Navbar({ setAuthentication }) {
         sessionStorage.removeItem("refreshToken");
         sessionStorage.removeItem("accessToken");
         setAuthentication(false);
-        setAccount({ email: "", token: "", name: "" });
+        setAccount({ email: "", token: "", name: "", id: "" });
         navigate("/");
       }
     } catch (err) {
@@ -81,6 +81,15 @@ export default function Navbar({ setAuthentication }) {
             Publish
           </Button>
         )}
+        {location.pathname.includes("/post/edit") && (
+          <Button
+            onClick={() => setModalOpen({ type: "publish", isOpen: true })}
+            variant="default"
+            className="rounded-full"
+          >
+            Save
+          </Button>
+        )}
         {modalOpen.isOpen && (
           <CreatePostModal
             type={modalOpen.type}
@@ -88,17 +97,18 @@ export default function Navbar({ setAuthentication }) {
             onClose={() => setModalOpen({ ...modalOpen, isOpen: false })}
           />
         )}
-        {location.pathname !== "/post/create" && (
-          <div className="write">
-            <Link
-              to="/post/create"
-              className="flex items-center h-10 gap-2 px-3 py-2 rounded-full hover:bg-gray-tertiary"
-            >
-              <WriteIcon />
-              <span className="text-base">Write</span>
-            </Link>
-          </div>
-        )}
+        {location.pathname !== "/post/create" &&
+          !location.pathname.includes("/post/edit") && (
+            <div className="write">
+              <Link
+                to="/post/create"
+                className="flex items-center h-10 gap-2 px-3 py-2 rounded-full hover:bg-gray-tertiary"
+              >
+                <WriteIcon />
+                <span className="text-base">Write</span>
+              </Link>
+            </div>
+          )}
         <DropdownMenu>
           <DropdownMenuTrigger className="w-10 h-10 text-base rounded-full bg-gray-secondary1 focus:outline-none">
             SK
@@ -111,7 +121,7 @@ export default function Navbar({ setAuthentication }) {
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={(e) => {
-                logouthandle(e);
+                logouthandle();
               }}
             >
               Logout
