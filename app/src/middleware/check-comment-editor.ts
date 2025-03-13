@@ -6,13 +6,13 @@ const checkCommentEditor = async (req: any, res: any, next: any) => {
     const userId = req.user.id; // Extract user ID from JWT token
 
     // Find the comment and fetch only the 'author' field
-    const comment = await Comment.findById(commentId).select("user");
+    const comment = await Comment.findById(commentId).select("userId");
     if (!comment) {
       return res.status(404).json({ error: "Comment not found" });
     }
 
     // Check if the user is the comment owner
-    if (comment.user.toString() !== userId) {
+    if (comment.userId.toString() !== userId) {
       return res.status(403).json({
         error: "Unauthorized: Only the comment owner can edit this comment",
       });

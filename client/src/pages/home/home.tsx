@@ -62,7 +62,7 @@ const Home = () => {
 
       {/* Right Content */}
       <div
-        className={`w-[20%] flex flex-col border-l-[1px] border-gray-lighter pl-5 gap-5`}
+        className={`w-[20%] hidden flex-col border-l-[1px] border-gray-lighter pl-5 gap-5 lg:flex`}
       >
         <div>
           <h2 className="mb-4 text-base font-medium">Most viewed</h2>

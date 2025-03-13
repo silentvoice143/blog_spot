@@ -10,6 +10,7 @@ interface MultiSelectProps {
   onChange: (selected: string[]) => void;
   minSelect?: number;
   maxSelect?: number;
+  subheading?:string;
 }
 
 export default function MultiSelect({
@@ -18,6 +19,7 @@ export default function MultiSelect({
   onChange,
   minSelect = 1,
   maxSelect = 3,
+  subheading=""
 }: MultiSelectProps) {
   const [selectedValues, setSelectedValues] = useState<string[]>([]);
   const [isOpen, setIsOpen] = useState(false);
@@ -89,8 +91,9 @@ export default function MultiSelect({
             <span className="text-gray-500">{placeholder}</span>
           )}
         </div>
+        
         {isOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
-      </div>
+      </div><p className="text-xs text-gray-secondary1 mt-2">{subheading}</p>
 
       {/* Dropdown Content with Animation */}
       <AnimatePresence>

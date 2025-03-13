@@ -4,12 +4,14 @@ import Post from "../models/post";
 import { authenticateToken } from "../middleware/auth-middleware";
 import checkCommentOwner from "../middleware/check-commenter";
 import checkCommentEditor from "../middleware/check-comment-editor";
+import Reply from "../models/reply";
 const router = express.Router();
+
 
 router.post("/", authenticateToken, async (req: any, res: any) => {
   try {
     console.log("comment", req.body, req.user);
-    const { postId, text } = req.body;
+    const { postId, text,parentId } = req.body;
 
     if (!postId || !text) {
       return res
@@ -18,7 +20,7 @@ router.post("/", authenticateToken, async (req: any, res: any) => {
     }
 
     // Create new comment
-    const comment = new Comment({ user: req.user.id, text });
+    const comment = new Comment({ userId: req.user.id, text,parentId: parentId || null, postId: postId});
     await comment.save();
 
     // Add comment ID to the related post
@@ -28,26 +30,41 @@ router.post("/", authenticateToken, async (req: any, res: any) => {
       .status(201)
       .json({ message: "Comment added successfully", comment });
   } catch (err) {
+    console.log(err)
     return res
       .status(500)
       .json({ error: "Error while saving comment", details: err.message });
   }
 });
 
-router.get("/:id", async (req: any, res: any) => {
+router.get("/:postId", async (req, res) => {
   try {
-    const { id } = req.params;
-    const comments = await Comment.find({ postId: id })
-      .populate("user", "name email")
-      .populate({
-        path: "replies",
-        populate: { path: "user", select: "name email" }, // Populate user details in replies
-      });
-    return res.status(200).json(comments);
-  } catch (err) {
-    return res.status(401).json({ error: "Error while fetching comments" });
+    console.log("getting comments,------")
+    const comments = await Comment.find({ postId: req.params.postId, parentId: null })
+      .populate("userId", "email name")
+      .lean();
+
+    const replies = await Comment.find({ postId: req.params.postId, parentId: { $ne: null } })
+      .populate("userId", "email name")
+      .lean();
+
+      
+
+    const commentMap = {};
+    comments.forEach((comment) => (commentMap[comment._id.toString()] = { ...comment, replies: [] }));
+
+    replies.forEach((reply) => {
+      if (commentMap[reply.parentId.toString()]) {
+        commentMap[reply.parentId.toString()].replies.push(reply);
+      }
+    });
+
+    res.status(200).json(Object.values(commentMap));
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 });
+
 
 router.put(
   "/:postId/:commentId",
@@ -107,5 +124,42 @@ router.delete(
     }
   }
 );
+
+router.post("/reply/:commentId", authenticateToken, async (req:any, res:any) => {
+  try {
+    const { text ,postId} = req.body;
+
+    const newReply = new Comment({
+      postId: postId,
+      userId: req.user.id,
+      text,
+      parentId: req.params.commentId,
+    });
+
+    const savedReply = await newReply.save();
+    res.status(201).json(savedReply);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+router.put("/like/:commentId", authenticateToken, async (req:any, res:any) => {
+  try {
+    const comment = await Comment.findById(req.params.commentId);
+    if (!comment) return res.status(404).json({ message: "Comment not found" });
+
+    if (comment.likes.includes(req.user.id)) {
+      comment.likes = comment.likes.filter((id) => id.toString() !== req.user.id);
+    } else {
+      comment.likes.push(req.user.id);
+    }
+
+    await comment.save();
+    res.status(200).json(comment);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 
 export default router;

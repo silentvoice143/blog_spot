@@ -1,4 +1,4 @@
-import { createContext, useState, ReactNode } from "react";
+import { createContext, useState, useEffect, ReactNode } from "react";
 
 export type PostType = {
   title: string;
@@ -27,8 +27,32 @@ export const DataContext = createContext<DataContextType | undefined>(
 );
 
 const DataProvider = ({ children }: { children: ReactNode }) => {
-  const [account, setAccount] = useState({ email: "", name: "", token: "" });
-  const [createdPostData, setCreatedPostData] = useState<PostType | null>(null);
+  // Load initial state from sessionStorage or localStorage
+  const storedAccount = JSON.parse(localStorage.getItem("account") || "null");
+  const storedPostData = JSON.parse(
+    localStorage.getItem("createdPostData") || "null"
+  );
+
+  const [account, setAccount] = useState(
+    storedAccount || { email: "", name: "", token: "", id: "" }
+  );
+  const [createdPostData, setCreatedPostData] = useState<PostType | null>(
+    storedPostData
+  );
+
+  // Store account data in localStorage when it changes
+  useEffect(() => {
+    if (account) {
+      localStorage.setItem("account", JSON.stringify(account));
+    }
+  }, [account]);
+
+  // Store createdPostData in localStorage when it changes
+  useEffect(() => {
+    if (createdPostData) {
+      localStorage.setItem("createdPostData", JSON.stringify(createdPostData));
+    }
+  }, [createdPostData]);
 
   return (
     <DataContext.Provider

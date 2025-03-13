@@ -49,10 +49,7 @@ router.get("/detail/:id", async (req: any, res: any) => {
     const { id } = req.params;
     const post = await Post.findById({ _id: id })
       .populate("author", "name email")
-      .populate({
-        path: "comments",
-        populate: { path: "user", select: "name email" },
-      });
+     ;
 
     if (post) {
       delete post.__v;
@@ -68,13 +65,13 @@ router.get("/detail/:id", async (req: any, res: any) => {
   }
 });
 
-router.put("/:id", async (req: any, res: any) => {
+router.put("/:id",authenticateToken, async (req: any, res: any) => {
   try {
-    const { id } = req.params.id;
-    const { title, content, dop, picture, email, author, category } = req.body;
+    const { id } = req.params;
+    const { title, content,description } = req.body;
     const updatedPost = await Post.findByIdAndUpdate(
       { _id: id },
-      { $set: { title, content, dop, picture, email, author, category } },
+      { $set: { title, content,description} },
       { new: true }
     );
     if (updatedPost) {
@@ -83,7 +80,8 @@ router.put("/:id", async (req: any, res: any) => {
       res.status(404).json({ message: "Post not found." });
     }
   } catch (error) {
-    res.status(500).json({ message: "Error updating post." });
+    console.log(error)
+    res.status(500).json({ message: `Error updating post. ${error}` });
   }
 });
 

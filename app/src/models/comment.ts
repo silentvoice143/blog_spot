@@ -1,22 +1,15 @@
-import { timeStamp } from "console";
-import mongoose, { Mongoose } from "mongoose";
+import mongoose from "mongoose";
+
 const commentSchema = new mongoose.Schema(
   {
-    user: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "user",
-      required: true,
-    },
+    postId: { type: mongoose.Schema.Types.ObjectId, ref: "post", required: true },
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: "user", required: true },
     text: { type: String, required: true },
-    replies: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "comments", // Self-referencing for nested replies
-      },
-    ],
+    parentId: { type: mongoose.Schema.Types.ObjectId, ref: "comment", default: null }, // For replies
+    rootId: { type: mongoose.Schema.Types.ObjectId, ref: "comment", default: null }, // For replies
+    likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "user" }],
   },
   { timestamps: true }
 );
 
-const Comment = mongoose.model("comments", commentSchema);
-export default Comment;
+export default mongoose.model("comment", commentSchema);

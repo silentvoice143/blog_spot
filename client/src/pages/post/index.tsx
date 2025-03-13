@@ -5,9 +5,15 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { DataContext } from "@/context/Dataprovider";
 import { useLoader } from "@/context/LoaderProvider";
-import { addComment, getpostdetail } from "@/services/apiService";
+import {
+  addComment,
+  addReply,
+  getComments,
+  getpostdetail,
+} from "@/services/apiService";
 import { useContext, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { AvatarImage, Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 export type PostType = {
   title: string;
@@ -29,6 +35,22 @@ function Post() {
   const navigate = useNavigate();
   const [postData, setPostData] = useState<PostType>();
   const [commentText, setCommentText] = useState("");
+  const [comments, setComments] = useState([]);
+
+  useEffect(() => {
+    // Listen to popstate (back/forward button) event to ensure the user doesn't go back
+    const handlePopState = () => {
+      navigate("/", { replace: true });
+    };
+
+    // Attach event listener for popstate
+    window.addEventListener("popstate", handlePopState);
+
+    return () => {
+      // Clean up the event listener when the component is unmounted
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, [navigate]);
 
   const getPostData = async () => {
     try {
@@ -50,49 +72,98 @@ function Post() {
   useEffect(() => {
     if (id) {
       getPostData();
+      fetchComments();
     }
-  }, [id]);
+  }, []);
 
-  const onComment = async () => {
+  const fetchComments = async () => {
+    try {
+      const response = await getComments(id);
+      if (response.status === 200) {
+        setComments(response.data);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleAddComment = async () => {
+    if (!commentText.trim()) return;
     try {
       const response = await addComment({
         text: commentText,
         postId: id,
+        parentId: null,
       });
+
       if (response.status === 201) {
-        console.log(response.data);
+        console.log(response, "comments");
         setCommentText("");
-        getPostData(); // refresh the comments
+        fetchComments();
       }
-    } catch (err) {
-      console.log(err);
+    } catch (error) {
+      console.error(error);
     }
   };
 
-  const formatdate = (date) => {
-    return date.toLocaleDateString("en-GB", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    });
-  };
+  // const handleLike = async (commentId) => {
+  //   try {
+  //     await likeComment(commentId, user.token);
+  //     fetchComments();
+  //   } catch (error) {
+  //     console.error(error);
+  //   }
+  // };
+
+  // console.log(account.id, postData.author._id);
 
   return (
     <div className="relative flex justify-center flex-1 w-screen h-auto p-8 overflow-x-hidden overflow-y-auto">
       <div className="flex flex-col gap-6 w-[800px]">
         {postData ? (
           <>
-            <div className="flex justify-end">
-              <Button
-                variant="outline"
-                onClick={() => navigate(`/post/edit/${postData._id}`)}
-              >
-                Edit
-              </Button>
-              {postData.status !== "publish" && (
-                <Button variant="outline" className="border-green-400">
-                  Publish
-                </Button>
+            <div className="flex ">
+              <div className="flex flex-1 gap-4">
+                <Avatar>
+                  <AvatarImage src="https://github.com/shadcn.png" />
+                  <AvatarFallback>CN</AvatarFallback>
+                </Avatar>
+                <div className="flex flex-col">
+                  <div className="flex gap-4">
+                    <button
+                      onClick={() =>
+                        navigate(`/profile/${postData.author._id}`)
+                      }
+                      className="cursor-pointer hover:text-greenshade-primary transition-colors duration-75"
+                    >
+                      Satyam Kumar
+                    </button>
+                    <Button
+                      className="h-6 px-2 text-xs"
+                      variant="outline"
+                      onClick={() => navigate(`/post/edit/${postData._id}`)}
+                    >
+                      Unfollow
+                    </Button>
+                  </div>
+                  <p className="text-xs">12 Jan, 2024</p>
+                </div>
+              </div>
+              {postData.author._id === account.id && (
+                <div className="flex gap-4">
+                  <Button
+                    className="h-8"
+                    variant="outline"
+                    onClick={() => navigate(`/post/edit/${postData._id}`)}
+                  >
+                    Edit
+                  </Button>
+                  {postData.status !== "publish" && (
+                    <Button variant="outline" className="border-green-400 h-8">
+                      Publish
+                    </Button>
+                  )}
+                </div>
               )}
             </div>
             <h1 className="px-0 font-semibold text-40-48 placeholder:text-gray-secondary2 text-gray-secondary1">
@@ -118,22 +189,25 @@ function Post() {
                 placeholder="Reply to this guy"
               />
               <div className="flex justify-end">
-                <Button onClick={onComment} className="h-10 rounded-full ">
+                <Button
+                  onClick={handleAddComment}
+                  className="h-10 rounded-full "
+                >
                   send
                 </Button>
               </div>
               <h1 className="text-xl font-semibold">
-                Responses ({postData.comments.length})
+                Responses ({comments.length})
               </h1>
 
-              <div className="flex flex-col gap-4">
-                {postData.comments.map((comment) => (
+              <div className="flex flex-col gap-4 flex-1">
+                {comments.map((comment, idx) => (
                   <Comment
-                    user={comment.user}
-                    comment={comment.text}
-                    date={formatdate(new Date(comment.createdAt))}
-                    commentId={comment._id}
-                    onComment={onComment}
+                    hidebtn={false}
+                    fetchComment={fetchComments}
+                    postId={id}
+                    key={`${comment.id} ${idx}`}
+                    comment={comment}
                     onLike={() => {}}
                   />
                 ))}

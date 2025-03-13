@@ -11,4 +11,4 @@ const tagSchema = new mongoose.Schema({
   },
 });
 
-const Tags = mongoose.model("tags", tagSchema);
+const Tags = mongoose.model("tag", tagSchema);

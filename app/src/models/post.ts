@@ -35,11 +35,11 @@ const postSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    comments: [{ type: mongoose.Schema.Types.ObjectId, ref: "comments" }],
+    comments: [{ type: mongoose.Schema.Types.ObjectId, ref: "comment" }],
   },
   { timestamps: true }
 );
 
-const Post = mongoose.model("posts", postSchema);
+const Post = mongoose.model("post", postSchema);
 
 export default Post;

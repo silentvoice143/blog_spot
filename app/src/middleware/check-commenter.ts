@@ -21,7 +21,7 @@ const checkCommentOwner = async (req: any, res: any, next: any) => {
     // 1. The comment owner
     // 2. The post owner (post author can delete any comment on their post)
     if (
-      comment.user.toString() !== userId &&
+      comment.userId.toString() !== userId &&
       post.author.toString() !== userId
     ) {
       return res.status(403).json({

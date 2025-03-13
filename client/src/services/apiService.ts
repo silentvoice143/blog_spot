@@ -86,10 +86,19 @@ export const addComment = async (obj) => {
   }
 };
 
+export const addReply=async(obj,commentId)=>{
+  try{
+    const response=await API.post(`${API_URL}/comments/reply/${commentId}`,obj)
+    return response;
+  }catch(err){
+    console.log(err)
+  }
+}
+
 export const getComments = async (id) => {
   try {
-    const response = await API.get(`${API_URL}/comment/${id}`);
-    return response.data;
+    const response = await API.get(`${API_URL}/comments/${id}`);
+    return response;
   } catch (err) {
     return err;
   }
@@ -98,7 +107,7 @@ export const getComments = async (id) => {
 export const deleteComments = async (id) => {
   try {
     const response = await API.get(`${API_URL}/comment/${id}`);
-    return response.data;
+    return response;
   } catch (err) {
     return err;
   }
@@ -115,8 +124,8 @@ export const savePost = async (post) => {
 
 export const updatePost = async (post, id) => {
   try {
-    const response = await API.put(`${API_URL}/post/id`, post);
-    return response.data;
+    const response = await API.put(`${API_URL}/post/${id}`, post);
+    return response;
   } catch (err) {
     return err;
   }

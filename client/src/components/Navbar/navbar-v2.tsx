@@ -11,26 +11,29 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import { PencilSquareIcon } from "@heroicons/react/24/outline";
-import WriteIcon from "../icons/write";
+
 import { Button } from "../ui/button";
-import CreatePostModal from "@/pages/create/modals/create-post-modal";
+
 import { useLoader } from "@/context/LoaderProvider";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
-export default function Navbar({ setAuthentication }) {
-  const [drop, setDrop] = useState(false);
+type props = {
+  setAuthentication?: any;
+  setSteps?: (n: number) => void;
+  handleUpdatePost?: () => void;
+  handleDraft?: () => void;
+};
+
+export default function NavbarV2({
+  setAuthentication,
+  setSteps,
+  handleUpdatePost,
+  handleDraft,
+}: props) {
   const { setLoading } = useLoader();
   const { setAccount } = useContext(DataContext);
   const navigate = useNavigate();
   const location = useLocation();
-  const [modalOpen, setModalOpen] = useState<{
-    type: "publish" | "draft";
-    isOpen: boolean;
-  }>({
-    type: "publish",
-    isOpen: false,
-  });
 
   const { account } = useContext(DataContext);
 
@@ -66,55 +69,40 @@ export default function Navbar({ setAuthentication }) {
       <div className="flex items-center gap-4 ">
         {location.pathname === "/post/create" && (
           <Button
-            onClick={() => setModalOpen({ type: "draft", isOpen: true })}
+            onClick={() => handleDraft()}
             variant="default"
-            className="rounded-full"
+            className="rounded-full bg-greenshade-primary !text-xs h-8 hover:bg-greenshade-primary/80"
           >
             Save to draft
           </Button>
         )}
         {location.pathname === "/post/create" && (
           <Button
-            onClick={() => setModalOpen({ type: "publish", isOpen: true })}
+            onClick={() => {
+              setSteps(2);
+            }}
             variant="default"
-            className="rounded-full"
+            className="rounded-full bg-greenshade-primary !text-xs h-8 hover:bg-greenshade-primary/80"
           >
             Publish
           </Button>
         )}
         {location.pathname.includes("/post/edit") && (
           <Button
-            onClick={() => setModalOpen({ type: "publish", isOpen: true })}
+            onClick={() => {
+              handleUpdatePost();
+            }}
             variant="default"
-            className="rounded-full"
+            className="rounded-full bg-greenshade-primary !text-xs h-8 hover:bg-greenshade-primary/80"
           >
-            Save
+            Update the post
           </Button>
         )}
-        {modalOpen.isOpen && (
-          <CreatePostModal
-            type={modalOpen.type}
-            isOpen={modalOpen.isOpen}
-            onClose={() => setModalOpen({ ...modalOpen, isOpen: false })}
-          />
-        )}
-        {location.pathname !== "/post/create" &&
-          !location.pathname.includes("/post/edit") && (
-            <div className="write">
-              <Link
-                to="/post/create"
-                className="flex items-center h-10 gap-2 px-3 py-2 rounded-full hover:bg-gray-tertiary"
-              >
-                <WriteIcon />
-                <span className="text-base">Write</span>
-              </Link>
-            </div>
-          )}
         <DropdownMenu>
-          <DropdownMenuTrigger className="w-10 h-10 text-base rounded-full">
+          <DropdownMenuTrigger className="w-10 h-10 text-base rounded-full bg-gray-secondary1 focus:outline-none">
             <Avatar>
               <AvatarImage src="https://github.com/shadcn.png" />
-              <AvatarFallback>CN</AvatarFallback>
+              <AvatarFallback>SK</AvatarFallback>
             </Avatar>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-[180px]" align="end">

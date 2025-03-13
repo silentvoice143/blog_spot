@@ -26,6 +26,9 @@ module.exports = {
         pacifico: ["Pacifico", "cursive"],
       },
       colors: {
+        greenshade:{
+          primary:"#1a8917"
+        },
         whiteshade: {
           primary: "#ffffff",
           secondary1: "",

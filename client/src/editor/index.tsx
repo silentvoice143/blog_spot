@@ -65,7 +65,7 @@ const Tiptap = ({ value = "", onChange, placeholder }) => {
 
   useEffect(() => {
     setIsMounted(true);
-  }, []);
+  }, [value]);
 
   if (!isMounted) {
     return <div className={`border rounded-lg  min-h-[300px]`} />;
