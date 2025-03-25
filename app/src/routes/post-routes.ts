@@ -24,6 +24,23 @@ router.post("/", authenticateToken, async (req: any, res: any) => {
   }
 });
 
+router.post("/view/:postId",authenticateToken,async(req,res)=>{
+  try{
+    const {postId}=req.params;
+    console.log(postId,"----post")
+    const post=await Post.findById(postId);
+    if(!post){
+      return res.status(400).json({success:true,message:"Post not found!"})
+    }
+
+    post.view+=1;
+    post.save();
+    return res.status(200).json({success:true,message:"Post view added!",view:post.view})
+  }catch(err){
+     return res.status(400).json({ success: true, error: err });
+  }
+})
+
 router.get("/", async (req: any, res: any) => {
   try {
     console.log("hitting this route");
@@ -44,12 +61,22 @@ router.get("/", async (req: any, res: any) => {
   }
 });
 
+router.get("/recommended",async(req,res)=>{
+  try{
+    const posts=await Post.find().populate("author","name email").sort({view:-1});
+    return res.status(200).json({success:true,recommendedPost:posts});
+  }catch(err){
+    return res.status(400).json({error:err})
+  }
+})
+
 router.get("/detail/:id", async (req: any, res: any) => {
   try {
     const { id } = req.params;
     const post = await Post.findById({ _id: id })
       .populate("author", "name email")
      ;
+    
 
     if (post) {
       delete post.__v;
@@ -68,14 +95,14 @@ router.get("/detail/:id", async (req: any, res: any) => {
 router.put("/:id",authenticateToken, async (req: any, res: any) => {
   try {
     const { id } = req.params;
-    const { title, content,description } = req.body;
+    const { title, content,description ,status} = req.body;
     const updatedPost = await Post.findByIdAndUpdate(
       { _id: id },
-      { $set: { title, content,description} },
+      { $set: { title, content,description,status:status==="publish"?"publish":"draft"} },
       { new: true }
     );
     if (updatedPost) {
-      return res.status(200).json({ message: "post updated successfully" });
+      return res.status(200).json({ message: "post updated successfully" ,updatedPost});
     } else {
       res.status(404).json({ message: "Post not found." });
     }

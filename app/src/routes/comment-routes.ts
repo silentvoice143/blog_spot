@@ -20,12 +20,15 @@ router.post("/", authenticateToken, async (req: any, res: any) => {
     }
 
     // Create new comment
-    const comment = new Comment({ userId: req.user.id, text,parentId: parentId || null, postId: postId});
-    await comment.save();
+    const savedComment = new Comment({ userId: req.user.id, text,parentId: parentId || null, postId: postId});
+    await savedComment.save();
 
     // Add comment ID to the related post
-    await Post.findByIdAndUpdate(postId, { $push: { comments: comment._id } });
-
+    await Post.findByIdAndUpdate(postId, { $push: { comments: savedComment._id } });
+    // Populate userId to include only 'name'
+    const comment = await Comment.findById(savedComment._id)
+      .populate("userId", "name email")
+      .lean();
     return res
       .status(201)
       .json({ message: "Comment added successfully", comment });
@@ -41,12 +44,24 @@ router.get("/:postId", async (req, res) => {
   try {
     console.log("getting comments,------")
     const comments = await Comment.find({ postId: req.params.postId, parentId: null })
-      .populate("userId", "email name")
+      .populate("userId", "email name").sort({ createdAt: -1 })
       .lean();
 
-    const replies = await Comment.find({ postId: req.params.postId, parentId: { $ne: null } })
-      .populate("userId", "email name")
+    // const replies = await Comment.find({ postId: req.params.postId, parentId: { $ne: null } })
+    //   .populate("userId", "name").limit(10)
+    //   .lean();
+
+      const replies = await Comment.find({ postId: req.params.postId, parentId: { $ne: null } })
+      .populate("userId", "name") // Populate reply owner
+      .populate({
+        path: "parentId",
+        populate: { path: "userId", select: "name" }, // Populate parent comment's userId (name only)
+        select: "userId", // Exclude text from parentId
+      }).sort({createdAt:-1})
+      .limit(10)
       .lean();
+
+      console.log(replies,"----replies")
 
       
 
@@ -54,8 +69,8 @@ router.get("/:postId", async (req, res) => {
     comments.forEach((comment) => (commentMap[comment._id.toString()] = { ...comment, replies: [] }));
 
     replies.forEach((reply) => {
-      if (commentMap[reply.parentId.toString()]) {
-        commentMap[reply.parentId.toString()].replies.push(reply);
+      if (commentMap[reply.parentId._id.toString()]) {
+        commentMap[reply.parentId._id.toString()].replies.push(reply);
       }
     });
 
@@ -125,23 +140,54 @@ router.delete(
   }
 );
 
-router.post("/reply/:commentId", authenticateToken, async (req:any, res:any) => {
-  try {
-    const { text ,postId} = req.body;
+// router.post("/reply/:commentId", authenticateToken, async (req:any, res:any) => {
+//   try {
+//     const { text ,postId} = req.body;
 
-    const newReply = new Comment({
-      postId: postId,
-      userId: req.user.id,
-      text,
-      parentId: req.params.commentId,
-    });
+//     const newReply = new Comment({
+//       postId: postId,
+//       userId: req.user.id,
+//       text,
+//       parentId: req.params.commentId,
+//     });
 
-    const savedReply = await newReply.save();
-    res.status(201).json(savedReply);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
+//     const savedReply = (await newReply.save()).populate("parentId","name");
+//     res.status(201).json({message:"reply added successfully!",savedReply});
+//   } catch (error) {
+//     res.status(500).json({ message: error.message });
+//   }
+// });
+
+router.post("/reply/:commentId", authenticateToken, async (req:any, res:any) => {   
+  try {     
+    const { text, postId } = req.body;      
+
+    // Create a new reply
+    const newReply = new Comment({       
+      postId: postId,       
+      userId: req.user.id,       
+      text,       
+      parentId: req.params.commentId,     
+    });      
+
+    // Save the reply
+    const savedReply = await newReply.save(); 
+
+    // Populate parentId
+    const populatedReply = await Comment.findById(savedReply._id)
+      .populate({
+        path: "parentId",
+        populate: { path: "userId", select: "name" }, // Only fetch `name` from userId inside parentId
+        select: "userId", // Exclude `text`, only keep `userId`
+      })
+      .populate("userId", "name");
+
+    res.status(201).json({ message: "Reply added successfully!", populatedReply });   
+  } catch (error) {     
+    res.status(500).json({ message: error.message });   
+  } 
 });
+
 
 router.put("/like/:commentId", authenticateToken, async (req:any, res:any) => {
   try {

@@ -5,7 +5,7 @@ import CustomTextArea from "../ui-v2/CustomTextArea";
 import { Button } from "../ui/button";
 import CommentIcon from "../icons/CommentIcon";
 import { addReply } from "@/services/apiService";
-import Reply from "./reply";
+import { Link } from "react-router-dom";
 
 type commentProps = {
   postId: string;
@@ -13,14 +13,16 @@ type commentProps = {
   onLike: () => void;
   fetchComment: () => void;
   hidebtn: boolean;
+  handleAddReply: (text: string, commentId: string) => void;
 };
 
-function Comment({
+function Reply({
   postId,
   comment,
   onLike,
   fetchComment,
   hidebtn,
+  handleAddReply,
 }: commentProps) {
   const [toggleReply, setToggleReply] = useState(false);
   const [replyText, setReplyText] = useState("");
@@ -30,32 +32,31 @@ function Comment({
     console.log(key, value);
     setReplyText(value);
   };
-  const [replies, setReplies] = useState(comment.replies ?? []);
+  const [replies, setReplies] = useState(
+    comment.replies !== null ? comment.replies : []
+  );
+  //   console.log(comment, "----------repliess");
 
-  const handleAddReply = async (text, commentId) => {
-    if (!text.trim()) return;
-    try {
-      const response = await addReply(
-        {
-          text: text,
-          postId: postId,
-        },
-        commentId
-      );
+  //   const handleAddReply = async () => {
+  //     if (!replyText.trim()) return;
+  //     try {
+  //       const response = await addReply(
+  //         {
+  //           text: replyText,
+  //           postId: postId,
+  //         },
+  //         comment._id
+  //       );
 
-      if (response.status === 201) {
-        console.log(response, "-----replyresponse");
-        setReplyText("");
-        setReplyingTo(null);
-        setReplies((prev) => {
-          console.log(prev, "---prev");
-          return [response.data.populatedReply, ...prev];
-        });
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
+  //       if (response.status === 201) {
+  //         console.log(response, "-----replyresponse");
+  //         setReplyText("");
+  //         setReplyingTo(null);
+  //       }
+  //     } catch (error) {
+  //       console.error(error);
+  //     }
+  //   };
   const formatdate = (date) => {
     return date.toLocaleDateString("en-GB", {
       day: "numeric",
@@ -65,7 +66,7 @@ function Comment({
   };
 
   useEffect(() => {
-    setReplies(comment.replies ?? []);
+    setReplies(comment.replies !== null ? comment.replies : []);
   }, [comment]);
   return (
     <Card className="border-none shadow-none outline-none rounded-xl">
@@ -84,9 +85,17 @@ function Comment({
               </p>
             </div>
           </div>
-          <p className="text-sm font-light text-black-primary">
-            {comment.text}
-          </p>
+          <div className="flex gap-2">
+            <Link
+              to={`/profile/${comment?.parentId?.userId?._id}`}
+              className="text-blue-600 text-sm font-light"
+            >
+              @{comment?.parentId?.userId?.name}
+            </Link>
+            <p className="text-sm font-light text-black-primary">
+              {comment.text}
+            </p>
+          </div>
           <div className="flex gap-4">
             <button
               onClick={onLike}
@@ -129,7 +138,10 @@ function Comment({
                       Cancel
                     </Button>
                     <Button
-                      onClick={() => handleAddReply(replyText, comment._id)}
+                      onClick={() => {
+                        console.log("adding reply");
+                        handleAddReply(replyText, comment._id);
+                      }}
                       className="px-3 text-xs rounded-full h-7"
                     >
                       Respond
@@ -138,24 +150,23 @@ function Comment({
                 </div>
               )}
 
-              <div className="flex flex-col flex-1 gap-4">
+              {/* <div className="flex flex-col flex-1 gap-4">
                 {showReplies &&
                   replies?.length > 0 &&
                   replies?.map((reply, idx) => (
-                    <Reply
+                    <Comment
                       fetchComment={fetchComment}
                       postId={postId}
                       key={`${reply.id} ${idx}`}
                       comment={reply}
                       onLike={() => {}}
                       hidebtn={true}
-                      handleAddReply={handleAddReply}
                     />
                   ))}
-              </div>
+              </div> */}
             </div>
           )}
-          <div className="ml-4">
+          {/* <div className="ml-4">
             {!hidebtn && (
               <button
                 onClick={() => {
@@ -168,11 +179,11 @@ function Comment({
                 </p>
               </button>
             )}
-          </div>
+          </div> */}
         </div>
       </CardContent>
     </Card>
   );
 }
 
-export default Comment;
+export default Reply;

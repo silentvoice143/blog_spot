@@ -6,6 +6,7 @@ export type PostType = {
   picture: string;
   content: string;
   tags: string[];
+  status: "publish" | "draft";
 };
 
 type DataContextType = {

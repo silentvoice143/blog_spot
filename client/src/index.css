@@ -136,8 +136,9 @@
 }
 
 .prose .selected-image {
-  border: 2px solid #3498db; /* Blue border for selected image */
+  border: 3px solid #3498db; /* Blue border for selected image */
   box-shadow: 0 0 5px rgba(52, 152, 219, 0.5); /* Optional shadow effect */
+  @apply m-0
 }
 
 /* Unordered List */

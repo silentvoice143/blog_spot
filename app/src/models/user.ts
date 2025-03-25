@@ -9,6 +9,8 @@ export interface IUser extends Document {
   updatedAt: Date;
   googleId: string;
   facebookId: string;
+  following:[any];
+  followers:[any]
 }
 
 const UserSchema: Schema = new Schema(
@@ -33,6 +35,24 @@ const UserSchema: Schema = new Schema(
     facebookId: {
       type: String,
       required: false,
+    },
+   following: {
+      type: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'user',
+        },
+      ],
+      default: [],  // Default to an empty array if no value is provided
+    },
+    followers: {
+      type: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'user',
+        },
+      ],
+      default: [],  // Default to an empty array if no value is provided
     },
   },
   { timestamps: true }

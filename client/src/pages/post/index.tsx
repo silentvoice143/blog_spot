@@ -8,12 +8,19 @@ import { useLoader } from "@/context/LoaderProvider";
 import {
   addComment,
   addReply,
+  addViewPost,
+  deletePost,
+  followUser,
   getComments,
+  getfollowUser,
   getpostdetail,
+  unfollowUser,
+  updatePost,
 } from "@/services/apiService";
 import { useContext, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { AvatarImage, Avatar, AvatarFallback } from "@/components/ui/avatar";
+import DeleteIcon from "@/components/icons/DeleteIcon";
 
 export type PostType = {
   title: string;
@@ -36,6 +43,15 @@ function Post() {
   const [postData, setPostData] = useState<PostType>();
   const [commentText, setCommentText] = useState("");
   const [comments, setComments] = useState([]);
+  const [following, setFollowing] = useState(false);
+  const [status, setStatus] = useState<"publish" | "draft" | null>(null);
+
+  useEffect(() => {
+    if (id) {
+      getPostData();
+      fetchComments();
+    }
+  }, []);
 
   useEffect(() => {
     // Listen to popstate (back/forward button) event to ensure the user doesn't go back
@@ -59,6 +75,8 @@ function Post() {
       console.log(response.data.post, "post details");
       if (response.status === 200) {
         setPostData(response.data.post);
+        setStatus(response.data.post.status);
+        handleFollow(response.data.post.author._id);
       } else {
         console.log("something is wrong");
       }
@@ -69,17 +87,11 @@ function Post() {
     }
   };
 
-  useEffect(() => {
-    if (id) {
-      getPostData();
-      fetchComments();
-    }
-  }, []);
-
   const fetchComments = async () => {
     try {
       const response = await getComments(id);
       if (response.status === 200) {
+        console.log(response.data);
         setComments(response.data);
       }
     } catch (error) {
@@ -99,7 +111,9 @@ function Post() {
       if (response.status === 201) {
         console.log(response, "comments");
         setCommentText("");
-        fetchComments();
+        setComments((prev) => {
+          return [response.data.comment, ...prev];
+        });
       }
     } catch (error) {
       console.error(error);
@@ -116,6 +130,117 @@ function Post() {
   // };
 
   // console.log(account.id, postData.author._id);
+
+  const handleFollow = async (authorId) => {
+    try {
+      console.log("calling this api....");
+      const response = await getfollowUser({ authorId: authorId });
+      if (response.status === 200) {
+        console.log(response.data);
+        setFollowing(response.data.follow);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleFollowing = async () => {
+    try {
+      const response = await followUser({
+        userId: postData.author._id,
+        followerId: account.id,
+      });
+      console.log(response, "----response");
+      if (response.status === 200) {
+        setFollowing(true);
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const handleunFollowing = async () => {
+    try {
+      const response = await unfollowUser({
+        userId: account.id,
+        followerId: postData.author._id,
+      });
+      console.log(response, "----response");
+      if (response.status === 200) {
+        setFollowing(false);
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const handleUpdate = async () => {
+    try {
+      setLoading(true);
+      const dataObj = {
+        ...postData,
+        status: "publish",
+      };
+
+      const response = await updatePost(dataObj, id);
+
+      if (response.status === 200) {
+        console.log(response.data, "----update data");
+        setStatus("publish");
+      }
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeletePost = async () => {
+    try {
+      setLoading(true);
+      const dataObj = {
+        ...postData,
+        status: "publish",
+      };
+
+      const response = await deletePost(id);
+
+      if (response.status === 200) {
+        console.log(response.data, "----delete data");
+        navigate("/");
+      }
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAddView = async () => {
+    try {
+      setLoading(true);
+
+      const response = await addViewPost(id);
+
+      if (response.status === 200) {
+        console.log(response.data, "----view added data");
+      }
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    // Set the timeout for 2 minutes (120,000ms)
+    const timer = setTimeout(() => {
+      handleAddView();
+    }, 120000); // 2 minutes
+
+    // Cleanup function to clear the timer if the component is unmounted before 2 minutes
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <div className="relative flex justify-center flex-1 w-screen h-auto p-8 overflow-x-hidden overflow-y-auto">
@@ -138,13 +263,25 @@ function Post() {
                     >
                       Satyam Kumar
                     </button>
-                    <Button
-                      className="h-6 px-2 text-xs"
-                      variant="outline"
-                      onClick={() => navigate(`/post/edit/${postData._id}`)}
-                    >
-                      Unfollow
-                    </Button>
+                    {postData.author._id !== account.id ? (
+                      following ? (
+                        <Button
+                          className="h-6 px-2 text-xs"
+                          variant="outline"
+                          onClick={() => handleunFollowing()}
+                        >
+                          Unfollow
+                        </Button>
+                      ) : (
+                        <Button
+                          className="h-6 px-2 text-xs"
+                          variant="outline"
+                          onClick={() => handleFollowing()}
+                        >
+                          follow
+                        </Button>
+                      )
+                    ) : null}
                   </div>
                   <p className="text-xs">12 Jan, 2024</p>
                 </div>
@@ -158,8 +295,19 @@ function Post() {
                   >
                     Edit
                   </Button>
-                  {postData.status !== "publish" && (
-                    <Button variant="outline" className="border-green-400 h-8">
+                  <Button
+                    className="h-8 w-8 p-0 border-red-500 bg-red-200/20 hover:bg-red-200/30"
+                    variant="outline"
+                    onClick={() => handleDeletePost()}
+                  >
+                    <DeleteIcon />
+                  </Button>
+                  {status !== "publish" && (
+                    <Button
+                      onClick={() => handleUpdate()}
+                      variant="outline"
+                      className="border-green-400 h-8"
+                    >
                       Publish
                     </Button>
                   )}

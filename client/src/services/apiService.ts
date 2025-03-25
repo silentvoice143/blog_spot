@@ -1,3 +1,4 @@
+import { Response } from 'express';
 import { RefreshToken } from "./../../../app/src/models/token";
 import API from "./api";
 const API_URL = import.meta.env.VITE_BASE_URL;
@@ -65,6 +66,33 @@ export const logoutUser = async () => {
     return err;
   }
 };
+
+export const getfollowUser=async(data)=>{
+  try{
+    const response=await API.post(`${API_URL}/users/getfollow`,data);
+    return response;
+  }catch(err){
+    return err;
+  }
+}
+
+export const followUser=async(data)=>{
+  try{
+    const response=await API.post(`${API_URL}/users/follow`,data);
+    return response;
+  }catch(err){
+    return err;
+  }
+}
+
+export const unfollowUser=async(data)=>{
+  try{
+    const response=await API.post(`${API_URL}/users/unfollow`,data);
+    return response;
+  }catch(err){
+    return err;
+  }
+}
 
 export const uploadFile = async (data) => {
   try {
@@ -134,11 +162,20 @@ export const updatePost = async (post, id) => {
 export const deletePost = async (id) => {
   try {
     const response = await API.delete(`${API_URL}/post/${id}`);
-    return response.data;
+    return response;
   } catch (err) {
     return err;
   }
 };
+
+export const addViewPost=async(postId)=>{
+  try{
+const response=await API.post(`${API_URL}/post/view/${postId}`);
+return response;
+  }catch(err){
+    return err;
+  }
+}
 
 export const getAllPost = async (category) => {
   console.log(category, "---category");
@@ -151,6 +188,15 @@ export const getAllPost = async (category) => {
     return err;
   }
 };
+
+export const getRecommendedPost=async()=>{
+  try{
+    const response=await API.get(`${API_URL}/post/recommended`);
+    return response;
+  }catch(err){
+    return err;
+  }
+}
 
 export const getpostdetail = async (id) => {
   try {

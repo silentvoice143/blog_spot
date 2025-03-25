@@ -7,6 +7,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import SmallCardPost from "@/components/posts/smallCardPost";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
+import API from "@/services/api";
+import { getRecommendedPost } from "@/services/apiService";
 export type TabItem = {
   id: number | string;
   label: React.ReactNode;
@@ -40,6 +42,26 @@ const Home = () => {
     },
   ];
 
+  const [recommended, setRecommended] = useState([]);
+
+  const getRecommendedPostData = async () => {
+    try {
+      const response = await getRecommendedPost();
+      console.log(response.status, "---------post datas");
+
+      if (response.status === 200) {
+        console.log(response.data, "---------post datas");
+        setRecommended(response.data.recommendedPost);
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  useEffect(() => {
+    getRecommendedPostData();
+  }, []);
+
   return (
     <div className="flex flex-1 p-[32px] justify-center">
       {/* Left Content */}
@@ -67,9 +89,9 @@ const Home = () => {
         <div>
           <h2 className="mb-4 text-base font-medium">Most viewed</h2>
           <div className="flex flex-col gap-2">
-            <SmallCardPost />
-            <SmallCardPost />
-            <SmallCardPost />
+            {recommended.map((post) => (
+              <SmallCardPost key={post._id} post={post} />
+            ))}
           </div>
         </div>
         <Separator />

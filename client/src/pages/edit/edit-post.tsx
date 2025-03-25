@@ -43,6 +43,7 @@ const EditPost = ({ setAuthentication }) => {
         title: createdPostData.title,
         description: createdPostData.description,
         content: createdPostData.content,
+        status: createdPostData.status,
       };
 
       const response = await updatePost(dataObj, id);

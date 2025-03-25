@@ -1,4 +1,5 @@
 /** @type {import('tailwindcss').Config} */
+
 module.exports = {
   content: ["./index.html", "./src/**/*.{ts,tsx,js,jsx}"],
   darkMode: ["class", "class"],
@@ -26,8 +27,8 @@ module.exports = {
         pacifico: ["Pacifico", "cursive"],
       },
       colors: {
-        greenshade:{
-          primary:"#1a8917"
+        greenshade: {
+          primary: "#1a8917",
         },
         whiteshade: {
           primary: "#ffffff",
@@ -152,5 +153,5 @@ module.exports = {
       "@/*": ["./src/*"],
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [require("tailwindcss-animate"), require("tailwind-scrollbar")],
 };
