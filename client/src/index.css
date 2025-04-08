@@ -71,17 +71,17 @@
 
 .descriptionHtml {
   p {
-    @apply text-base font-roboto font-normal !text-black-primary;
+    @apply text-base font-roboto font-normal !text-blackShade-primary;
   }
   span {
     @apply py-2.5 px-3 text-base font-roboto font-normal !text-red-500;
   }
   h2 {
-    @apply text-base font-roboto font-normal !text-black-primary;
+    @apply text-base font-roboto font-normal !text-blackShade-primary;
   }
 
   .table {
-    @apply p-4 border-black-primary;
+    @apply p-4 border-blackShade-primary;
   }
   .table > table {
     @apply !mt-6 bg-green-300 !p-4;
@@ -95,10 +95,10 @@
 }
 
 .ck-table-resized > td {
-  @apply bg-yellow-500 border-black-primary;
+  @apply bg-yellow-500 border-blackShade-primary;
 }
 .prose {
-  @apply min-h-[300px] text-black-primary;
+  @apply min-h-[300px] text-blackShade-primary;
 }
 /* .prose p.is-editor-empty:first-child::before {
   color: #9ca3af;

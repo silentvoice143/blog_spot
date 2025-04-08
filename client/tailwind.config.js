@@ -44,7 +44,7 @@ module.exports = {
           secondary2: "#A6A6A6",
           secondary3: "#DDDDDD",
         },
-        black: {
+        blackShade: {
           primary: "#1e1e1e",
         },
         blue: {

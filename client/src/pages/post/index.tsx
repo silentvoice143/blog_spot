@@ -17,10 +17,12 @@ import {
   unfollowUser,
   updatePost,
 } from "@/services/apiService";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { AvatarImage, Avatar, AvatarFallback } from "@/components/ui/avatar";
 import DeleteIcon from "@/components/icons/DeleteIcon";
+import MultiSelect from "@/components/ui-v2/MultiSelect";
+import ChangeIcon from "@/components/icons/ChangeIcon";
 
 export type PostType = {
   title: string;
@@ -45,6 +47,22 @@ function Post() {
   const [comments, setComments] = useState([]);
   const [following, setFollowing] = useState(false);
   const [status, setStatus] = useState<"publish" | "draft" | null>(null);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [selectedTags, setSelectedTags] = useState([]);
+  const [step, setStep] = useState(1);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+
+    if (file) {
+      const imageUrl = URL.createObjectURL(file);
+      setSelectedImage(imageUrl);
+      setSelectedFile(file);
+    }
+  };
 
   useEffect(() => {
     if (id) {
@@ -187,6 +205,7 @@ function Post() {
       if (response.status === 200) {
         console.log(response.data, "----update data");
         setStatus("publish");
+        setStep(1);
       }
     } catch (err) {
       console.log(err);
@@ -241,6 +260,111 @@ function Post() {
     // Cleanup function to clear the timer if the component is unmounted before 2 minutes
     return () => clearTimeout(timer);
   }, []);
+
+  if (status !== "publish" && step === 2) {
+    return (
+      <div className="flex flex-1 items-center justify-center p-8">
+        <div className="w-[800px] border-1 flex gap-6">
+          <div className="flex-1">
+            <h2 className="font-semibold mb-2 text-gray-secondary1">
+              Story Preview
+            </h2>
+            <input
+              type="file"
+              ref={fileInputRef}
+              className="hidden"
+              accept="image/*"
+              onChange={handleImageChange}
+            />
+
+            <div
+              onClick={() => !selectedImage && fileInputRef.current?.click()}
+              className="h-[200px] w-full bg-red-300 relative rounded-xl overflow-hidden flex items-center justify-center mb-6"
+            >
+              {selectedImage ? (
+                <img
+                  src={selectedImage}
+                  alt="Selected"
+                  className="object-cover w-full h-full"
+                />
+              ) : (
+                <>
+                  <img
+                    src="\images.jpg"
+                    alt=""
+                    className="absolute top-0 left-0 w-full h-full"
+                  />
+                  <p className="absolute z-20 flex items-center justify-center h-full text-gray-700 cursor-default">
+                    Click to upload an image
+                  </p>
+                </>
+              )}
+
+              {selectedImage && (
+                <Button
+                  variant="secondary"
+                  className="absolute w-8 h-8 top-2 right-2 rounded-xl"
+                  onClick={(e) => {
+                    e.stopPropagation(); // Prevent clicking from triggering file input
+                    fileInputRef.current?.click();
+                  }}
+                >
+                  <ChangeIcon />
+                </Button>
+              )}
+            </div>
+            <h1 className="px-0 font-semibold text-lg placeholder:text-gray-secondary2 text-gray-secondary1">
+              {postData.title}
+            </h1>
+            <h3 className="px-0 text-sm placeholder:text-gray-secondary2 text-gray-secondary1">
+              {postData.description}
+            </h3>
+            <div
+              className="prose"
+              dangerouslySetInnerHTML={{ __html: postData.content }}
+            />
+          </div>
+          <div className="flex-1">
+            <h2 className="font-normal mb-2 text-gray-secondary1">
+              Published By: <span className="font-semibold">Satyam Kumar</span>
+            </h2>
+            <div className="">
+              <MultiSelect
+                subheading="Select the categories for your post and let user find it conveniently."
+                onChange={(selected) => setSelectedTags(selected)}
+                placeholder="Select upto four tags..."
+                options={[
+                  { value: "one", label: "1" },
+                  { value: "two", label: "2" },
+                  { value: "three", label: "3" },
+                  { value: "4", label: "4" },
+                  { value: "5", label: "5" },
+                  { value: "6", label: "6" },
+                  { value: "7", label: "7" },
+                  { value: "8", label: "8" },
+                  { value: "9", label: "9" },
+                ]}
+              />
+            </div>
+            <div className="flex gap-4">
+              <Button
+                className="mt-4 px-6 h-9 hover:bg-greenshade-primary/80 bg-greenshade-primary rounded-full text-xs"
+                onClick={() => handleUpdate()}
+              >
+                Publish now
+              </Button>
+              <Button
+                className="mt-4 px-6 h-9 hover:bg-gray-200/80 bg-white text-black-primary rounded-full text-xs"
+                onClick={() => handleUpdate()}
+              >
+                Schedule for later
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="relative flex justify-center flex-1 w-screen h-auto p-8 overflow-x-hidden overflow-y-auto">
@@ -304,7 +428,7 @@ function Post() {
                   </Button>
                   {status !== "publish" && (
                     <Button
-                      onClick={() => handleUpdate()}
+                      onClick={() => setStep(2)}
                       variant="outline"
                       className="border-green-400 h-8"
                     >

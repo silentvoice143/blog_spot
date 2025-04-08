@@ -54,9 +54,8 @@ const CreatePost = ({ setAuthentication }) => {
         console.log("Saving as publish", dataObj);
         const response = await savePost(dataObj);
         if (response.status === 201) {
-          console.log(response.data);
           setCreatedPostData(null);
-          navigate(`/post/${response.data._id}`, { replace: true });
+          navigate(`/post/${response?.data?.post._id}`, { replace: true });
         }
       } catch (err) {
         console.log(err);
@@ -64,7 +63,6 @@ const CreatePost = ({ setAuthentication }) => {
         setLoading(false);
       }
     } else {
-      console.log("saving as draft");
       try {
         setLoading(true);
         const dataObj = {
@@ -73,12 +71,12 @@ const CreatePost = ({ setAuthentication }) => {
           content: createdPostData.content,
           status: type,
         };
-        console.log("Saving as publish", dataObj);
+
         const response = await savePost(dataObj);
         if (response.status === 201) {
           console.log(response.data);
           setCreatedPostData(null);
-          navigate(`/post/${response.data._id}`, { replace: true });
+          navigate(`/post/${response.data.post._id}`, { replace: true });
         }
       } catch (err) {
         console.log(err);
@@ -105,13 +103,15 @@ const CreatePost = ({ setAuthentication }) => {
             <div className="flex w-[800px]">
               <div className="flex flex-col flex-1">
                 <CustomTextArea
+                  showCharCount={false}
                   expandable={true}
                   value={createdPostData?.title}
                   onChange={(e) => handleChange("title", e.target.value)}
-                  className="px-0 font-semibold text-40-48 placeholder:text-gray-secondary2 text-gray-secondary1"
+                  className="px-0 !font-semibold !text-40-48 placeholder:text-gray-secondary2 text-gray-secondary1"
                   placeholder="Type your title here..."
                 />
                 <CustomTextArea
+                  showCharCount={false}
                   expandable={true}
                   value={createdPostData?.description}
                   onChange={(e) => handleChange("description", e.target.value)}

@@ -22,6 +22,8 @@ import { Loader } from "./components/loader";
 import Post from "./pages/post";
 import EditPost from "./pages/edit/edit-post";
 import Profile from "./pages/profile";
+import Stories from "./pages/stories";
+import Settings from "./pages/settings";
 
 const PrivateRoute = ({ isAuthenticated, setAuthentication }, ...props) => {
   const location = useLocation();
@@ -87,6 +89,8 @@ function App() {
                 ></Route>
                 <Route path="/post/:id" element={<Post />} />
                 <Route path="/profile/:userId" element={<Profile />} />
+                <Route path="/stories" element={<Stories />} />
+                <Route path="/settings" element={<Settings />} />
               </Route>
             </Routes>
           </BrowserRouter>

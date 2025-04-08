@@ -16,6 +16,7 @@ import { Button } from "../ui/button";
 
 import { useLoader } from "@/context/LoaderProvider";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import SearchBox from "../ui-v2/SearchBox";
 
 type props = {
   setAuthentication?: any;
@@ -60,12 +61,15 @@ export default function NavbarV2({
   };
   return (
     <div className="relative flex flex-0 items-center justify-between h-[85px] px-10 navbar border-b-[1px] border-gray-lighter">
-      <h1
-        onClick={handlelogoclick}
-        className="font-semibold text-32-34 font-montserrat"
-      >
-        Blogspot
-      </h1>
+      <div className="flex gap-6 items-center">
+        <h1
+          onClick={handlelogoclick}
+          className="font-semibold text-32-34 font-montserrat cursor-pointer"
+        >
+          Blogspot
+        </h1>
+        <SearchBox />
+      </div>
       <div className="flex items-center gap-4 ">
         {location.pathname === "/post/create" && (
           <Button
@@ -111,8 +115,12 @@ export default function NavbarV2({
             >
               Profile
             </DropdownMenuItem>
-            <DropdownMenuItem>Stories</DropdownMenuItem>
-            <DropdownMenuItem>Setting</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigate(`/stories`)}>
+              Stories
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigate(`/settings`)}>
+              Setting
+            </DropdownMenuItem>
             <DropdownMenuItem>Help</DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem

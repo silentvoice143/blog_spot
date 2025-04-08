@@ -79,7 +79,7 @@ const Home = () => {
             }}
           />
         </div>
-        <PostList />
+        {activeTab === 2 ? <PostList /> : "This is following tab."}
       </div>
 
       {/* Right Content */}

@@ -9,6 +9,8 @@ import NavbarV2 from "@/components/Navbar/navbar-v2";
 
 const EditPost = ({ setAuthentication }) => {
   const { createdPostData, setCreatedPostData } = useContext(DataContext) || {};
+
+  console.log(createdPostData, "-----created post data");
   const { setLoading } = useLoader();
   const { id } = useParams();
   const navigate = useNavigate();
@@ -60,9 +62,8 @@ const EditPost = ({ setAuthentication }) => {
   };
 
   useEffect(() => {
-    if (id) {
-      getPostData();
-    }
+    setCreatedPostData(null);
+    getPostData();
   }, [id]);
 
   if (!createdPostData) {
@@ -80,13 +81,15 @@ const EditPost = ({ setAuthentication }) => {
         <div className="flex w-[800px]">
           <div className="flex flex-col flex-1">
             <CustomTextArea
+              showCharCount={false}
               expandable={true}
               value={createdPostData?.title}
               onChange={(e) => handleChange("title", e.target.value)}
-              className="px-0 font-semibold text-40-48 placeholder:text-gray-secondary2 text-gray-secondary1"
+              className="px-0 !font-semibold !text-40-48 placeholder:text-gray-secondary2 text-gray-secondary1"
               placeholder="Type your title here..."
             />
             <CustomTextArea
+              showCharCount={false}
               expandable={true}
               value={createdPostData?.description}
               onChange={(e) => handleChange("description", e.target.value)}

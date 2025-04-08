@@ -159,6 +159,13 @@ router.post("/google", async (req, res) => {
 
     const refreshToken = await generateRefreshToken(user, deviceIp as string);
     delete user.password;
+    console.log({
+      token: token,
+      refreshToken: refreshToken,
+      name: user.name,
+      email: user.email,
+      _id: user._id,
+    });
     return res.status(200).json({
       success: true,
       message: "User login successfully!",

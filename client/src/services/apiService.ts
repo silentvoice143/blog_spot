@@ -1,4 +1,4 @@
-import { Response } from 'express';
+import { Response } from "express";
 import { RefreshToken } from "./../../../app/src/models/token";
 import API from "./api";
 const API_URL = import.meta.env.VITE_BASE_URL;
@@ -67,32 +67,50 @@ export const logoutUser = async () => {
   }
 };
 
-export const getfollowUser=async(data)=>{
-  try{
-    const response=await API.post(`${API_URL}/users/getfollow`,data);
+export const getfollowUser = async (data) => {
+  try {
+    const response = await API.post(`${API_URL}/users/getfollow`, data);
     return response;
-  }catch(err){
+  } catch (err) {
     return err;
   }
-}
+};
 
-export const followUser=async(data)=>{
-  try{
-    const response=await API.post(`${API_URL}/users/follow`,data);
+export const followUser = async (data) => {
+  try {
+    const response = await API.post(`${API_URL}/users/follow`, data);
     return response;
-  }catch(err){
+  } catch (err) {
     return err;
   }
-}
+};
 
-export const unfollowUser=async(data)=>{
-  try{
-    const response=await API.post(`${API_URL}/users/unfollow`,data);
+export const unfollowUser = async (data) => {
+  try {
+    const response = await API.post(`${API_URL}/users/unfollow`, data);
     return response;
-  }catch(err){
+  } catch (err) {
     return err;
   }
-}
+};
+
+export const getUserData = async (userId) => {
+  try {
+    const response = await API.get(`${API_URL}/users/user-data/${userId}`);
+    return response;
+  } catch (err) {
+    return err;
+  }
+};
+
+export const updateUserData = async (userId, data) => {
+  try {
+    const response = await API.put(`${API_URL}/users/${userId}`, data);
+    return response;
+  } catch (err) {
+    return err;
+  }
+};
 
 export const uploadFile = async (data) => {
   try {
@@ -114,14 +132,17 @@ export const addComment = async (obj) => {
   }
 };
 
-export const addReply=async(obj,commentId)=>{
-  try{
-    const response=await API.post(`${API_URL}/comments/reply/${commentId}`,obj)
+export const addReply = async (obj, commentId) => {
+  try {
+    const response = await API.post(
+      `${API_URL}/comments/reply/${commentId}`,
+      obj
+    );
     return response;
-  }catch(err){
-    console.log(err)
+  } catch (err) {
+    console.log(err);
   }
-}
+};
 
 export const getComments = async (id) => {
   try {
@@ -168,14 +189,14 @@ export const deletePost = async (id) => {
   }
 };
 
-export const addViewPost=async(postId)=>{
-  try{
-const response=await API.post(`${API_URL}/post/view/${postId}`);
-return response;
-  }catch(err){
+export const addViewPost = async (postId) => {
+  try {
+    const response = await API.post(`${API_URL}/post/view/${postId}`);
+    return response;
+  } catch (err) {
     return err;
   }
-}
+};
 
 export const getAllPost = async (category) => {
   console.log(category, "---category");
@@ -189,14 +210,23 @@ export const getAllPost = async (category) => {
   }
 };
 
-export const getRecommendedPost=async()=>{
-  try{
-    const response=await API.get(`${API_URL}/post/recommended`);
+export const getAllUserPost = async (userId) => {
+  try {
+    const response = await API.get(`${API_URL}/post/get-all-posts/${userId}`);
     return response;
-  }catch(err){
+  } catch (err) {
     return err;
   }
-}
+};
+
+export const getRecommendedPost = async () => {
+  try {
+    const response = await API.get(`${API_URL}/post/recommended`);
+    return response;
+  } catch (err) {
+    return err;
+  }
+};
 
 export const getpostdetail = async (id) => {
   try {

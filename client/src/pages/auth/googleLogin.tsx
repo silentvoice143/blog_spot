@@ -35,7 +35,8 @@ function GoogleLogin({ setAuthentication }) {
           setAccount({
             email: data.user.email,
             token: data.user.token,
-            name: "",
+            name: data.user.name,
+            id: data.user._id,
           });
           setAuthentication(true);
           navigate("/");

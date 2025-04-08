@@ -20,11 +20,13 @@ interface ModalProps {
 function Modal({ header, children, isOpen, onClose, onSave }: ModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent>
+      <DialogContent className="max-h-[80vh] flex flex-col">
         <DialogHeader>
-          <DialogTitle>{header}</DialogTitle>
+          <DialogTitle className="text-32-34 font-semibold font-montserrat">
+            {header}
+          </DialogTitle>
         </DialogHeader>
-        {children}
+        <div className="flex-1">{children}</div>
       </DialogContent>
     </Dialog>
   );
