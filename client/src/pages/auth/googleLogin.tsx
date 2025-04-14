@@ -32,6 +32,7 @@ function GoogleLogin({ setAuthentication }) {
           const data = response.data;
           sessionStorage.setItem("accessToken", data.user.token);
           sessionStorage.setItem("refreshToken", data.user.refreshToken);
+          sessionStorage.setItem("userId", data.user._id);
           setAccount({
             email: data.user.email,
             token: data.user.token,

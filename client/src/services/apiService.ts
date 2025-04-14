@@ -236,3 +236,24 @@ export const getpostdetail = async (id) => {
     return err;
   }
 };
+
+export const getNotifications = async () => {
+  try {
+    const response = await API.get(`${API_URL}/notification`);
+    return response;
+  } catch (err) {
+    return err;
+  }
+};
+
+export const updateNotificationStatus = async (payload) => {
+  try {
+    const response = await API.post(
+      `${API_URL}/notification/mark-read`,
+      payload
+    );
+    return response;
+  } catch (err) {
+    return err;
+  }
+};

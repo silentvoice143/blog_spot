@@ -12,6 +12,7 @@ export interface IUser extends Document {
   following: [any];
   followers: [any];
   links: [any];
+  bio: string;
 }
 
 const UserSchema: Schema = new Schema(

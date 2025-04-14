@@ -1,10 +1,10 @@
 import "./App.css";
 
-import DataProvider from "./context/Dataprovider";
+import DataProvider, { DataContext } from "./context/Dataprovider";
 import Home from "./pages/home/home";
 import Navbar from "./components/Navbar/Navbar";
 
-import { useState } from "react";
+import { useContext, useState } from "react";
 import {
   BrowserRouter,
   Route,
@@ -24,19 +24,32 @@ import EditPost from "./pages/edit/edit-post";
 import Profile from "./pages/profile";
 import Stories from "./pages/stories";
 import Settings from "./pages/settings";
+import { NotificationProvider } from "./context/NotificationProvider";
+import socket from "./socket";
+import NotificationLoader from "./components/notification-loader";
+import NotificationListener from "./components/notification-listener";
+import useRegisterSocket from "./hooks/useRegisterSocket";
+import Notification from "./pages/notification";
+import { NavProvider, useNavbarContext } from "./context/Navbar";
 
 const PrivateRoute = ({ isAuthenticated, setAuthentication }, ...props) => {
   const location = useLocation();
-  console.log(isAuthenticated);
+  const { showNotifications, setShowNotifications } = useNavbarContext();
+
   return isAuthenticated ? (
     <div className="flex flex-col w-full min-h-screen">
       {!location.pathname.includes("/post/create") &&
         !location.pathname.includes("/post/edit") && (
-          <div>
+          <div className="">
             <Navbar setAuthentication={setAuthentication} />
           </div>
         )}
-      <div className="flex flex-1">
+      <div className="flex flex-1 relative">
+        {showNotifications && (
+          <Notification onClose={() => setShowNotifications(false)} />
+        )}
+        <NotificationLoader isAuthenticated={isAuthenticated} />
+        <NotificationListener isAuthenticated={isAuthenticated} />
         <Outlet />
       </div>
     </div>
@@ -47,7 +60,9 @@ const PrivateRoute = ({ isAuthenticated, setAuthentication }, ...props) => {
 
 function App() {
   const token = sessionStorage.getItem("accessToken");
+  const userId = sessionStorage.getItem("userId");
   const [isAuthenticated, setAuthentication] = useState(token ? true : false);
+  const { isConnected } = useRegisterSocket(token, userId);
 
   useEffect(() => {
     if (token) {
@@ -58,42 +73,50 @@ function App() {
     <div className="w-screen h-screen overflow-x-hidden overflow-y-auto font-montserrat">
       <LoaderProvider>
         <DataProvider>
-          <Loader />
-          <BrowserRouter>
-            <Routes>
-              <Route
-                path="/login"
-                element={<Login setAuthentication={setAuthentication} />}
-              />
-              <Route
-                path="/signup"
-                element={<Register setAuthentication={setAuthentication} />}
-              />
-              <Route
-                path="/"
-                element={
-                  <PrivateRoute
-                    isAuthenticated={isAuthenticated}
-                    setAuthentication={setAuthentication}
+          <NavProvider>
+            <NotificationProvider>
+              <Loader />
+              <BrowserRouter>
+                <Routes>
+                  <Route
+                    path="/login"
+                    element={<Login setAuthentication={setAuthentication} />}
                   />
-                }
-              >
-                <Route path="/" element={<Home />} />
-                <Route
-                  path="/post/create"
-                  element={<CreatePost setAuthentication={setAuthentication} />}
-                ></Route>
-                <Route
-                  path="/post/edit/:id"
-                  element={<EditPost setAuthentication={setAuthentication} />}
-                ></Route>
-                <Route path="/post/:id" element={<Post />} />
-                <Route path="/profile/:userId" element={<Profile />} />
-                <Route path="/stories" element={<Stories />} />
-                <Route path="/settings" element={<Settings />} />
-              </Route>
-            </Routes>
-          </BrowserRouter>
+                  <Route
+                    path="/signup"
+                    element={<Register setAuthentication={setAuthentication} />}
+                  />
+                  <Route
+                    path="/"
+                    element={
+                      <PrivateRoute
+                        isAuthenticated={isAuthenticated}
+                        setAuthentication={setAuthentication}
+                      />
+                    }
+                  >
+                    <Route path="/" element={<Home />} />
+                    <Route
+                      path="/post/create"
+                      element={
+                        <CreatePost setAuthentication={setAuthentication} />
+                      }
+                    ></Route>
+                    <Route
+                      path="/post/edit/:id"
+                      element={
+                        <EditPost setAuthentication={setAuthentication} />
+                      }
+                    ></Route>
+                    <Route path="/post/:id" element={<Post />} />
+                    <Route path="/profile/:userId" element={<Profile />} />
+                    <Route path="/stories" element={<Stories />} />
+                    <Route path="/settings" element={<Settings />} />
+                  </Route>
+                </Routes>
+              </BrowserRouter>
+            </NotificationProvider>
+          </NavProvider>
         </DataProvider>
       </LoaderProvider>
     </div>

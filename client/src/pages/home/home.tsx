@@ -18,7 +18,6 @@ export type TabItem = {
 
 const Home = () => {
   const navigate = useNavigate();
-
   const [activeTab, setActiveTab] = useState<number | string>(2);
 
   const tab: TabItem[] = [

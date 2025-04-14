@@ -9,6 +9,31 @@ import oauth2Client from "../config/google.config";
 const passport = require("passport");
 const router = express.Router();
 
+/**
+ * @swagger
+ * /auth/register:
+ *   post:
+ *     summary: Register a new user
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: User registered successfully
+ *       400:
+ *         description: User already exists
+ */
 router.post("/register", async (req: any, res: any) => {
   try {
     console.log(req.body);
@@ -32,6 +57,33 @@ router.post("/register", async (req: any, res: any) => {
   }
 });
 
+/**
+ * @swagger
+ * /auth/login:
+ *   post:
+ *     summary: Login user
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *               deviceIp:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Login successful
+ *       400:
+ *         description: Invalid credentials
+ *       404:
+ *         description: User not found
+ */
 router.post("/login", async (req: any, res: any) => {
   try {
     const { email, password, deviceIp } = req.body;
@@ -72,6 +124,29 @@ router.post("/login", async (req: any, res: any) => {
   }
 });
 
+/**
+ * @swagger
+ * /auth/refresh-token:
+ *   post:
+ *     summary: Generate new access token using refresh token
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               refreshToken:
+ *                 type: string
+ *               deviceIp:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: New access token generated
+ *       403:
+ *         description: Invalid token or device mismatch
+ */
 router.post("/refresh-token", async (req: any, res: any) => {
   try {
     const { refreshToken, deviceIp } = req.body;
@@ -110,6 +185,22 @@ router.post("/refresh-token", async (req: any, res: any) => {
   }
 });
 
+/**
+ * @swagger
+ * /auth/active-sessions/{userId}:
+ *   get:
+ *     summary: Get active sessions for a user
+ *     tags: [Auth]
+ *     parameters:
+ *       - name: userId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: List of active sessions
+ */
 router.get("/active-sessions/:userId", async (req: any, res: any) => {
   try {
     const { userId } = req.params;
@@ -122,6 +213,25 @@ router.get("/active-sessions/:userId", async (req: any, res: any) => {
   }
 });
 
+/**
+ * @swagger
+ * /auth/logout-device:
+ *   post:
+ *     summary: Logout from a specific device
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               refreshToken:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Logged out successfully
+ */
 router.post("/logout-device", async (req: any, res: any) => {
   try {
     const { refreshToken } = req.body;
@@ -136,6 +246,27 @@ router.post("/logout-device", async (req: any, res: any) => {
   }
 });
 
+/**
+ * @swagger
+ * /auth/google:
+ *   post:
+ *     summary: Login using Google OAuth2
+ *     tags: [Auth]
+ *     parameters:
+ *       - name: code
+ *         in: query
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - name: deviceIp
+ *         in: query
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Google login successful
+ */
 // Google Auth
 router.post("/google", async (req, res) => {
   const { code, deviceIp } = req.query;

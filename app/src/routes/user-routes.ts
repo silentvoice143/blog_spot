@@ -2,6 +2,8 @@ import express, { Request, Response } from "express";
 import User, { IUser } from "../models/user";
 import { authenticateToken } from "../middleware/auth-middleware";
 import Post from "../models/post";
+import Notification from "../models/notification";
+import { sendNotification } from "../socket";
 const router = express.Router();
 
 router.get("/", authenticateToken, async (req: any, res: any) => {
@@ -119,6 +121,22 @@ router.post("/follow", authenticateToken, async (req: any, res: any) => {
       { $addToSet: { following: userId } },
       { new: true }
     );
+
+    const notif = await Notification.create({
+      user: userId,
+      fromUser: followerId,
+      type: "follow",
+      post: null,
+    });
+
+    const populatedNotif = await Notification.findById(notif._id).populate(
+      "fromUser"
+    );
+
+    await sendNotification({
+      toUserId: userId,
+      notification: populatedNotif,
+    });
     return res
       .status(200)
       .json({ success: true, message: "User followed successfully!" });

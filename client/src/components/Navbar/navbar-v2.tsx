@@ -17,6 +17,9 @@ import { Button } from "../ui/button";
 import { useLoader } from "@/context/LoaderProvider";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import SearchBox from "../ui-v2/SearchBox";
+import { BellIcon } from "@heroicons/react/24/outline";
+import { useNotifications } from "@/context/NotificationProvider";
+import { useNavbarContext } from "@/context/Navbar";
 
 type props = {
   setAuthentication?: any;
@@ -37,6 +40,8 @@ export default function NavbarV2({
   const location = useLocation();
 
   const { account } = useContext(DataContext);
+  const { notifications, unreadCount } = useNotifications();
+  const { setShowNotifications } = useNavbarContext();
 
   const handlelogoclick = () => {
     navigate("/");
@@ -102,6 +107,12 @@ export default function NavbarV2({
             Update the post
           </Button>
         )}
+        <button onClick={() => setShowNotifications(true)} className="relative">
+          {unreadCount > 0 && (
+            <div className="absolute -top-1 right-0 h-3 w-3 bg-red-500 rounded-full border-2 border-white"></div>
+          )}
+          <BellIcon className="h-5 w-5" />
+        </button>
         <DropdownMenu>
           <DropdownMenuTrigger className="w-10 h-10 text-base rounded-full bg-gray-secondary1 focus:outline-none">
             <Avatar>

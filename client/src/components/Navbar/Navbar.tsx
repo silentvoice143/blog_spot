@@ -1,4 +1,10 @@
-import { useNavigate, Link, useParams, useLocation } from "react-router-dom";
+import {
+  useNavigate,
+  Link,
+  useParams,
+  useLocation,
+  Links,
+} from "react-router-dom";
 import { useState, useContext } from "react";
 import { DataContext } from "../../context/Dataprovider";
 import { logoutUser } from "../../services/apiService";
@@ -11,16 +17,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import { PencilSquareIcon } from "@heroicons/react/24/outline";
+import { BellIcon, PencilSquareIcon } from "@heroicons/react/24/outline";
 import WriteIcon from "../icons/write";
 import { Button } from "../ui/button";
 import CreatePostModal from "@/pages/create/modals/create-post-modal";
 import { useLoader } from "@/context/LoaderProvider";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import SearchBox from "../ui-v2/SearchBox";
+import { useNotifications } from "@/context/NotificationProvider";
+import { useNavbarContext } from "@/context/Navbar";
 
 export default function Navbar({ setAuthentication }) {
-  const [drop, setDrop] = useState(false);
   const { setLoading } = useLoader();
   const { setAccount } = useContext(DataContext);
   const navigate = useNavigate();
@@ -34,6 +41,8 @@ export default function Navbar({ setAuthentication }) {
   });
 
   const { account } = useContext(DataContext);
+  const { notifications, unreadCount } = useNotifications();
+  const { setShowNotifications } = useNavbarContext();
 
   const handlelogoclick = () => {
     navigate("/");
@@ -102,6 +111,12 @@ export default function Navbar({ setAuthentication }) {
             onClose={() => setModalOpen({ ...modalOpen, isOpen: false })}
           />
         )}
+        <button onClick={() => setShowNotifications(true)} className="relative">
+          {unreadCount > 0 && (
+            <div className="absolute -top-1 right-0 h-3 w-3 bg-red-500 rounded-full border-2 border-white"></div>
+          )}
+          <BellIcon className="h-5 w-5" />
+        </button>
         {location.pathname !== "/post/create" &&
           !location.pathname.includes("/post/edit") && (
             <div className="write">

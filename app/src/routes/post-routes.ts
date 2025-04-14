@@ -1,6 +1,9 @@
 import { authenticateToken } from "./../middleware/auth-middleware";
 import express from "express";
 import Post from "../models/post";
+import Notification from "../models/notification";
+import User, { IUser } from "../models/user";
+import { sendNotification } from "../socket";
 
 const router = express.Router();
 
@@ -13,15 +16,27 @@ router.post("/", authenticateToken, async (req: any, res: any) => {
       view: 0,
     };
     const post = new Post(postData);
-    console.log(req.body, req.user, post);
+
     await post.save();
-    return res
-      .status(201)
-      .json({
-        success: true,
-        message: "successfully post created",
-        post: post,
+    const author: any = await User.findById(req.user.id).populate("followers");
+    for (let follower of author.followers) {
+      const notif = await Notification.create({
+        user: follower._id,
+        fromUser: req.user.id,
+        type: "new_post",
+        post: post._id,
       });
+
+      await sendNotification({
+        toUserId: follower._id.toString(),
+        notification: notif,
+      });
+    }
+    return res.status(201).json({
+      success: true,
+      message: "successfully post created",
+      post: post,
+    });
   } catch (err) {
     console.log(err);
     return res.status(400).json({ success: true, error: err });
