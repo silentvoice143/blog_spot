@@ -8,6 +8,7 @@ import { sendNotification } from "../socket";
 const router = express.Router();
 
 router.post("/", authenticateToken, async (req: any, res: any) => {
+  console.log("creating post,,,,");
   try {
     const postData = {
       ...req.body,
@@ -19,6 +20,7 @@ router.post("/", authenticateToken, async (req: any, res: any) => {
 
     await post.save();
     const author: any = await User.findById(req.user.id).populate("followers");
+
     for (let follower of author.followers) {
       const notif = await Notification.create({
         user: follower._id,
@@ -27,9 +29,13 @@ router.post("/", authenticateToken, async (req: any, res: any) => {
         post: post._id,
       });
 
+      const populatedNotif = await Notification.findById(notif._id).populate(
+        "fromUser"
+      );
+
       await sendNotification({
         toUserId: follower._id.toString(),
-        notification: notif,
+        notification: populatedNotif,
       });
     }
     return res.status(201).json({

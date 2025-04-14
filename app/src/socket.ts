@@ -35,7 +35,6 @@ export const initSocket = (server) => {
 
 // Utility to send a notification
 export const sendNotification = async ({ toUserId, notification }) => {
-  console.log("send notification.....");
   const socketId = connectedUsers[toUserId];
   if (socketId && io) {
     io.to(socketId).emit("notification", notification);
