@@ -19,10 +19,10 @@ import path from "path";
 // }
 
 export default defineConfig({
-  // server: {
-  //   host: getLocalIP(), // Use the local IP address
-  //   port: 5173, // You can change this
-  // },
+  server: {
+    host: "0.0.0.0",
+    port: process.env.PORT || 3000,
+  },
   plugins: [react()],
   resolve: {
     alias: {
