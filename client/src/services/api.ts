@@ -1,8 +1,7 @@
 import axios from "axios";
 import { getAccessToken } from "../utils/common-utils";
-const baseurl = process.env.VITE_BASE_URL;
+const baseurl = import.meta.env.VITE_BASE_URL;
 const API = axios.create({
-  baseURL: `${baseurl}/api`, // ✅ Correct way in Vite
   headers: {
     "Content-Type": "application/json",
   },

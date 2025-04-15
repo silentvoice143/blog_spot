@@ -5,8 +5,15 @@
     "jsx": "react-jsx",
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
-    }
+      "@/*": ["src/*","vite-env.d.ts"]
+    },
+    "target": "ESNext",                   
+    "module": "ESNext",                  
+    "moduleResolution": "Bundler",     
+    "lib": ["DOM", "ESNext"],         
+    "esModuleInterop": true,            
+    "skipLibCheck": true,               
+    "strict": false                     
   },
   "include": ["src"],
   "exclude": ["node_modules"]

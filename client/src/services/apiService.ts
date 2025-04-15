@@ -1,7 +1,5 @@
-import { Response } from "express";
-import { RefreshToken } from "./../../../app/src/models/token";
 import API from "./api";
-const API_URL = import.meta.env.VITE_BASE_URL;
+const API_URL = `${import.meta.env.VITE_BASE_URL}/api`;
 
 export const signupUser = async (user) => {
   try {
