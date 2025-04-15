@@ -4,6 +4,7 @@ build
 node_modules
 client/.env
 app/.env
+app/.env.production
 app/firebase
 app/dist
 client/node_modules
