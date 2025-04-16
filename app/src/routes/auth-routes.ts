@@ -34,27 +34,136 @@ const router = express.Router();
  *       400:
  *         description: User already exists
  */
-router.post("/register", async (req: any, res: any) => {
-  try {
-    console.log(req.body);
-    const { name, email, password } = req.body;
-    const existingUser = await User.findOne({ email });
-    if (existingUser)
-      return res
-        .status(400)
-        .json({ success: true, message: "User already exist" });
+// router.post("/register", async (req: any, res: any) => {
+//   try {
+//     console.log(req.body);
+//     const { name, email, password } = req.body;
+//     const existingUser = await User.findOne({ email });
+//     if (existingUser)
+//       return res
+//         .status(400)
+//         .json({ success: true, message: "User already exist" });
 
-    const newUser = await User.create({ name, email, password });
-    return res.status(201).json({
-      success: true,
-      message: "User registered successfully!",
-      user: { email: newUser.email },
+//     const newUser = await User.create({ name, email, password });
+//     return res.status(201).json({
+//       success: true,
+//       message: "User registered successfully!",
+//       user: { email: newUser.email },
+//     });
+//   } catch (error) {
+//     return res
+//       .status(500)
+//       .json({ success: false, message: `Server error ${error}` });
+//   }
+// });
+
+router.post("/register-step1", async (req, res) => {
+  try {
+    const { email, name } = req.body;
+    const user: IUser = await User.findOne({ email: email });
+    if (user) {
+      return res
+        .status(200)
+        .json({ message: "Already registered please login" });
+    }
+
+    const newUser = new User({ email, name, step: 1 });
+    await newUser.save();
+
+    return res.status(200).json({
+      message: "Step 1 complete",
+      user: { step: 2, email: user.email },
     });
   } catch (error) {
     return res
       .status(500)
       .json({ success: false, message: `Server error ${error}` });
   }
+});
+
+router.post("/register-step2", async (req, res) => {
+  try {
+    const { email } = req.body;
+    const user: IUser = await User.findOne({ email });
+    if (!user || user.step < 1) {
+      return res
+        .status(400)
+        .json({ message: "Step 1 not completed. Register first" });
+    }
+
+    const otpStillValid = user.otp && user.otpExpires > new Date();
+
+    if (otpStillValid) {
+      return res.status(200).json({
+        message: "Otp already sent. Please verify",
+        user: { email, step: 3 },
+      });
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiry = new Date(Date.now() + 10 * 60 * 1000);
+
+    user.otp = otp;
+    user.otpExpires = expiry;
+    user.step = 2;
+    await user.save();
+    console.log(`Send Otp ${otp} to email ${email}`);
+    return res.status(200).json({
+      message: "Otp sent. Please verify",
+      user: { email: user.email, step: 3 },
+    });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ success: false, message: `Server error ${error}` });
+  }
+});
+
+router.post("/refister-step3", async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+    const user: IUser = await User.findOne({ email });
+    if (!user || user.step < 3) {
+      return res.status(400).json({ message: "Otp not sent yet" });
+    }
+    if (user.otp !== otp || user.otpExpires < new Date()) {
+      return res.status(400).json({ message: "Invalid or expired OTP" });
+    }
+
+    user.step = 3;
+    user.otp = null;
+    user.otpExpires = null;
+    await user.save();
+
+    return res
+      .status(200)
+      .json({ message: "Otp verified", user: { email, step: 4 } });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ success: false, message: `Server error ${error}` });
+  }
+});
+
+router.post("/register-step4", async (req, res) => {
+  const { email, password, age } = req.body;
+
+  const user: IUser = await User.findOne({ email });
+
+  if (!user || user.step < 3) {
+    return res.status(400).json({ message: "OTP verification not completed" });
+  }
+
+  user.password = password; // hash in real app
+  user.age = age;
+  user.step = 4;
+  user.status = "active";
+
+  await user.save();
+
+  res
+    .status(200)
+    .json({ message: "Registration complete. You can now log in." });
 });
 
 /**

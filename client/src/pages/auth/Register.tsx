@@ -14,6 +14,7 @@ export default function Register({ setAuthentication }) {
   };
 
   const [sign_user, setUser] = useState(registerdetail);
+  const [steps, setSteps] = useState(1);
   function onInputChange(e) {
     // console.log({ [e.target.name]: e.target.value });
     setUser({ ...sign_user, [e.target.name]: e.target.value });

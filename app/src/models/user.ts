@@ -13,6 +13,9 @@ export interface IUser extends Document {
   followers: [any];
   links: [any];
   bio: string;
+  step: number;
+  otp: String;
+  otpExpires: Date;
 }
 
 const UserSchema: Schema = new Schema(
@@ -29,6 +32,22 @@ const UserSchema: Schema = new Schema(
     password: {
       type: String,
       required: false,
+    },
+    step: {
+      type: Number,
+      default: 1,
+    },
+    status: {
+      type: String,
+      enum: ["pending", "active"],
+      default: "pending",
+    },
+    otp: {
+      type: String,
+      default: null,
+    },
+    otpExpites: {
+      type: Date,
     },
     googleId: {
       type: String,
