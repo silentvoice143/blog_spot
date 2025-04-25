@@ -9,54 +9,6 @@ import oauth2Client from "../config/google.config";
 const passport = require("passport");
 const router = express.Router();
 
-/**
- * @swagger
- * /auth/register:
- *   post:
- *     summary: Register a new user
- *     tags: [Auth]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               name:
- *                 type: string
- *               email:
- *                 type: string
- *               password:
- *                 type: string
- *     responses:
- *       201:
- *         description: User registered successfully
- *       400:
- *         description: User already exists
- */
-// router.post("/register", async (req: any, res: any) => {
-//   try {
-//     console.log(req.body);
-//     const { name, email, password } = req.body;
-//     const existingUser = await User.findOne({ email });
-//     if (existingUser)
-//       return res
-//         .status(400)
-//         .json({ success: true, message: "User already exist" });
-
-//     const newUser = await User.create({ name, email, password });
-//     return res.status(201).json({
-//       success: true,
-//       message: "User registered successfully!",
-//       user: { email: newUser.email },
-//     });
-//   } catch (error) {
-//     return res
-//       .status(500)
-//       .json({ success: false, message: `Server error ${error}` });
-//   }
-// });
-
 router.post("/register-step1", async (req, res) => {
   try {
     const { email, name } = req.body;
@@ -155,7 +107,6 @@ router.post("/register-step4", async (req, res) => {
   }
 
   user.password = password; // hash in real app
-  user.age = age;
   user.step = 4;
   user.status = "active";
 

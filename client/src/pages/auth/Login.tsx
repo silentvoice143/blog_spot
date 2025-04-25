@@ -58,9 +58,9 @@ export default function Login({ setAuthentication }) {
   }, []);
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen bg-pink-100 font-montserrat">
-      <div className="bg-white flex rounded-lg shadow-lg overflow-hidden w-[650px] max-w-full min-h-[480px] relativep-8">
-        <div className="flex flex-col items-center justify-center w-1/2 px-6 bg-white-primary">
+    <div className="flex flex-col items-center justify-center h-screen bg-pink-100 font-montserrat px-4">
+      <div className="bg-white flex rounded-lg shadow-lg overflow-hidden w-[650px] max-w-full min-h-[480px] relative px-2 md:pr-0 md:pl-8">
+        <div className="flex flex-col items-center justify-center w-full md:w-1/2 px-6 bg-white-primary">
           <h1 className="text-2xl font-bold text-center">Login</h1>
           <div className="flex my-4 space-x-4 ">
             <GoogleLoginWrapper setAuthentication={setAuthentication} />
@@ -101,7 +101,7 @@ export default function Login({ setAuthentication }) {
             Don't have an account? Sign Up
           </span>
         </div>
-        <div className="flex flex-col items-center justify-center w-1/2 h-full p-8 text-white bg-gradient-to-r from-red-500 to-pink-500">
+        <div className="hidden md:flex flex-col items-center justify-center w-1/2 h-full p-8 text-white bg-gradient-to-r from-red-500 to-pink-500 rounded-l-full">
           <h1 className="text-3xl font-bold text-center">Login to BlogSpot</h1>
           <p className="mt-4 text-sm text-center">
             This platform is easy and simple to use. Create your own blog posts,

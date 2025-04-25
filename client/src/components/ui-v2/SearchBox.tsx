@@ -5,7 +5,7 @@ import { SearchIcon } from "lucide-react";
 function SearchBox() {
   const [text, setText] = useState("");
   return (
-    <div className="flex items-center border border-gray-secondary3 rounded-full h-10 px-2 relative">
+    <div className="hidden md:flex items-center border border-gray-secondary3 rounded-full h-10 px-2 relative">
       <SearchIcon className="h-4 w-4 absolute left-2 text-gray-secondary1" />
       <CustomInput
         type="text"

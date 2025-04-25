@@ -16,6 +16,7 @@ export interface IUser extends Document {
   step: number;
   otp: String;
   otpExpires: Date;
+  status: string;
 }
 
 const UserSchema: Schema = new Schema(

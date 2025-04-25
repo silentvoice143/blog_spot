@@ -65,7 +65,7 @@ const Home = () => {
     <div className="flex flex-1 p-[32px] justify-center">
       {/* Left Content */}
       <div className={`flex flex-col flex-1 max-w-[800px] `}>
-        <div className="w-2/3">
+        <div className="w-full md:w-2/3">
           <Tab
             tab={tab}
             activeTab={activeTab}
