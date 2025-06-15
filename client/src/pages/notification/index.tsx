@@ -17,9 +17,10 @@ function Notification({ onClose }: NotificationType) {
   const { account } = useContext(DataContext);
   const { notifications, setNotifications, setUnreadCount } =
     useNotifications();
+  console.log(notifications);
   const { today, yesterday, last7Days, older } =
     categorizeNotificationsByDate(notifications);
-  console.log(today, "-----notifications");
+
   const updateStatusOfNotifications = async () => {
     const response = await updateNotificationStatus({ userId: account.id });
     console.log(response, "-----response");
@@ -87,7 +88,7 @@ function Notification({ onClose }: NotificationType) {
                 <h2 className="text-base font-semibold mb-4 px-4">Older</h2>
                 <div className="flex flex-col gap-2">
                   {older.map((data, idx) => (
-                    <NotificationCard data={today} />
+                    <NotificationCard data={data} />
                   ))}
                 </div>
               </div>

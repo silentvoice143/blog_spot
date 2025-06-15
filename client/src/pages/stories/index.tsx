@@ -35,7 +35,7 @@ function Stories() {
   }, []);
   return (
     <div className="px-8 pt-8 flex-1 flex justify-center">
-      <div className="grid grid-cols-3 gap-x-6 gap-y-3 pr-16 pl-7">
+      <div className="w-1/2 ">
         {postData.map((data, idx) => (
           <div key={`foryoupost ${idx}`}>
             <Link to={`/post/${data._id}`}>

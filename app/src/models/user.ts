@@ -17,13 +17,14 @@ export interface IUser extends Document {
   otp: String;
   otpExpires: Date;
   status: string;
+  address: string;
 }
 
 const UserSchema: Schema = new Schema(
   {
     name: {
       type: String,
-      required: true,
+      required: false,
     },
     email: {
       type: String,
@@ -55,6 +56,10 @@ const UserSchema: Schema = new Schema(
       required: false,
     },
     facebookId: {
+      type: String,
+      required: false,
+    },
+    address: {
       type: String,
       required: false,
     },

@@ -21,7 +21,7 @@ function NotificationCard({ data }) {
         <div className="flex gap-1">
           <div className="text-gray-secondary1">
             <p className="inline">
-              <span className="font-semibold">{data.fromUser.name}</span>
+              <span className="font-semibold">{data?.fromUser?.name}</span>
               {data.type === "follow" && <span> started following you.</span>}
               {data.type === "comment" && (
                 <span> commented on your post ldsfjkl kljdkl dkljfk lj.</span>

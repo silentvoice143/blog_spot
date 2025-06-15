@@ -1,32 +1,78 @@
-interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
-  className?: string;
+import * as React from "react";
+import { Input } from "@/components/ui/input"; // shadcn Input path
+import { cn } from "@/utils/class"; // utility to merge classNames
+
+interface InputWithIconProps
+  extends React.InputHTMLAttributes<HTMLInputElement> {
+  iconLeft?: React.ReactNode;
+  iconRight?: React.ReactNode;
+  className?: string; // for outer wrapper
+  inputClassName?: string; // for the input element
   label?: string;
-  error?: string;
-  subdescription?: string;
+  labelClassName?: string;
+  bordered?: boolean;
 }
 
-const CustomInput: React.FC<InputProps> = ({
-  className,
-  label,
-  error,
-  subdescription,
-  ...props
-}) => {
-  return (
-    <div className="my-2 w-full">
-      {label && <p className="text-base font-montserrat">{label}</p>}
-      <input
-        {...props}
-        className={`w-full px-3 py-2 text-base font-montserrat bg-transparent disabled:bg-gray-secondary2 text-gray-900 placeholder-gray-500 focus:outline-none ${className} border border-gray-secondary3 rounded-lg mb-2`}
-      />
-      {subdescription && (
-        <p className="text-xs font-montserrat text-gray-secondary2">
-          {subdescription}
-        </p>
-      )}
-      {error && <p className="text-xs font-montserrat text-red-500">{error}</p>}
-    </div>
-  );
-};
+const CustomInput = React.forwardRef<HTMLInputElement, InputWithIconProps>(
+  (
+    {
+      iconLeft,
+      iconRight,
+      className,
+      inputClassName,
+      label,
+      labelClassName,
+      id,
+      bordered,
+      ...props
+    },
+    ref
+  ) => {
+    const inputId =
+      id || props.name || `input-${Math.random().toString(36).slice(2, 8)}`;
+
+    return (
+      <div className={cn("w-full", className)}>
+        {label && (
+          <label
+            htmlFor={inputId}
+            className={cn(
+              "block text-sm font-medium text-gray-700 mb-1",
+              labelClassName
+            )}
+          >
+            {label}
+          </label>
+        )}
+        <div className="relative flex items-center">
+          {iconLeft && (
+            <div className="absolute left-3 pointer-events-none flex items-center">
+              {iconLeft}
+            </div>
+          )}
+          <Input
+            bordered={bordered}
+            id={inputId}
+            ref={ref}
+            className={cn(
+              "w-full focus:border-none focus:outline-none",
+              iconLeft && "!pl-8",
+              iconRight && "!pr-8",
+              inputClassName
+            )}
+            {...props}
+          />
+          {iconRight && (
+            <div className="absolute right-3 pointer-events-none flex items-center">
+              {iconRight}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+);
+
+CustomInput.displayName = "CustomInput";
 
 export default CustomInput;

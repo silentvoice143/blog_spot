@@ -9,29 +9,92 @@ import oauth2Client from "../config/google.config";
 const passport = require("passport");
 const router = express.Router();
 
+/**
+ * @swagger
+ * /register-step1:
+ *   post:
+ *     summary: Register user with email and password (Step 1)
+ *     tags:
+ *       - Auth - Registration
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - password
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Step 1 completed successfully
+ *       409:
+ *         description: Email already registered
+ *       500:
+ *         description: Server error
+ */
+
 router.post("/register-step1", async (req, res) => {
+  console.log("signup hit");
   try {
-    const { email, name } = req.body;
+    console.log(req.body, "----body");
+    const { email, password } = req.body;
+
     const user: IUser = await User.findOne({ email: email });
     if (user) {
       return res
-        .status(200)
+        .status(409)
         .json({ message: "Already registered please login" });
     }
-
-    const newUser = new User({ email, name, step: 1 });
+    console.log("here error");
+    const newUser = new User({ email: email, password: password, step: 2 });
     await newUser.save();
 
     return res.status(200).json({
       message: "Step 1 complete",
-      user: { step: 2, email: user.email },
+      user: { step: 2, email: email },
     });
   } catch (error) {
+    console.log(error, "---signup error");
     return res
       .status(500)
       .json({ success: false, message: `Server error ${error}` });
   }
 });
+
+/**
+ * @swagger
+ * /register-step2:
+ *   post:
+ *     summary: Send OTP to registered email (Step 2)
+ *     tags:
+ *       - Auth - Registration
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *     responses:
+ *       200:
+ *         description: OTP sent successfully or already sent
+ *       400:
+ *         description: Step 1 not completed
+ *       500:
+ *         description: Server error
+ */
 
 router.post("/register-step2", async (req, res) => {
   try {
@@ -53,11 +116,12 @@ router.post("/register-step2", async (req, res) => {
     }
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    console.log(otp);
     const expiry = new Date(Date.now() + 10 * 60 * 1000);
 
     user.otp = otp;
     user.otpExpires = expiry;
-    user.step = 2;
+    user.step = 3;
     await user.save();
     console.log(`Send Otp ${otp} to email ${email}`);
     return res.status(200).json({
@@ -71,7 +135,96 @@ router.post("/register-step2", async (req, res) => {
   }
 });
 
-router.post("/refister-step3", async (req, res) => {
+/**
+ * @swagger
+ * /register-step2-resendOtp:
+ *   post:
+ *     summary: Resend OTP for email verification (Step 2)
+ *     tags:
+ *       - Auth - Registration
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *     responses:
+ *       200:
+ *         description: OTP resent successfully
+ *       400:
+ *         description: Step 1 not completed
+ *       500:
+ *         description: Server error
+ */
+
+router.post("/register-step2-resendOtp", async (req, res) => {
+  try {
+    const { email } = req.body;
+    const user: IUser = await User.findOne({ email });
+    if (!user || user.step < 1) {
+      return res
+        .status(400)
+        .json({ message: "Step 1 not completed. Register first" });
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    console.log(otp);
+    const expiry = new Date(Date.now() + 10 * 60 * 1000);
+
+    user.otp = otp;
+    user.otpExpires = expiry;
+    user.step = 3;
+    await user.save();
+    console.log(`Send Otp ${otp} to email ${email}`);
+    return res.status(200).json({
+      message: "Otp sent. Please verify",
+      user: { email: user.email, step: 3 },
+    });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ success: false, message: `Server error ${error}` });
+  }
+});
+
+/**
+ * @swagger
+ * /register-step3:
+ *   post:
+ *     summary: Verify OTP (Step 3)
+ *     tags:
+ *       - Auth - Registration
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - otp
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *               otp:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: OTP verified successfully
+ *       400:
+ *         description: Invalid or expired OTP, or OTP not sent
+ *       500:
+ *         description: Server error
+ */
+
+router.post("/register-step3", async (req, res) => {
   try {
     const { email, otp } = req.body;
     const user: IUser = await User.findOne({ email });
@@ -82,7 +235,7 @@ router.post("/refister-step3", async (req, res) => {
       return res.status(400).json({ message: "Invalid or expired OTP" });
     }
 
-    user.step = 3;
+    user.step = 4;
     user.otp = null;
     user.otpExpires = null;
     await user.save();
@@ -97,24 +250,60 @@ router.post("/refister-step3", async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /register-step4:
+ *   post:
+ *     summary: Complete registration with personal details (Step 4)
+ *     tags:
+ *       - Auth - Registration
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - address
+ *               - name
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *               address:
+ *                 type: string
+ *               name:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Registration complete
+ *       400:
+ *         description: OTP verification not completed
+ *       500:
+ *         description: Server error
+ */
 router.post("/register-step4", async (req, res) => {
-  const { email, password, age } = req.body;
+  const { email, address, name } = req.body;
 
   const user: IUser = await User.findOne({ email });
+  console.log(email, address, user);
 
-  if (!user || user.step < 3) {
+  if (!user || user.step < 4) {
     return res.status(400).json({ message: "OTP verification not completed" });
   }
 
-  user.password = password; // hash in real app
-  user.step = 4;
+  user.step = 5;
   user.status = "active";
+  user.address = address;
+  user.name = name;
 
   await user.save();
 
-  res
-    .status(200)
-    .json({ message: "Registration complete. You can now log in." });
+  res.status(200).json({
+    message: "Registration complete. You can now log in.",
+    user: { email, step: 5 },
+  });
 });
 
 /**

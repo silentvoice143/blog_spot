@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { useLoader } from "@/context/LoaderProvider";
 import GoogleLogin from "./googleLogin";
 import GoogleLoginWrapper from "./googleLogin";
+import CustomInput from "@/components/ui-v2/CustomInput";
 
 export default function Login({ setAuthentication }) {
   const token = sessionStorage.getItem("accessToken");
@@ -69,21 +70,22 @@ export default function Login({ setAuthentication }) {
             </span>
           </div>
           <span className="text-xs text-gray-600">or use your account</span>
-          <input
+          <CustomInput
+            label="Email"
             name="email"
             type="email"
             placeholder="Email"
             value={user.email}
             onChange={onInputChange}
-            className="w-full p-3 mt-2 border-none bg-gray-tertiary rounded-xl focus:outline-none"
+            className="mb-4"
           />
-          <input
+          <CustomInput
+            label="Password"
             name="password"
             type="password"
             placeholder="Password"
             value={user.password}
             onChange={onInputChange}
-            className="w-full p-3 mt-2 border-none rounded-xl bg-gray-tertiary focus:outline-none"
           />
           <span className="mt-2 text-xs text-gray-600 cursor-pointer">
             Forgot your password?
