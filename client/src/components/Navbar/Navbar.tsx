@@ -68,7 +68,7 @@ export default function Navbar({ setAuthentication }) {
     }
   };
   return (
-    <div className="relative flex flex-0 items-center justify-between h-[85px] px-10 navbar border-b-[1px] border-gray-lighter">
+    <div className="relative flex flex-0 items-center justify-between min-h-[85px] h-[10%] px-10 navbar border-b-[1px] border-gray-lighter">
       <div className="flex gap-6 items-center">
         <h1
           onClick={handlelogoclick}

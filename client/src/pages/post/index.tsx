@@ -263,102 +263,105 @@ function Post() {
 
   if (status !== "publish" && step === 2) {
     return (
-      <div className="flex flex-1 items-center justify-center p-8">
-        <div className="w-[800px] border-1 flex gap-6">
-          <div className="flex-1">
-            <h2 className="font-semibold mb-2 text-gray-secondary1">
-              Story Preview
-            </h2>
-            <input
-              type="file"
-              ref={fileInputRef}
-              className="hidden"
-              accept="image/*"
-              onChange={handleImageChange}
-            />
+      <div className="h-full overflow-y-auto">
+        <div className="flex flex-1 items-center justify-center p-8">
+          <div className="w-[800px] border-1 flex gap-6">
+            <div className="flex-1">
+              <h2 className="font-semibold mb-2 text-gray-secondary1">
+                Story Preview
+              </h2>
+              <input
+                type="file"
+                ref={fileInputRef}
+                className="hidden"
+                accept="image/*"
+                onChange={handleImageChange}
+              />
 
-            <div
-              onClick={() => !selectedImage && fileInputRef.current?.click()}
-              className="h-[200px] w-full bg-red-300 relative rounded-xl overflow-hidden flex items-center justify-center mb-6"
-            >
-              {selectedImage ? (
-                <img
-                  src={selectedImage}
-                  alt="Selected"
-                  className="object-cover w-full h-full"
-                />
-              ) : (
-                <>
+              <div
+                onClick={() => !selectedImage && fileInputRef.current?.click()}
+                className="h-[200px] w-full bg-red-300 relative rounded-xl overflow-hidden flex items-center justify-center mb-6"
+              >
+                {selectedImage ? (
                   <img
-                    src="\images.jpg"
-                    alt=""
-                    className="absolute top-0 left-0 w-full h-full"
+                    src={selectedImage}
+                    alt="Selected"
+                    className="object-cover w-full h-full"
                   />
-                  <p className="absolute z-20 flex items-center justify-center h-full text-gray-700 cursor-default">
-                    Click to upload an image
-                  </p>
-                </>
-              )}
+                ) : (
+                  <>
+                    <img
+                      src="\images.jpg"
+                      alt=""
+                      className="absolute top-0 left-0 w-full h-full"
+                    />
+                    <p className="absolute z-20 flex items-center justify-center h-full text-gray-700 cursor-default">
+                      Click to upload an image
+                    </p>
+                  </>
+                )}
 
-              {selectedImage && (
-                <Button
-                  variant="secondary"
-                  className="absolute w-8 h-8 top-2 right-2 rounded-xl"
-                  onClick={(e) => {
-                    e.stopPropagation(); // Prevent clicking from triggering file input
-                    fileInputRef.current?.click();
-                  }}
-                >
-                  <ChangeIcon />
-                </Button>
-              )}
-            </div>
-            <h1 className="px-0 font-semibold text-lg placeholder:text-gray-secondary2 text-gray-secondary1">
-              {postData.title}
-            </h1>
-            <h3 className="px-0 text-sm placeholder:text-gray-secondary2 text-gray-secondary1">
-              {postData.description}
-            </h3>
-            <div
-              className="prose"
-              dangerouslySetInnerHTML={{ __html: postData.content }}
-            />
-          </div>
-          <div className="flex-1">
-            <h2 className="font-normal mb-2 text-gray-secondary1">
-              Published By: <span className="font-semibold">Satyam Kumar</span>
-            </h2>
-            <div className="">
-              <MultiSelect
-                subheading="Select the categories for your post and let user find it conveniently."
-                onChange={(selected) => setSelectedTags(selected)}
-                placeholder="Select upto four tags..."
-                options={[
-                  { value: "one", label: "1" },
-                  { value: "two", label: "2" },
-                  { value: "three", label: "3" },
-                  { value: "4", label: "4" },
-                  { value: "5", label: "5" },
-                  { value: "6", label: "6" },
-                  { value: "7", label: "7" },
-                  { value: "8", label: "8" },
-                  { value: "9", label: "9" },
-                ]}
+                {selectedImage && (
+                  <Button
+                    variant="secondary"
+                    className="absolute w-8 h-8 top-2 right-2 rounded-xl"
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent clicking from triggering file input
+                      fileInputRef.current?.click();
+                    }}
+                  >
+                    <ChangeIcon />
+                  </Button>
+                )}
+              </div>
+              <h1 className="px-0 font-semibold text-lg placeholder:text-gray-secondary2 text-gray-secondary1">
+                {postData.title}
+              </h1>
+              <h3 className="px-0 text-sm placeholder:text-gray-secondary2 text-gray-secondary1">
+                {postData.description}
+              </h3>
+              <div
+                className="prose"
+                dangerouslySetInnerHTML={{ __html: postData.content }}
               />
             </div>
-            <div className="flex gap-4">
-              <Button
-                className="mt-4 px-6 h-9 hover:bg-greenshade-primary/80 bg-greenshade-primary rounded-full text-xs"
-                onClick={() => handleUpdate()}
-              >
-                Publish now
-              </Button>
-              <Button
-                className="mt-4 px-6 h-9 hover:bg-gray-200/80 bg-white text-black-primary rounded-full text-xs"
-                onClick={() => handleUpdate()}
-              >
-                Schedule for later
-              </Button>
+            <div className="flex-1">
+              <h2 className="font-normal mb-2 text-gray-secondary1">
+                Published By:{" "}
+                <span className="font-semibold">Satyam Kumar</span>
+              </h2>
+              <div className="">
+                <MultiSelect
+                  subheading="Select the categories for your post and let user find it conveniently."
+                  onChange={(selected) => setSelectedTags(selected)}
+                  placeholder="Select upto four tags..."
+                  options={[
+                    { value: "one", label: "1" },
+                    { value: "two", label: "2" },
+                    { value: "three", label: "3" },
+                    { value: "4", label: "4" },
+                    { value: "5", label: "5" },
+                    { value: "6", label: "6" },
+                    { value: "7", label: "7" },
+                    { value: "8", label: "8" },
+                    { value: "9", label: "9" },
+                  ]}
+                />
+              </div>
+              <div className="flex gap-4">
+                <Button
+                  className="mt-4 px-6 h-9 hover:bg-greenshade-primary/80 bg-greenshade-primary rounded-full text-xs"
+                  onClick={() => handleUpdate()}
+                >
+                  Publish now
+                </Button>
+                <Button
+                  className="mt-4 px-6 h-9 hover:bg-gray-200/80 bg-white text-black-primary rounded-full text-xs"
+                  onClick={() => handleUpdate()}
+                >
+                  Schedule for later
+                </Button>
+              </div>
             </div>
           </div>
         </div>
@@ -367,126 +370,128 @@ function Post() {
   }
 
   return (
-    <div className="relative flex justify-center flex-1 w-screen h-auto p-8 overflow-x-hidden overflow-y-auto">
-      <div className="flex flex-col gap-6 w-[800px]">
-        {postData ? (
-          <>
-            <div className="flex ">
-              <div className="flex flex-1 gap-4">
-                <Avatar>
-                  <AvatarImage src="https://github.com/shadcn.png" />
-                  <AvatarFallback>CN</AvatarFallback>
-                </Avatar>
-                <div className="flex flex-col">
-                  <div className="flex gap-4">
-                    <button
-                      onClick={() =>
-                        navigate(`/profile/${postData.author._id}`)
-                      }
-                      className="cursor-pointer hover:text-greenshade-primary transition-colors duration-75"
-                    >
-                      Satyam Kumar
-                    </button>
-                    {postData.author._id !== account.id ? (
-                      following ? (
-                        <Button
-                          className="h-6 px-2 text-xs"
-                          variant="outline"
-                          onClick={() => handleunFollowing()}
-                        >
-                          Unfollow
-                        </Button>
-                      ) : (
-                        <Button
-                          className="h-6 px-2 text-xs"
-                          variant="outline"
-                          onClick={() => handleFollowing()}
-                        >
-                          follow
-                        </Button>
-                      )
-                    ) : null}
+    <div className="h-full overflow-y-auto">
+      <div className="relative flex justify-center flex-1 w-screen h-auto p-8 overflow-x-hidden overflow-y-auto">
+        <div className="flex flex-col gap-6 w-[800px]">
+          {postData ? (
+            <>
+              <div className="flex ">
+                <div className="flex flex-1 gap-4">
+                  <Avatar>
+                    <AvatarImage src="https://github.com/shadcn.png" />
+                    <AvatarFallback>CN</AvatarFallback>
+                  </Avatar>
+                  <div className="flex flex-col">
+                    <div className="flex gap-4">
+                      <button
+                        onClick={() =>
+                          navigate(`/profile/${postData.author._id}`)
+                        }
+                        className="cursor-pointer hover:text-greenshade-primary transition-colors duration-75"
+                      >
+                        Satyam Kumar
+                      </button>
+                      {postData.author._id !== account.id ? (
+                        following ? (
+                          <Button
+                            className="h-6 px-2 text-xs"
+                            variant="outline"
+                            onClick={() => handleunFollowing()}
+                          >
+                            Unfollow
+                          </Button>
+                        ) : (
+                          <Button
+                            className="h-6 px-2 text-xs"
+                            variant="outline"
+                            onClick={() => handleFollowing()}
+                          >
+                            follow
+                          </Button>
+                        )
+                      ) : null}
+                    </div>
+                    <p className="text-xs">12 Jan, 2024</p>
                   </div>
-                  <p className="text-xs">12 Jan, 2024</p>
                 </div>
-              </div>
-              {postData.author._id === account.id && (
-                <div className="flex gap-4">
-                  <Button
-                    className="h-8"
-                    variant="outline"
-                    onClick={() => navigate(`/post/edit/${postData._id}`)}
-                  >
-                    Edit
-                  </Button>
-                  <Button
-                    className="h-8 w-8 p-0 border-red-500 bg-red-200/20 hover:bg-red-200/30"
-                    variant="outline"
-                    onClick={() => handleDeletePost()}
-                  >
-                    <DeleteIcon />
-                  </Button>
-                  {status !== "publish" && (
+                {postData.author._id === account.id && (
+                  <div className="flex gap-4">
                     <Button
-                      onClick={() => setStep(2)}
+                      className="h-8"
                       variant="outline"
-                      className="border-green-400 h-8"
+                      onClick={() => navigate(`/post/edit/${postData._id}`)}
                     >
-                      Publish
+                      Edit
                     </Button>
-                  )}
-                </div>
-              )}
-            </div>
-            <h1 className="px-0 font-semibold text-40-48 placeholder:text-gray-secondary2 text-gray-secondary1">
-              {postData.title}
-            </h1>
-            <h3 className="px-0 text-lg placeholder:text-gray-secondary2 text-gray-secondary1">
-              {postData.description}
-            </h3>
-            <div
-              className="prose"
-              dangerouslySetInnerHTML={{ __html: postData.content }}
-            />
-            <div className="flex flex-col gap-6">
-              <h1 className="text-xl font-semibold">
-                Wanna give some feedback? Leave a comment below!
+                    <Button
+                      className="h-8 w-8 p-0 border-red-500 bg-red-200/20 hover:bg-red-200/30"
+                      variant="outline"
+                      onClick={() => handleDeletePost()}
+                    >
+                      <DeleteIcon />
+                    </Button>
+                    {status !== "publish" && (
+                      <Button
+                        onClick={() => setStep(2)}
+                        variant="outline"
+                        className="border-green-400 h-8"
+                      >
+                        Publish
+                      </Button>
+                    )}
+                  </div>
+                )}
+              </div>
+              <h1 className="px-0 font-semibold text-40-48 placeholder:text-gray-secondary2 text-gray-secondary1">
+                {postData.title}
               </h1>
-              <CustomTextArea
-                expandable={true}
-                minRows={3}
-                value={commentText}
-                onChange={(e) => setCommentText(e.target.value)}
-                className="p-4 text-base placeholder:text-gray-secondary2 text-gray-secondary1 bg-whiteshade-tertiary1 rounded-xl"
-                placeholder="Reply to this guy"
+              <h3 className="px-0 text-lg placeholder:text-gray-secondary2 text-gray-secondary1">
+                {postData.description}
+              </h3>
+              <div
+                className="prose"
+                dangerouslySetInnerHTML={{ __html: postData.content }}
               />
-              <div className="flex justify-end">
-                <Button
-                  onClick={handleAddComment}
-                  className="h-10 rounded-full "
-                >
-                  send
-                </Button>
-              </div>
-              <h1 className="text-xl font-semibold">
-                Responses ({comments.length})
-              </h1>
+              <div className="flex flex-col gap-6">
+                <h1 className="text-xl font-semibold">
+                  Wanna give some feedback? Leave a comment below!
+                </h1>
+                <CustomTextArea
+                  expandable={true}
+                  minRows={3}
+                  value={commentText}
+                  onChange={(e) => setCommentText(e.target.value)}
+                  className="p-4 text-base placeholder:text-gray-secondary2 text-gray-secondary1 bg-whiteshade-tertiary1 rounded-xl"
+                  placeholder="Reply to this guy"
+                />
+                <div className="flex justify-end">
+                  <Button
+                    onClick={handleAddComment}
+                    className="h-10 rounded-full "
+                  >
+                    send
+                  </Button>
+                </div>
+                <h1 className="text-xl font-semibold">
+                  Responses ({comments.length})
+                </h1>
 
-              <div className="flex flex-col gap-4 flex-1">
-                {comments.map((comment, idx) => (
-                  <Comment
-                    hidebtn={false}
-                    fetchComment={fetchComments}
-                    postId={id}
-                    key={`${comment.id} ${idx}`}
-                    comment={comment}
-                    onLike={() => {}}
-                  />
-                ))}
+                <div className="flex flex-col gap-4 flex-1">
+                  {comments.map((comment, idx) => (
+                    <Comment
+                      hidebtn={false}
+                      fetchComment={fetchComments}
+                      postId={id}
+                      key={`${comment.id} ${idx}`}
+                      comment={comment}
+                      onLike={() => {}}
+                    />
+                  ))}
+                </div>
               </div>
-            </div>
-          </>
-        ) : null}
+            </>
+          ) : null}
+        </div>
       </div>
     </div>
   );

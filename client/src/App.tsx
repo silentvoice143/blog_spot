@@ -36,21 +36,26 @@ const PrivateRoute = ({ isAuthenticated, setAuthentication }, ...props) => {
   const location = useLocation();
   const { showNotifications, setShowNotifications } = useNavbarContext();
 
+  const showNav =
+    !location.pathname.includes("/post/create") &&
+    !location.pathname.includes("/post/edit");
+
   return isAuthenticated ? (
-    <div className="flex flex-col w-full min-h-screen">
-      {!location.pathname.includes("/post/create") &&
-        !location.pathname.includes("/post/edit") && (
-          <div className="">
-            <Navbar setAuthentication={setAuthentication} />
-          </div>
-        )}
-      <div className="flex flex-1 relative">
+    <div className="flex flex-col w-full h-screen overflow-hidden">
+      {showNav && (
+        <div className="sticky top-0 z-50 bg-white">
+          <Navbar setAuthentication={setAuthentication} />
+        </div>
+      )}
+      <div className={`${showNav ? "h-[90%]" : "h-full"} w-full relative`}>
         {showNotifications && (
           <Notification onClose={() => setShowNotifications(false)} />
         )}
         <NotificationLoader isAuthenticated={isAuthenticated} />
         <NotificationListener isAuthenticated={isAuthenticated} />
+        {/* <div className="w-full relative"> */}
         <Outlet />
+        {/* </div> */}
       </div>
     </div>
   ) : (
@@ -70,7 +75,7 @@ function App() {
     }
   }, [token]);
   return (
-    <div className="w-screen h-screen overflow-x-hidden overflow-y-auto font-montserrat">
+    <div className="w-screen h-screen overflow-x-hidden overflow-y-hidden font-montserrat">
       <LoaderProvider>
         <DataProvider>
           <NavProvider>

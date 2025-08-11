@@ -1,4 +1,5 @@
 import CardPost from "@/components/posts/cardPost";
+import Loader from "@/components/ui/loader";
 import { DataContext } from "@/context/Dataprovider";
 import { useLoader } from "@/context/LoaderProvider";
 import { getAllUserPost } from "@/services/apiService";
@@ -8,7 +9,7 @@ import { Link } from "react-router-dom";
 function Stories() {
   const { account } = useContext(DataContext);
   const [postData, setPostData] = useState([]);
-  const { setLoading } = useLoader();
+  const [loading, setLoading] = useState(false);
   const getPostData = async () => {
     try {
       setLoading(true);
@@ -33,28 +34,34 @@ function Stories() {
   useEffect(() => {
     getPostData();
   }, []);
+
+  if (loading) {
+    return <Loader />;
+  }
   return (
-    <div className="px-8 pt-8 flex-1 flex justify-center">
-      <div className="w-1/2 ">
-        {postData.map((data, idx) => (
-          <div key={`foryoupost ${idx}`}>
-            <Link to={`/post/${data._id}`}>
-              <CardPost
-                key={data._id}
-                title={data.title}
-                content={data.description}
-                dop={formatdate(new Date(data.createdAt))}
-                email={data.email}
-                picture={data.picture}
-                author={data.author.name}
-                tags={data.tags.join(",")}
-                id={data._id}
-                comments={data.comments.length}
-              />
-            </Link>
-            <div className="h-[1px] bg-gray-secondary3 w-1/2 m-auto mt-10"></div>
-          </div>
-        ))}
+    <div className="h-full overflow-y-auto">
+      <div className="px-8 pt-8 flex-1 flex justify-center">
+        <div className="w-1/2 ">
+          {postData.map((data, idx) => (
+            <div key={`foryoupost ${idx}`}>
+              <Link to={`/post/${data._id}`}>
+                <CardPost
+                  key={data._id}
+                  title={data.title}
+                  content={data.description}
+                  dop={formatdate(new Date(data.createdAt))}
+                  email={data.email}
+                  picture={data.picture}
+                  author={data.author.name}
+                  tags={data.tags.join(",")}
+                  id={data._id}
+                  comments={data.comments.length}
+                />
+              </Link>
+              <div className="h-[1px] bg-gray-secondary3 w-1/2 m-auto mt-10"></div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

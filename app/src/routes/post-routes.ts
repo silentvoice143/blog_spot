@@ -73,20 +73,40 @@ router.post("/view/:postId", authenticateToken, async (req, res) => {
 router.get("/", async (req: any, res: any) => {
   try {
     console.log("hitting this route");
-    let category = req.query.category;
-    let posts;
+
+    const category = req.query.category;
+    const page = parseInt(req.query.page) || 1; // default to page 1
+    const limit = parseInt(req.query.limit) || 10; // default limit 10
+    const skip = (page - 1) * limit;
+
+    let query: any = {};
     if (category && category.length > 0) {
-      posts = await Post.find({ category: category[0] }).populate(
-        "author",
-        "name email"
-      );
-    } else {
-      posts = await Post.find().populate("author", "name email");
+      query.category = category[0];
     }
-    return res.status(200).json({ success: true, posts });
+
+    // Fetch posts with pagination
+    const posts = await Post.find(query)
+      .populate("author", "name email")
+      .skip(skip)
+      .limit(limit)
+      .sort({ createdAt: -1 }); // optional: most recent first
+
+    // Count total documents for frontend pagination
+    const total = await Post.countDocuments(query);
+
+    return res.status(200).json({
+      success: true,
+      pagination: {
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+        totalCount: total,
+      },
+      posts,
+    });
   } catch (err) {
-    console.log(err);
-    return res.status(400).json({ error: err });
+    console.error(err);
+    return res.status(400).json({ error: err.message || "Server Error" });
   }
 });
 

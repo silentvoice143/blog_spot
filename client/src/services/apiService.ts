@@ -241,10 +241,10 @@ export const addViewPost = async (postId) => {
   }
 };
 
-export const getAllPost = async (category) => {
+export const getAllPost = async (category, params: string) => {
   console.log(category, "---category");
   try {
-    const response = await API.get(`${API_URL}/post`, {
+    const response = await API.get(`${API_URL}/post${params}`, {
       params: { category: category },
     });
     return response.data;

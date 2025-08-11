@@ -4,23 +4,7 @@ import { getAllPost } from "../../services/apiService.js";
 import CardPost from "./cardPost.js";
 import { dummyData } from "./data.js";
 
-export default function PostList() {
-  const [posts, setPosts] = useState([]);
-  let [searchParams] = useSearchParams();
-  const category = searchParams.get("category");
-
-  useEffect(() => {
-    const fetchDAta = async () => {
-      let data = await getAllPost(category);
-      console.log(data, "----post data");
-      if (data.success) {
-        setPosts(data.posts);
-      } else {
-        setPosts([]);
-      }
-    };
-    fetchDAta();
-  }, []);
+export default function PostList({ posts }) {
   const formatdate = (date) => {
     return date.toLocaleDateString("en-GB", {
       day: "numeric",
