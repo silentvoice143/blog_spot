@@ -2,6 +2,7 @@ import axios from "axios";
 import { getAccessToken } from "../utils/common-utils";
 const baseurl = import.meta.env.VITE_BASE_URL;
 const API = axios.create({
+  baseURL: baseurl,
   headers: {
     "Content-Type": "application/json",
   },

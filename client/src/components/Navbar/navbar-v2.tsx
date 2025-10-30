@@ -73,7 +73,6 @@ export default function NavbarV2({
         >
           Blogspot
         </h1>
-        <SearchBox />
       </div>
       <div className="flex items-center gap-4 ">
         {location.pathname === "/post/create" && (

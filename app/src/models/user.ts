@@ -13,13 +13,18 @@ export interface IUser extends Document {
   followers: [any];
   links: [any];
   bio: string;
+  step: number;
+  otp: String;
+  otpExpires: Date;
+  status: string;
+  address: string;
 }
 
 const UserSchema: Schema = new Schema(
   {
     name: {
       type: String,
-      required: true,
+      required: false,
     },
     email: {
       type: String,
@@ -30,11 +35,31 @@ const UserSchema: Schema = new Schema(
       type: String,
       required: false,
     },
+    step: {
+      type: Number,
+      default: 1,
+    },
+    status: {
+      type: String,
+      enum: ["pending", "active"],
+      default: "pending",
+    },
+    otp: {
+      type: String,
+      default: null,
+    },
+    otpExpites: {
+      type: Date,
+    },
     googleId: {
       type: String,
       required: false,
     },
     facebookId: {
+      type: String,
+      required: false,
+    },
+    address: {
       type: String,
       required: false,
     },

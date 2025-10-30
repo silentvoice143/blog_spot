@@ -10,6 +10,51 @@ export const signupUser = async (user) => {
   }
 };
 
+export const signupStep1 = async (data) => {
+  try {
+    const response = await API.post(`/api/auth/register-step1`, data);
+    return response;
+  } catch (err) {
+    return err;
+  }
+};
+
+export const signupStep2 = async (data) => {
+  try {
+    const response = await API.post(`/api/auth/register-step2`, data);
+    return response;
+  } catch (err) {
+    return err;
+  }
+};
+
+export const signupStep3 = async (data) => {
+  try {
+    const response = await API.post(`/api/auth/register-step3`, data);
+    return response;
+  } catch (err) {
+    return err;
+  }
+};
+
+export const signupStep3resendOtp = async (data) => {
+  try {
+    const response = await API.post(`/api/auth/register-step2-resendOtp`, data);
+    return response;
+  } catch (err) {
+    return err;
+  }
+};
+
+export const signupStep4 = async (data) => {
+  try {
+    const response = await API.post(`/api/auth/register-step4`, data);
+    return response;
+  } catch (err) {
+    return err;
+  }
+};
+
 export const loginUser = async (user) => {
   try {
     const response = await API.post(`${API_URL}/auth/login`, user);
@@ -196,10 +241,10 @@ export const addViewPost = async (postId) => {
   }
 };
 
-export const getAllPost = async (category) => {
+export const getAllPost = async (category, params: string) => {
   console.log(category, "---category");
   try {
-    const response = await API.get(`${API_URL}/post`, {
+    const response = await API.get(`${API_URL}/post${params}`, {
       params: { category: category },
     });
     return response.data;

@@ -15,7 +15,7 @@ interface modalProps {
 }
 function CreatePostModal({ type = "publish", isOpen, onClose }: modalProps) {
   const { createdPostData, setCreatedPostData } = useContext(DataContext) || {};
-  console.log(createdPostData, "post datas......");
+
   const navigate = useNavigate();
 
   const [selectedImage, setSelectedImage] = useState<string | null>(null);

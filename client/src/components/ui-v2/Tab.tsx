@@ -13,7 +13,7 @@ function Tab({ tab, setTab, activeTab }: TabType) {
       {tab.map((item, idx) => (
         <button
           key={`tab-${idx}`}
-          className={`relative  ${
+          className={`relative text-sm text-nowrap md:text-base ${
             item.nav ? "px-2 py-1" : "rounded-full hover:bg-gray-tertiary p-2"
           }`}
           onClick={() => {

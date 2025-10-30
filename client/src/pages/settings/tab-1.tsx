@@ -1,8 +1,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import React, { useState } from "react";
 import EmailChangeModal from "./modals/email-change";
-import EditProfileModal from "./modals/edit-profile-modal";
-import { userInfo } from "os";
+import EditProfileModal from "@/components/user/modal/edit-profile-modal";
 import { useLoader } from "@/context/LoaderProvider";
 import { updateUserData } from "@/services/apiService";
 
@@ -47,10 +46,10 @@ function Tab1({ user, setUserData }: Tab1Props) {
       />
       <div
         className="cursor-pointer group flex justify-between"
-        onClick={() => setToggleEmailModal(true)}
+        // onClick={() => setToggleEmailModal(true)}
       >
         <p>Email</p>
-        <p className="text-base text-gray-secondary1 group-hover:text-black">
+        <p className="text-base text-gray-secondary1 group-hover:text-black bg-green-200 px-3 py-1 rounded-full">
           {user?.email}
         </p>
       </div>

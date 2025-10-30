@@ -163,6 +163,46 @@
   font-size: 16px;
 }
 
+.prose {
+  @apply w-full max-w-full break-words overflow-x-auto relative;
+}
+
+.prose p,
+.prose li {
+  @apply text-base leading-relaxed;
+}
+
+.prose pre {
+  @apply overflow-auto bg-gray-100 p-4 rounded text-sm text-left;
+}
+
+.prose img,
+.prose video {
+  @apply max-w-full h-auto;
+}
+
+.prose h1 {
+  @apply text-3xl sm:text-4xl font-bold my-4;
+}
+
+.prose h2 {
+  @apply text-2xl sm:text-3xl font-semibold my-3;
+}
+
+.prose h3 {
+  @apply text-xl sm:text-2xl font-semibold my-2;
+}
+
+.prose ul,
+.prose ol {
+  @apply pl-6;
+}
+
+.prose pre,.prose code
+{
+  @apply whitespace-pre-wrap break-words text-wrap max-w-full overflow-x-auto break-all;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
