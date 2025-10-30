@@ -83,7 +83,7 @@ export default function Register({ setAuthentication }) {
   }
 
   return (
-    <div className="min-h-screen relative bg-gradient-to-br from-amber-50 via-orange-50 to-red-50 flex items-center justify-center px-4 font-serif">
+    <div className="min-h-screen relative bg-gradient-to-br from-amber-50/20 via-orange-50/20 to-white flex items-center justify-center px-4 font-serif">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {/* Ornate corner decorations */}
         <svg
@@ -196,11 +196,6 @@ export default function Register({ setAuthentication }) {
                 <h2 className="text-2xl font-bold">Create Account</h2>
               </div>
 
-              <div className="flex space-x-3 justify-center">
-                <GoogleLoginWrapper setAuthentication={setAuthentication} />
-                {/* Add your FacebookLoginWrapper if needed */}
-              </div>
-
               <CustomInput
                 label="Email Address"
                 name="email"
@@ -208,6 +203,7 @@ export default function Register({ setAuthentication }) {
                 placeholder="your@email.com"
                 value={sign_user.email}
                 onChange={onInputChange}
+                bordered={true}
               />
 
               <CustomInput
@@ -217,14 +213,15 @@ export default function Register({ setAuthentication }) {
                 placeholder="Create a strong password"
                 value={sign_user.password}
                 onChange={onInputChange}
+                bordered={true}
               />
 
-              <button
+              <Button
                 onClick={() => handleSignup(1)}
                 className="w-full bg-gradient-to-r from-amber-600 to-red-600 text-white py-3 px-6 rounded-lg"
               >
                 Continue
-              </button>
+              </Button>
 
               <div className="text-center">
                 <span>Already have an account? </span>
@@ -257,6 +254,7 @@ export default function Register({ setAuthentication }) {
                     type="text"
                     value={otp}
                     onChange={(e) => setOtp(e.target.value)}
+                    bordered={true}
                   />
                   <div className="text-right">
                     <button
@@ -269,12 +267,12 @@ export default function Register({ setAuthentication }) {
                 </div>
               )}
 
-              <button
+              <Button
                 onClick={() => handleSignup(steps)}
                 className="w-full bg-gradient-to-r from-amber-600 to-red-600 text-white py-3 px-6 rounded-lg"
               >
                 {steps === 2 ? "Send Code" : "Verify Email"}
-              </button>
+              </Button>
             </div>
           )}
 
@@ -297,12 +295,12 @@ export default function Register({ setAuthentication }) {
                 onChange={onInputChange}
               />
 
-              <button
+              <Button
                 onClick={() => handleSignup(4)}
                 className="w-full bg-gradient-to-r from-amber-600 to-red-600 text-white py-3 px-6 rounded-lg"
               >
                 Complete Registration
-              </button>
+              </Button>
             </div>
           )}
         </div>

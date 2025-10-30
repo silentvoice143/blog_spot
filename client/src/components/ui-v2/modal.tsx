@@ -1,35 +1,67 @@
+"use client";
+
+import React from "react";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
+import { Loader } from "lucide-react";
 
-import { ReactNode } from "react";
-
-interface ModalProps {
-  header: string;
-  children: ReactNode;
+interface DynamicModalProps {
   isOpen: boolean;
-  onClose?: () => void;
-  onSave?: () => void;
+  onClose: () => void;
+  header: {
+    title: React.ReactNode;
+    description?: React.ReactNode;
+  };
+  children: React.ReactNode;
+  footer?: React.ReactNode;
+  loading?: boolean;
+  className?: string;
+  childrenContainerClassName?: string;
+  preventAutoFocus?: boolean;
 }
 
-function Modal({ header, children, isOpen, onClose, onSave }: ModalProps) {
+export default function DynamicModal({
+  className,
+  isOpen,
+  onClose,
+  header,
+  children,
+  preventAutoFocus = false,
+  footer,
+  loading,
+  childrenContainerClassName,
+}: DynamicModalProps) {
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-h-[80vh] flex flex-col">
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent
+        onOpenAutoFocus={
+          preventAutoFocus ? (e) => e.preventDefault() : undefined
+        }
+        className={`sm:max-w-[620px] max-h-[90vh] overflow-hidden flex flex-col ${className}`}
+      >
+        {loading && <Loader className="animate-spin" />}
         <DialogHeader>
-          <DialogTitle className="text-32-34 font-semibold font-montserrat">
-            {header}
-          </DialogTitle>
+          <DialogTitle>{header.title}</DialogTitle>
+          {header.description && (
+            <DialogDescription>{header.description}</DialogDescription>
+          )}
         </DialogHeader>
-        <div className="flex-1">{children}</div>
+
+        <div
+          className={`flex-1 overflow-y-auto py-4 scrollbar-hidden ${childrenContainerClassName}`}
+        >
+          {children}
+        </div>
+
+        {footer && <DialogFooter>{footer}</DialogFooter>}
       </DialogContent>
     </Dialog>
   );
 }
-
-export default Modal;

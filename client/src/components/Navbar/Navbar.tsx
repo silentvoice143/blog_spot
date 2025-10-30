@@ -5,7 +5,7 @@ import {
   useLocation,
   Links,
 } from "react-router-dom";
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { DataContext } from "../../context/Dataprovider";
 import { logoutUser } from "../../services/apiService";
 
@@ -23,15 +23,19 @@ import { Button } from "../ui/button";
 import CreatePostModal from "@/pages/create/modals/create-post-modal";
 import { useLoader } from "@/context/LoaderProvider";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import SearchBox from "../ui-v2/SearchBox";
 import { useNotifications } from "@/context/NotificationProvider";
 import { useNavbarContext } from "@/context/Navbar";
-import { SearchIcon } from "lucide-react";
 import { Separator } from "../ui/separator";
+import CustomInput from "../ui-v2/CustomInput";
+import { SearchIcon } from "lucide-react";
+import { useDebounce } from "@/hooks/useDebounce";
 
 export default function Navbar({ setAuthentication }) {
   const { setLoading } = useLoader();
-  const { setAccount } = useContext(DataContext);
+  const { setAccount, globalDebounceSearchTerm, setGlobalSearchTerm } =
+    useContext(DataContext);
+  const [searchTerm, setSearchTerm] = useState("");
+  const debounceSearchTerm = useDebounce(searchTerm, 600);
   const navigate = useNavigate();
   const location = useLocation();
   const [modalOpen, setModalOpen] = useState<{
@@ -67,6 +71,17 @@ export default function Navbar({ setAuthentication }) {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (debounceSearchTerm.trim()) {
+      navigate(
+        `/search?query=${encodeURIComponent(debounceSearchTerm.trim())}`
+      );
+    } else if (location.pathname.startsWith("/search")) {
+      // If search box cleared, go back to default page
+      navigate("/");
+    }
+  }, [debounceSearchTerm]);
   return (
     <div className="relative flex flex-0 items-center justify-between min-h-[85px] h-[10%] px-10 navbar border-b-[1px] border-gray-lighter">
       <div className="flex gap-6 items-center">
@@ -76,14 +91,16 @@ export default function Navbar({ setAuthentication }) {
         >
           Blogspot
         </h1>
-        <SearchBox />
-        <Button
-          variant="ghost"
-          className="p-2 rounded-full mr-4 md:hidden"
-          onClick={() => console.log("search")}
-        >
-          <SearchIcon height={20} width={20} className="h-5 w-5 " />
-        </Button>
+        <div>
+          <CustomInput
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Search..."
+            bordered
+            inputClassName="!rounded-full"
+            iconLeft={<SearchIcon size={16} />}
+          />
+        </div>
       </div>
       <div className="flex items-center gap-4 ">
         {location.pathname === "/post/create" && (

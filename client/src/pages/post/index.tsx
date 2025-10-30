@@ -138,17 +138,6 @@ function Post() {
     }
   };
 
-  // const handleLike = async (commentId) => {
-  //   try {
-  //     await likeComment(commentId, user.token);
-  //     fetchComments();
-  //   } catch (error) {
-  //     console.error(error);
-  //   }
-  // };
-
-  // console.log(account.id, postData.author._id);
-
   const handleFollow = async (authorId) => {
     try {
       console.log("calling this api....");

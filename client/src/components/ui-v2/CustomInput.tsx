@@ -32,7 +32,7 @@ const CustomInput = React.forwardRef<HTMLInputElement, InputWithIconProps>(
       id || props.name || `input-${Math.random().toString(36).slice(2, 8)}`;
 
     return (
-      <div className={cn("w-full space-y-1", className)}>
+      <div className={cn("w-full space-y-1 px-1", className)}>
         {label && (
           <label
             htmlFor={inputId}

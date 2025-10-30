@@ -9,7 +9,7 @@ import {
 } from "@/services/apiService";
 import { Edit2Icon, Edit3Icon, EditIcon } from "lucide-react";
 import { useContext, useEffect, useState } from "react";
-import EditProfileModal from "./modals/edit-profile-modal";
+import EditProfileModal from "@/components/user/modal/edit-profile-modal";
 import { useNavigate, useParams } from "react-router-dom";
 import { useLoader } from "@/context/LoaderProvider";
 import { DataContext } from "@/context/Dataprovider";
@@ -66,9 +66,11 @@ function Profile() {
       setTimeout(() => setCopied(false), 2000);
     });
   };
+
   useEffect(() => {
     getUserDetail();
   }, []);
+
   return (
     <div className="h-full overflow-y-auto">
       <div className="flex flex-col items-center flex-1 relative">
@@ -78,79 +80,103 @@ function Profile() {
           data={userData}
           onSave={updateUserDetails}
         />
-        <div className="w-[1000px] px-8 py-12 flex flex-col gap-4">
-          <div className="flex gap-12">
-            <Avatar className="h-[200px] w-[200px]">
+        <div className="w-full max-w-5xl px-4 sm:px-6 md:px-8 py-6 sm:py-10 md:py-12 flex flex-col gap-4 md:gap-6">
+          {/* Profile Header */}
+          <div className="flex flex-col sm:flex-row gap-6 sm:gap-8 md:gap-12">
+            <Avatar className="h-32 w-32 sm:h-40 sm:w-40 md:h-48 md:w-48 mx-auto sm:mx-0">
               <AvatarImage src="https://images.pexels.com/photos/1097456/pexels-photo-1097456.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" />
               <AvatarFallback>SK</AvatarFallback>
             </Avatar>
-            <div className="flex flex-col gap-4 justify-center">
+
+            <div className="flex flex-col gap-4 justify-center text-center sm:text-left">
               <div>
-                <h1 className="text-40-48 font-semibold font-montserrat">
+                <h1 className="text-3xl sm:text-4xl md:text-5xl font-semibold font-montserrat">
                   {userData?.name}
                 </h1>
               </div>
 
-              <div className="flex gap-6 mt-4">
+              <div className="flex gap-6 md:gap-8 justify-center sm:justify-start mt-2 md:mt-4 flex-wrap">
                 <div>
-                  <h3 className="text-xl font-montserrat">
+                  <h3 className="text-lg sm:text-xl font-montserrat font-semibold">
                     {userData?.totalPosts}
                   </h3>
-                  <p className="text-base font-montserrat">posts</p>
+                  <p className="text-sm sm:text-base font-montserrat text-gray-600">
+                    posts
+                  </p>
                 </div>
                 <div>
-                  <h3 className="text-xl font-montserrat">
+                  <h3 className="text-lg sm:text-xl font-montserrat font-semibold">
                     {userData?.followers?.length}
                   </h3>
-                  <p className="text-base font-montserrat">followers</p>
+                  <p className="text-sm sm:text-base font-montserrat text-gray-600">
+                    followers
+                  </p>
                 </div>
                 <div>
-                  <h3 className="text-xl font-montserrat">
+                  <h3 className="text-lg sm:text-xl font-montserrat font-semibold">
                     {userData?.following?.length}
                   </h3>
-                  <p className="text-base font-montserrat">following</p>
+                  <p className="text-sm sm:text-base font-montserrat text-gray-600">
+                    following
+                  </p>
                 </div>
               </div>
             </div>
           </div>
-          {/* <Separator /> */}
+
+          {/* Bio Section */}
           {userData?.bio && (
-            <div className="mt-6">
-              <h3 className="text-base font-semibold font-montserrat">Bio</h3>
-              <p className="text-base font-montserrat">{userData?.bio}</p>
+            <div className="mt-4 md:mt-6">
+              <h3 className="text-sm sm:text-base font-semibold font-montserrat">
+                Bio
+              </h3>
+              <p className="text-sm sm:text-base font-montserrat text-gray-700">
+                {userData?.bio}
+              </p>
             </div>
           )}
-          <div className="flex gap-4 mb-6">
+
+          {/* Action Buttons */}
+          <div className="flex gap-3 sm:gap-4 mb-4 md:mb-6 flex-wrap">
             {userId === account.id && (
               <Button
                 onClick={() => setIsModalOpen(true)}
                 variant="outline"
-                className="px-6"
+                className="px-4 sm:px-6 text-sm sm:text-base"
               >
                 Edit profile
               </Button>
             )}
             <Button
               variant="outline"
-              className={`px-6 ${copied ? "border-green-500 text-green-500 hover:text-green-700" : ""}`}
+              className={`px-4 sm:px-6 text-sm sm:text-base ${
+                copied
+                  ? "border-green-500 text-green-500 hover:text-green-700"
+                  : ""
+              }`}
               onClick={handleCopy}
             >
               {copied ? "Link Copied!" : "Share Profile"}
             </Button>
           </div>
+
           <Separator />
+
+          {/* Recent Posts Section */}
           <div className="w-full">
-            <h1 className="text-xl font-semibold mb-6">Recent posts</h1>
-            <div className="grid grid-cols-2 gap-10 scrollbar-none">
-              {userData?.recentPosts.map((post) => (
-                <div key={post._id} className="w-fit  flex flex-shrink-0">
+            <h1 className="text-lg sm:text-xl font-semibold mb-4 md:mb-6">
+              Recent posts
+            </h1>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 md:gap-8 lg:gap-10">
+              {userData?.recentPosts?.map((post) => (
+                <div key={post._id} className="w-full flex flex-shrink-0">
                   <SmallCardPost post={post} />
                 </div>
               ))}
             </div>
             <Button
               variant="outline"
-              className="mt-6"
+              className="mt-6 w-full sm:w-auto"
               onClick={() => navigate("/stories")}
             >
               Show all posts

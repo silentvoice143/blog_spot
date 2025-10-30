@@ -31,6 +31,7 @@ import NotificationListener from "./components/notification-listener";
 import useRegisterSocket from "./hooks/useRegisterSocket";
 import Notification from "./pages/notification";
 import { NavProvider, useNavbarContext } from "./context/Navbar";
+import SearchPage from "./pages/search";
 
 const PrivateRoute = ({ isAuthenticated, setAuthentication }, ...props) => {
   const location = useLocation();
@@ -101,6 +102,7 @@ function App() {
                     }
                   >
                     <Route path="/" element={<Home />} />
+                    <Route path="/search" element={<SearchPage />} />
                     <Route
                       path="/post/create"
                       element={

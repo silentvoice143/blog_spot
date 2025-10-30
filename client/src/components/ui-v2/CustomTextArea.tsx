@@ -69,12 +69,12 @@ const CustomTextArea: React.FC<TextAreaProps> = ({
   };
 
   return (
-    <div>
+    <div className="px-1">
       {label && <p className="text-base font-montserrat">{label}</p>}
       <textarea
         {...props}
         ref={textAreaRef}
-        className={`w-full p-3 bg-transparent text-gray-900 text-base font-montserrat placeholder-gray-500 focus:outline-none resize-none ${className}`}
+        className={`w-full p-3 bg-transparent text-gray-900 text-base font-montserrat placeholder-gray-500 resize-none focus:ring-2 focus:ring-blue-500 focus:outline-none ${className}`}
         rows={minRows}
         onInput={handleInputChange}
       />

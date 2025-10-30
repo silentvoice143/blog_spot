@@ -1,3 +1,4 @@
+import { useDebounce } from "@/hooks/useDebounce";
 import { createContext, useState, useEffect, ReactNode } from "react";
 
 export type PostType = {
@@ -21,6 +22,9 @@ type DataContextType = {
   >;
   createdPostData: PostType | null;
   setCreatedPostData: React.Dispatch<React.SetStateAction<PostType | null>>;
+  globalSearchTerm?: string;
+  setGlobalSearchTerm?: React.Dispatch<React.SetStateAction<string>>;
+  globalDebounceSearchTerm?: string;
 };
 
 export const DataContext = createContext<DataContextType | undefined>(
@@ -40,6 +44,8 @@ const DataProvider = ({ children }: { children: ReactNode }) => {
   const [createdPostData, setCreatedPostData] = useState<PostType | null>(
     storedPostData
   );
+  const [globalSearchTerm, setGlobalSearchTerm] = useState("");
+  const globalDebounceSearchTerm = useDebounce(globalSearchTerm, 600);
 
   // Store account data in localStorage when it changes
   useEffect(() => {
@@ -57,7 +63,15 @@ const DataProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <DataContext.Provider
-      value={{ account, setAccount, createdPostData, setCreatedPostData }}
+      value={{
+        account,
+        setAccount,
+        createdPostData,
+        setCreatedPostData,
+        globalSearchTerm,
+        setGlobalSearchTerm,
+        globalDebounceSearchTerm,
+      }}
     >
       {children}
     </DataContext.Provider>
