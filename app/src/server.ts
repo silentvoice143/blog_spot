@@ -1,11 +1,11 @@
 import express from "express";
 import connectDB from "./db/connect-db";
-import authRoutes from "./routes/auth-routes";
-import userRoutes from "./routes/user-routes";
-import commentRoutes from "./routes/comment-routes";
-import fileRoutes from "./routes/image-routes";
-import postRoutes from "./routes/post-routes";
-import notificationRoutes from "./routes/notification-routes";
+import authRoutes from "./routes/auth.routes";
+import userRoutes from "./routes/user.routes";
+import commentRoutes from "./routes/comment.routes";
+import fileRoutes from "./routes/image.routes";
+import postRoutes from "./routes/post.routes";
+import notificationRoutes from "./routes/notification.routes";
 import cors from "cors";
 import swaggerUi from "swagger-ui-express";
 import swaggerSpec from "./swagger";
@@ -19,7 +19,14 @@ const PORT = 5000;
 const server = http.createServer(app);
 initSocket(server);
 
-app.use(cors());
+app.use(
+  cors({
+    origin: ["https://blog-spot-client.onrender.com", "http://localhost:3000"],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true, // only if using cookies or auth headers
+  })
+);
 app.use(express.json());
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
