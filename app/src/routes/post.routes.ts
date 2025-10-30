@@ -1,4 +1,4 @@
-import { authenticateToken } from "./../middleware/auth-middleware";
+import { authenticateToken } from "../middleware/auth-middleware";
 import express from "express";
 import Post from "../models/post";
 import Notification from "../models/notification";
