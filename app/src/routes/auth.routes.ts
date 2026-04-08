@@ -2,209 +2,155 @@ import { authenticateToken } from "./../middleware/auth-middleware";
 import express from "express";
 
 import {
-  activeSessions,
-  googleCallback,
-  googleLogin,
   loginUser,
   logoutUser,
-  refreshToken,
-  registerStep1,
-  registerStep2,
-  registerStep3,
-  registerStep4,
+  registerUser,
+  verifyOtp,
 } from "../controllers/auth.controller";
+import { catchAsync } from "../utils/try-catch";
 const passport = require("passport");
 const router = express.Router();
 
 /**
  * @swagger
- * /register-step1:
+ * /api/auth/register:
  *   post:
- *     summary: Register user with email and password (Step 1)
- *     tags:
- *       - Auth - Registration
+ *     summary: Register user (Step 1 - Send OTP)
+ *     tags: [Auth]
+ *     description: Generates OTP and returns a temporary token valid for 5 minutes
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
- *             required:
- *               - email
- *               - password
+ *             required: [email, password, name]
  *             properties:
  *               email:
  *                 type: string
- *                 format: email
+ *                 example: test@example.com
  *               password:
  *                 type: string
- *     responses:
- *       200:
- *         description: Step 1 completed successfully
- *       409:
- *         description: Email already registered
- *       500:
- *         description: Server error
- */
-
-router.post("/register-step1", registerStep1);
-
-/**
- * @swagger
- * /register-step2:
- *   post:
- *     summary: Send OTP to registered email (Step 2)
- *     tags:
- *       - Auth - Registration
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - email
- *             properties:
- *               email:
- *                 type: string
- *                 format: email
- *     responses:
- *       200:
- *         description: OTP sent successfully or already sent
- *       400:
- *         description: Step 1 not completed
- *       500:
- *         description: Server error
- */
-
-router.post("/register-step2", registerStep2);
-
-/**
- * @swagger
- * /register-step2-resendOtp:
- *   post:
- *     summary: Resend OTP for email verification (Step 2)
- *     tags:
- *       - Auth - Registration
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - email
- *             properties:
- *               email:
- *                 type: string
- *                 format: email
- *     responses:
- *       200:
- *         description: OTP resent successfully
- *       400:
- *         description: Step 1 not completed
- *       500:
- *         description: Server error
- */
-
-router.post("/register-step2-resendOtp", registerStep2);
-
-/**
- * @swagger
- * /register-step3:
- *   post:
- *     summary: Verify OTP (Step 3)
- *     tags:
- *       - Auth - Registration
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - email
- *               - otp
- *             properties:
- *               email:
- *                 type: string
- *                 format: email
- *               otp:
- *                 type: string
- *     responses:
- *       200:
- *         description: OTP verified successfully
- *       400:
- *         description: Invalid or expired OTP, or OTP not sent
- *       500:
- *         description: Server error
- */
-
-router.post("/register-step3", registerStep3);
-
-/**
- * @swagger
- * /register-step4:
- *   post:
- *     summary: Complete registration with personal details (Step 4)
- *     tags:
- *       - Auth - Registration
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - email
- *               - address
- *               - name
- *             properties:
- *               email:
- *                 type: string
- *                 format: email
- *               address:
- *                 type: string
+ *                 example: Password@123
  *               name:
  *                 type: string
+ *                 example: John Doe
  *     responses:
  *       200:
- *         description: Registration complete
+ *         description: OTP sent successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: OTP sent
+ *                 token:
+ *                   type: string
+ *                   example: jwt_token_here
  *       400:
- *         description: OTP verification not completed
- *       500:
- *         description: Server error
+ *         description: Bad request
  */
-router.post("/register-step4", registerStep4);
 
 /**
  * @swagger
- * /auth/login:
+ * /api/auth/verify-otp:
+ *   post:
+ *     summary: Verify OTP and complete registration
+ *     tags: [Auth]
+ *     description: Verifies OTP using token and creates user
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [otp, token]
+ *             properties:
+ *               otp:
+ *                 type: string
+ *                 example: "123456"
+ *               token:
+ *                 type: string
+ *                 example: jwt_token_received_from_register
+ *     responses:
+ *       200:
+ *         description: User registered successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: User registered successfully
+ *       400:
+ *         description: Invalid or expired OTP
+ */
+
+/**
+ * @swagger
+ * /api/auth/login:
  *   post:
  *     summary: Login user
  *     tags: [Auth]
+ *     description: Authenticate user with email and password
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
+ *             required: [email, password]
  *             properties:
  *               email:
  *                 type: string
+ *                 example: test@example.com
  *               password:
  *                 type: string
+ *                 example: Password@123
  *               deviceIp:
  *                 type: string
+ *                 example: 192.168.1.1
  *     responses:
  *       200:
  *         description: Login successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: User login successfully!
+ *                 user:
+ *                   type: object
+ *                   properties:
+ *                     token:
+ *                       type: string
+ *                       example: jwt_token_here
+ *                     name:
+ *                       type: string
+ *                       example: John Doe
+ *                     email:
+ *                       type: string
+ *                       example: test@example.com
+ *                     _id:
+ *                       type: string
+ *                       example: user_id_here
  *       400:
  *         description: Invalid credentials
  *       404:
  *         description: User not found
  */
-router.post("/login", loginUser);
+
+router.post("/register", catchAsync(registerUser));
+router.post("/verify-otp", catchAsync(verifyOtp));
+router.post("/login", catchAsync(loginUser));
 
 /**
  * @swagger
@@ -229,7 +175,7 @@ router.post("/login", loginUser);
  *       403:
  *         description: Invalid token or device mismatch
  */
-router.post("/refresh-token", authenticateToken, refreshToken);
+// router.post("/refresh-token", authenticateToken, refreshToken);
 
 /**
  * @swagger
@@ -247,7 +193,7 @@ router.post("/refresh-token", authenticateToken, refreshToken);
  *       200:
  *         description: List of active sessions
  */
-router.get("/active-sessions/:userId", authenticateToken, activeSessions);
+// router.get("/active-sessions/:userId", authenticateToken, activeSessions);
 
 /**
  * @swagger
@@ -292,7 +238,7 @@ router.post("/logout-device", authenticateToken, logoutUser);
  *         description: Google login successful
  */
 // Google Auth
-router.post("/google", googleLogin);
+// router.post("/google", googleLogin);
 
 router.get(
   "/google",
@@ -301,13 +247,13 @@ router.get(
     res.cookie("deviceIp", deviceIp, { httpOnly: true, secure: false });
     next();
   },
-  passport.authenticate("google", { scope: ["profile"] })
+  passport.authenticate("google", { scope: ["profile"] }),
 );
 
-router.get(
-  "/google/callback",
-  passport.authenticate("google", { session: false }),
-  googleCallback
-);
+// router.get(
+//   "/google/callback",
+//   passport.authenticate("google", { session: false }),
+//   googleCallback,
+// );
 
 export default router;

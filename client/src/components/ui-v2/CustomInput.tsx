@@ -26,7 +26,7 @@ const CustomInput = React.forwardRef<HTMLInputElement, InputWithIconProps>(
       bordered,
       ...props
     },
-    ref
+    ref,
   ) => {
     const inputId =
       id || props.name || `input-${Math.random().toString(36).slice(2, 8)}`;
@@ -54,11 +54,13 @@ const CustomInput = React.forwardRef<HTMLInputElement, InputWithIconProps>(
             ref={ref}
             className={cn(
               "w-full px-3 py-2 text-sm border rounded-md transition placeholder:text-gray-400",
-              "focus:ring-2 focus:ring-blue-500 focus:outline-none",
+              "focus:ring-2 focus:ring-green-secondary outline-none focus:outline-none",
               iconLeft && "pl-10",
               iconRight && "pr-10",
-              bordered ? "border-gray-300" : "border-transparent",
-              inputClassName
+              bordered
+                ? "border-gray-300 focus:border-green-secondary"
+                : "border-transparent",
+              inputClassName,
             )}
             {...props}
           />
@@ -71,7 +73,7 @@ const CustomInput = React.forwardRef<HTMLInputElement, InputWithIconProps>(
         </div>
       </div>
     );
-  }
+  },
 );
 
 CustomInput.displayName = "CustomInput";

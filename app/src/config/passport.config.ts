@@ -22,14 +22,14 @@ passport.use(
             name: profile.displayName,
           });
         }
-        const token = generateToken(user);
+        const token = generateToken(user, "1d");
         const refreshToken = generateRefreshToken(user, deviceIp);
         return done(null, { user, token, refreshToken });
       } catch (err) {
         return done(err, null);
       }
-    }
-  )
+    },
+  ),
 );
 
 // passport.use(

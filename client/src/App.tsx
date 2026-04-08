@@ -76,7 +76,7 @@ function App() {
     }
   }, [token]);
   return (
-    <div className="w-screen h-screen overflow-x-hidden overflow-y-hidden font-montserrat">
+    <div className="w-full h-full overflow-x-hidden font-montserrat">
       <LoaderProvider>
         <DataProvider>
           <NavProvider>
@@ -84,10 +84,7 @@ function App() {
               <Loader />
               <BrowserRouter>
                 <Routes>
-                  <Route
-                    path="/login"
-                    element={<Login setAuthentication={setAuthentication} />}
-                  />
+                  <Route path="/login" element={<Login />} />
                   <Route
                     path="/signup"
                     element={<Register setAuthentication={setAuthentication} />}

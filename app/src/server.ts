@@ -11,6 +11,7 @@ import swaggerUi from "swagger-ui-express";
 import swaggerSpec from "./swagger";
 import http from "http";
 import { initSocket } from "./socket";
+import { globalException } from "./middleware/exception-handler";
 
 require("./config/passport.config");
 
@@ -25,7 +26,7 @@ app.use(
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true, // only if using cookies or auth headers
-  })
+  }),
 );
 app.use(express.json());
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
@@ -38,6 +39,8 @@ app.use("/api/comments", commentRoutes);
 app.use("/api/file", fileRoutes);
 app.use("/api/post", postRoutes);
 app.use("/api/notification", notificationRoutes);
+
+app.use(globalException);
 
 app.get("/", (req, res) => {
   res.send("Server is running");

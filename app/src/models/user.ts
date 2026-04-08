@@ -65,23 +65,13 @@ const UserSchema: Schema = new Schema(
     },
     bio: { type: String, default: "" },
     gender: { type: String, enum: ["male", "female", "other"] },
-    following: {
-      type: [
-        {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "user",
-        },
-      ],
-      default: [], // Default to an empty array if no value is provided
+    followersCount: {
+      type: Number,
+      default: 0,
     },
-    followers: {
-      type: [
-        {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "user",
-        },
-      ],
-      default: [], // Default to an empty array if no value is provided
+    followingCount: {
+      type: Number,
+      default: 0,
     },
     links: {
       type: [
@@ -93,16 +83,8 @@ const UserSchema: Schema = new Schema(
       default: [],
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
-
-UserSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next();
-  const salt = await bcrypt.genSalt(10);
-
-  this.password = await bcrypt.hash(this.password, salt);
-  next();
-});
 
 const User = mongoose.model("user", UserSchema);
 

@@ -4,22 +4,25 @@ import dotenv from "dotenv";
 import { RefreshToken } from "../models/token";
 dotenv.config();
 
-export const generateToken = (user: any): string => {
-  return jwt.sign({ id: user._id, name: user.name }, process.env.JWT_SECRET, {
-    expiresIn: "1d",
+export const generateToken = (
+  data: any,
+  expire: "5m" | "15m" | "1d" | "30d",
+): string => {
+  return jwt.sign(data, process.env.JWT_SECRET as string, {
+    expiresIn: expire,
   });
 };
 
 export const generateRefreshToken = async (
   user: any,
-  deviceIp: String
+  deviceIp: String,
 ): Promise<string> => {
   const refreshToken = jwt.sign(
     { id: user._id, name: user.name },
-    process.env.JWT_SECRET,
+    process.env.JWT_SECRET as string,
     {
       expiresIn: "7d",
-    }
+    },
   );
 
   await RefreshToken.create({
