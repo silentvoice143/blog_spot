@@ -62,7 +62,7 @@
   }
   body,
   #root {
-    @apply bg-background text-foreground h-dvh w-full;
+    @apply bg-background text-foreground h-[100vh] w-full;
     @apply font-roboto;
   }
   p {

@@ -67,10 +67,17 @@ const Login = () => {
             </div>
           </div>
         </div>
-        <div className="flex-1 hidden sm:flex flex-col gap-6 justify-center items-center bg-gradient-to-t from-green-primary to-green-tertiary text-white px-6 sm:px-8 md:px-20 py-8">
-          <h1 className="text-6xl font-normal">Think</h1>
-          <h1 className="ml-16 text-6xl font-normal">Write</h1>
-          <h1 className="-ml-6 text-6xl font-normal">Share</h1>
+        <div className="flex-1 hidden sm:flex  bg-gradient-to-t from-green-primary to-green-tertiary text-white px-6 sm:px-8 md:px-20 py-8 mr-6 sm:mr-8 md:mr-20 lg:mr-0 relative">
+          <div className="flex flex-1 flex-col gap-6 justify-center items-center">
+            <h1 className="text-6xl font-normal">Think</h1>
+            <h1 className="ml-16 text-6xl font-normal">Write</h1>
+            <h1 className="-ml-6 text-6xl font-normal">Share</h1>
+          </div>
+          <img
+            className="absolute -right-64 -bottom-64 md:-bottom-72 rotate-[20deg] scale-50 opacity-70"
+            src="/images/feather.png"
+            alt=""
+          />
         </div>
       </div>
     </div>
