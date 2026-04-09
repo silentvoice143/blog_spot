@@ -2,6 +2,7 @@ import { authenticateToken } from "./../middleware/auth-middleware";
 import express from "express";
 
 import {
+  getUser,
   loginUser,
   logoutUser,
   registerUser,
@@ -151,6 +152,7 @@ const router = express.Router();
 router.post("/register", catchAsync(registerUser));
 router.post("/verify-otp", catchAsync(verifyOtp));
 router.post("/login", catchAsync(loginUser));
+router.get("/user", authenticateToken, catchAsync(getUser));
 
 /**
  * @swagger

@@ -13,7 +13,7 @@ export const authenticateToken = (req: any, res: any, next: NextFunction) => {
       .status(401)
       .json({ success: true, message: "Unauthorized: No token provided!" });
 
-  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+  jwt.verify(token, process.env.JWT_SECRET as string, (err: any, user: any) => {
     if (err) {
       return res
         .status(403)

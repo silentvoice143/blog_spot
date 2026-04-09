@@ -2,10 +2,44 @@ import CustomInput from "@/components/ui-v2/CustomInput";
 import { Button } from "@/components/ui/button";
 import { Eye, EyeClosed, EyeClosedIcon, Lock, Mail } from "lucide-react";
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { login } from "@/services/auth-service";
+import { useStore } from "@/store";
 
 const Login = () => {
+  const navigate = useNavigate();
+  const [form, setForm] = useState({
+    email: "",
+    password: "",
+  });
   const [showPassword, setShowPassword] = useState(false);
+  const { login: loginUser, isAuthenticated } = useStore((state) => state);
+
+  const handleChange = (key, value) => {
+    setForm((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const [loading, setLoading] = useState(false);
+
+  const handleLogin = async () => {
+    try {
+      setLoading(true);
+      const res = await login({ ...form, deviceIp: "123456" });
+
+      console.log("Login success:", res);
+
+      // 👉 store token if exists
+      // localStorage.setItem("token", res.token);
+      loginUser(res.user, res.token);
+
+      // 👉 redirect (example)
+      navigate("/");
+    } catch (err) {
+      console.error("Login failed:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <div className="flex h-full justify-center items-center">
       <div className=" w-[1000px] max-w-360 flex">
@@ -23,6 +57,8 @@ const Login = () => {
                 placeholder="Enter your email"
                 iconLeft={<Mail size={16} />}
                 bordered={true}
+                value={form.email}
+                onChange={(e) => handleChange("email", e.target.value)}
               />
               <div>
                 <div className="relative">
@@ -33,6 +69,8 @@ const Login = () => {
                     iconLeft={<Lock size={16} />}
                     bordered={true}
                     type={showPassword ? "text" : "password"}
+                    value={form.password}
+                    onChange={(e) => handleChange("password", e.target.value)}
                   />
                   <button
                     onClick={() => setShowPassword(!showPassword)}
@@ -52,8 +90,12 @@ const Login = () => {
                   </Button>
                 </div>
               </div>
-              <Button className="w-full px-2 py-1 h-10 hover:bg-green-tertiary bg-green-primary text-white">
-                Sign In
+              <Button
+                onClick={handleLogin}
+                disabled={loading}
+                className="w-full px-2 py-1 h-10 hover:bg-green-tertiary bg-green-primary text-white"
+              >
+                {loading ? "Signing In..." : "Sign In"}
               </Button>
             </div>
             <div className="flex justify-center gap-2">

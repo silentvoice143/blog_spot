@@ -3,18 +3,23 @@
     "allowJs": true,
     "checkJs": true,
     "jsx": "react-jsx",
+
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*","vite-env.d.ts"]
+      "@/*": ["src/*"]
     },
-    "target": "ESNext",                   
-    "module": "ESNext",                  
-    "moduleResolution": "Bundler",     
-    "lib": ["DOM", "ESNext"],         
-    "esModuleInterop": true,            
-    "skipLibCheck": true,               
-    "strict": false                     
+    "ignoreDeprecations": "6.0",
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["DOM", "ESNext"],
+
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "strict": false,
+
+    "noEmit": true
   },
-  "include": ["src"],
+  "include": ["src", "vite-env.d.ts"],
   "exclude": ["node_modules"]
 }

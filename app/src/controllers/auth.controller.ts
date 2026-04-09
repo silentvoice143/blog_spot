@@ -9,6 +9,7 @@ import oauth2Client from "../config/google.config";
 import { sendEmail } from "../services/email.service";
 import { generateOTP } from "../utils/generate-otp";
 import { CustomException } from "../utils/custom-exception";
+import { AuthRequest } from "../types";
 const passport = require("passport");
 
 export const registerUser = async (req: Request, res: Response) => {
@@ -48,6 +49,7 @@ export const verifyOtp = async (req: Request, res: Response) => {
 
 export const loginUser = async (req: any, res: any) => {
   const { email, password, deviceIp } = req.body;
+  console.log(email, password, deviceIp);
 
   const user: IUser | null = await User.findOne({ email });
 
@@ -61,23 +63,33 @@ export const loginUser = async (req: any, res: any) => {
     throw new CustomException("Invalid credentials", 400);
   }
 
-  const token = await generateToken(user, "1d");
+  const token = await generateToken({ id: user._id, name: user.name }, "1d");
   // const refreshToken = await generateRefreshToken(user, deviceIp);
 
   const userObj = user.toObject();
   delete userObj.password;
+  delete userObj._v;
 
   return res.status(200).json({
     success: true,
     message: "User login successfully!",
-    user: {
-      token,
-      // refreshToken,
-      name: userObj.name,
-      email: userObj.email,
-      _id: userObj._id,
-    },
+    user: userObj,
+    token: token,
   });
+};
+
+export const getUser = async (req: AuthRequest, res: Response) => {
+  const { id } = req.user;
+  const user = await User.findById(id);
+  if (!user) {
+    throw new CustomException("User not found", 404);
+  }
+
+  const userObj = user.toObject();
+  delete userObj.password;
+  delete userObj._v;
+
+  return res.status(200).json({ success: true, user: userObj });
 };
 
 export const activeSessions = async (req: any, res: any) => {

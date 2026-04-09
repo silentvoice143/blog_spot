@@ -1,8 +1,8 @@
 import { publicIp, publicIpv4, publicIpv6 } from "public-ip";
+import { useStore } from "@/store";
+
 export const getAccessToken = () => {
-  // console.log("getting token");
-  // console.log(sessionStorage.getItem("accessToken"));
-  return sessionStorage.getItem("accessToken");
+  return useStore.getState().token;
 };
 
 export const getPublicIP = async () => {
