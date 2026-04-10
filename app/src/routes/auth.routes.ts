@@ -9,7 +9,7 @@ import {
   verifyOtp,
 } from "../controllers/auth.controller";
 import { catchAsync } from "../utils/try-catch";
-const passport = require("passport");
+
 const router = express.Router();
 
 /**
@@ -149,7 +149,7 @@ const router = express.Router();
  *         description: User not found
  */
 
-router.post("/register", catchAsync(registerUser));
+router.post("/signup", catchAsync(registerUser));
 router.post("/verify-otp", catchAsync(verifyOtp));
 router.post("/login", catchAsync(loginUser));
 router.get("/user", authenticateToken, catchAsync(getUser));
@@ -242,15 +242,15 @@ router.post("/logout-device", authenticateToken, logoutUser);
 // Google Auth
 // router.post("/google", googleLogin);
 
-router.get(
-  "/google",
-  (req, res, next) => {
-    const deviceIp = req.query.deviceIp;
-    res.cookie("deviceIp", deviceIp, { httpOnly: true, secure: false });
-    next();
-  },
-  passport.authenticate("google", { scope: ["profile"] }),
-);
+// router.get(
+//   "/google",
+//   (req, res, next) => {
+//     const deviceIp = req.query.deviceIp;
+//     res.cookie("deviceIp", deviceIp, { httpOnly: true, secure: false });
+//     next();
+//   },
+//   passport.authenticate("google", { scope: ["profile"] }),
+// );
 
 // router.get(
 //   "/google/callback",

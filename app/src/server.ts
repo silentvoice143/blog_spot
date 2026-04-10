@@ -1,19 +1,16 @@
 import express from "express";
-import connectDB from "./db/connect-db";
-import authRoutes from "./routes/auth.routes";
-import userRoutes from "./routes/user.routes";
-import commentRoutes from "./routes/comment.routes";
-import fileRoutes from "./routes/image.routes";
-import postRoutes from "./routes/post.routes";
-import notificationRoutes from "./routes/notification.routes";
+import connectDB from "./db/connect-db.js";
+import authRoutes from "./routes/auth.routes.js";
+
 import cors from "cors";
 import swaggerUi from "swagger-ui-express";
-import swaggerSpec from "./swagger";
+import swaggerSpec from "./config/swagger.js";
 import http from "http";
-import { initSocket } from "./socket";
-import { globalException } from "./middleware/exception-handler";
+import { initSocket } from "./socket.js";
+import { globalException } from "./middleware/exception-handler.js";
+import RedisService from "./config/redis.js";
 
-require("./config/passport.config");
+
 
 const app = express();
 const PORT = 5000;
@@ -32,13 +29,11 @@ app.use(express.json());
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 connectDB();
+const redis = RedisService.getInstance();
+await redis.connect();
 
 app.use("/api/auth", authRoutes);
-app.use("/api/users", userRoutes);
-app.use("/api/comments", commentRoutes);
-app.use("/api/file", fileRoutes);
-app.use("/api/post", postRoutes);
-app.use("/api/notification", notificationRoutes);
+
 
 app.use(globalException);
 

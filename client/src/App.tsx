@@ -12,6 +12,7 @@ import {
   useNavigate,
 } from "react-router-dom";
 import Login from "./pages/auth/Login";
+import Register from "./pages/auth/Register";
 
 import { LoaderProvider, useLoader } from "./context/LoaderProvider";
 import { Loader } from "./components/loader";
@@ -32,6 +33,7 @@ import { useStore } from "./store";
 import { useApiError } from "./hooks/use-api-error";
 import { checkAuth } from "./services/auth-service";
 import MainLayout from "./layout/main-layout";
+import VerifyOtp from "./pages/auth/verify-otp";
 
 const PrivateRoute = ({ isAuthenticated }, ...props) => {
   const location = useLocation();
@@ -59,6 +61,11 @@ function App() {
               <BrowserRouter>
                 <Routes>
                   <Route path="/login" element={<Login />} />
+                  <Route path="/signup" element={<Register />} />
+                  <Route
+                    path="/signup/verify-otp/:name/:email"
+                    element={<VerifyOtp />}
+                  />
 
                   <Route
                     element={<PrivateRoute isAuthenticated={isAuthenticated} />}

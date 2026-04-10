@@ -1,0 +1,49 @@
+version: "3.8"
+
+services:
+  backend:
+    env_file:
+      - .env
+    build: . # Build from Dockerfile in current directory
+    container_name: node-backend
+
+    ports:
+      - "5000:5000" # Expose backend API to localhost:5000
+
+    depends_on:
+      - mongo # Ensure Mongo starts before backend
+      - redis # Ensure Redis starts before backend
+
+    volumes:
+      - .:/app # Mount local code into container (for dev hot reload)
+      - /app/node_modules
+
+    restart: always # Restart container if it crashes
+
+
+  mongo:
+    image: mongo # Official MongoDB image
+    container_name: mongodb
+
+    ports:
+      - "27017:27017" # Expose MongoDB locally (optional for dev tools)
+
+    volumes:
+      - mongo-data:/data/db # Persist DB data (VERY IMPORTANT)
+
+    restart: always
+
+
+  redis:
+    image: redis # Official Redis image
+    container_name: redis-server
+
+    ports:
+      - "6379:6379" # Expose Redis locally
+
+    restart: always
+
+
+# Named volume for MongoDB persistence
+volumes:
+  mongo-data:

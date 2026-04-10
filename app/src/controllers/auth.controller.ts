@@ -1,50 +1,77 @@
 import bcrypt from "bcrypt";
-import User, { IUser } from "../models/user";
-import { RefreshToken } from "../models/token";
-import { generateToken } from "../utils/generate-token";
-import axios from "axios";
+import User, { IUser } from "../models/user.js";
+import { RefreshToken } from "../models/token.js";
+import { generateToken } from "../utils/generate-token.js";
+
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import oauth2Client from "../config/google.config";
-import { sendEmail } from "../services/email.service";
-import { generateOTP } from "../utils/generate-otp";
-import { CustomException } from "../utils/custom-exception";
-import { AuthRequest } from "../types";
-const passport = require("passport");
+
+import { generateOTP } from "../utils/generate-otp.js";
+import { CustomException } from "../utils/custom-exception.js";
+import { AuthRequest } from "../types/index.js";
+import RedisService from "../config/redis.js";
+import { sendEmail } from "../services/email.service.js";
+const redis = RedisService.getInstance().getClient();
 
 export const registerUser = async (req: Request, res: Response) => {
-  const { email, password, name } = req.body;
-  const otp = generateOTP();
-  const hashPassword = await bcrypt.hash(password, 10);
+  const { email, name } = req.body;
+  const existingOtp = await redis.get(`otp:${email}`);
 
-  const token = generateToken(
-    { email, password: hashPassword, name, otp },
-    "5m",
-  );
+  if (existingOtp) {
+
+    const ttl = await redis.ttl(`otp:${email}`);
+
+    throw new CustomException(
+      `OTP already sent. Please wait ${ttl} seconds to resend.`, 400
+    );
+  }
+  const otp = generateOTP();
+  await redis.set(`otp:${email}`, otp, {
+    EX: 40,
+  });
+  console.log(email, name)
+  sendEmail({
+    to: email,
+    subject: "OTP",
+    text: `Your OTP is ${otp}`,
+  });
+
+  console.log("Generated OTP:", otp);
+
   return res.json({
     message: "OTP sent",
-    token,
+    user: { email, name }
   });
 };
 
 export const verifyOtp = async (req: Request, res: Response) => {
-  const { otp, token } = req.body;
+  const { email, name, otp, password } = req.body;
 
-  const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
+  const storedOtp = await redis.get(`otp:${email}`);
 
-  if (decoded.otp !== otp) {
-    throw new CustomException("Invalid OTP", 400);
+  if (!storedOtp || storedOtp !== otp) {
+    throw new CustomException("Invalid or expired OTP", 400);
   }
 
+  // Delete OTP after successful verification
+  await redis.del(`otp:${email}`);
+
+
+  const hashedPassword = await bcrypt.hash(password, 10);
+
   const user = await User.create({
-    email: decoded.email,
-    name: decoded.name,
-    password: decoded.password,
+    email: email,
+    name: name,
+    password: hashedPassword
   });
+
+  const userObj = user.toObject();
+  delete userObj.password;
+  delete userObj._v;
 
   return res
     .status(200)
-    .json({ message: "User registered successfully", user });
+    .json({ message: "User registered successfully", user: userObj });
 };
 
 export const loginUser = async (req: any, res: any) => {

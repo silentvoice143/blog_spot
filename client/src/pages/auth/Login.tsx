@@ -42,10 +42,10 @@ const Login = () => {
   };
   return (
     <div className="flex h-full justify-center items-center">
-      <div className=" w-[1000px] max-w-360 flex">
-        <div className="flex-1 px-6 sm:px-8 md:px-20 py-8">
+      <div className="w-full max-w-[1000px] max-w-360 flex">
+        <div className="flex-1 px-6 md:px-12 lg:px-20 py-8">
           <h3 className="text-green-primary mb-[10vh]">BlogSpot</h3>
-          <div className=" space-y-8">
+          <div className="space-y-8">
             <div>
               <h4>Welcome Back!</h4>
               <p>Sign In to write about your interests.</p>
@@ -90,13 +90,15 @@ const Login = () => {
                   </Button>
                 </div>
               </div>
-              <Button
-                onClick={handleLogin}
-                disabled={loading}
-                className="w-full px-2 py-1 h-10 hover:bg-green-tertiary bg-green-primary text-white"
-              >
-                {loading ? "Signing In..." : "Sign In"}
-              </Button>
+              <div className="">
+                <Button
+                  onClick={handleLogin}
+                  disabled={loading}
+                  className="w-full px-2 py-1 h-10 hover:bg-green-tertiary bg-green-primary text-white"
+                >
+                  {loading ? "Signing In..." : "Sign In"}
+                </Button>
+              </div>
             </div>
             <div className="flex justify-center gap-2">
               Don't have an account?{" "}
@@ -109,7 +111,7 @@ const Login = () => {
             </div>
           </div>
         </div>
-        <div className="flex-1 hidden sm:flex  bg-gradient-to-t from-green-primary to-green-tertiary text-white px-6 sm:px-8 md:px-20 py-8 mr-6 sm:mr-8 md:mr-20 lg:mr-0 relative">
+        <div className="flex-1 hidden sm:flex  bg-gradient-to-t from-green-primary to-green-tertiary text-white px-6 md:px-12 lg:px-20 py-8 mr-6 sm:mr-8 md:mr-20 lg:mr-0 relative">
           <div className="flex flex-1 flex-col gap-6 justify-center items-center">
             <h1 className="text-6xl font-normal">Think</h1>
             <h1 className="ml-16 text-6xl font-normal">Write</h1>

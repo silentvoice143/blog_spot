@@ -11,6 +11,7 @@ interface InputWithIconProps
   label?: string;
   labelClassName?: string;
   bordered?: boolean;
+  error?:string;
 }
 
 const CustomInput = React.forwardRef<HTMLInputElement, InputWithIconProps>(
@@ -24,7 +25,9 @@ const CustomInput = React.forwardRef<HTMLInputElement, InputWithIconProps>(
       labelClassName,
       id,
       bordered,
+      error,
       ...props
+
     },
     ref,
   ) => {
@@ -71,6 +74,7 @@ const CustomInput = React.forwardRef<HTMLInputElement, InputWithIconProps>(
             </div>
           )}
         </div>
+        {error && <p className="text-red-500 text-sm">{error}</p>}
       </div>
     );
   },
