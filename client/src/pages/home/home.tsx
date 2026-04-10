@@ -1,20 +1,17 @@
 import { useEffect, useRef, useState } from "react";
+import { useInView } from "react-intersection-observer";
 import PostList from "../../components/posts/post-list";
 import { PlusIcon } from "@heroicons/react/24/outline";
 import Tab from "../../components/ui-v2/Tab";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { Card, CardContent } from "@/components/ui/card";
 import SmallCardPost from "@/components/posts/smallCardPost";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import API from "@/services/api";
 import { getAllPost, getRecommendedPost } from "@/services/apiService";
-import { Loader2 } from "lucide-react";
 import Loader from "@/components/ui/loader";
 import { Button } from "@/components/ui/button";
 import { FadeIn } from "@/components/animations/fade-in";
 import TypingText from "@/components/animations/typing-text";
-import { useStore } from "@/store";
 import MainLayout from "@/layout/main-layout";
 export type TabItem = {
   id: number | string;
@@ -148,6 +145,17 @@ const Home = () => {
     );
   }
 
+  const { ref: topRef, inView: topInView } = useInView({
+    threshold: 0,
+  });
+
+  const { ref: bottomRef, inView: bottomInView } = useInView({
+    threshold: 1,
+  });
+  const [mode, setMode] = useState<"relative" | "fixed" | "absolute">("relative");
+  const sidebarContainerRef = useRef<HTMLDivElement>(null);
+
+
   const tab: TabItem[] = [
     {
       id: 1,
@@ -216,15 +224,25 @@ const Home = () => {
     getRecommendedPostData();
   }, []);
 
+  useEffect(() => {
+    if (bottomInView) {
+      setMode("absolute");
+    } else if (!topInView) {
+      setMode("fixed");
+    } else {
+      setMode("relative");
+    }
+  }, [topInView, bottomInView]);
+
   if (loading) {
     return <Loader />;
   }
 
   return (
     <MainLayout>
-      <div className="h-full overflow-y-auto p-[32px] justify-center">
-        <div className="flex flex-row justify-center">
-          <div className={`flex flex-col flex-1 max-w-[800px] `}>
+      <div className="min-h-screen px-8 justify-center">
+        <div className="h-full flex flex-1 flex-row justify-center">
+          <div className={`h-full flex flex-col flex-1 max-w-[800px] py-8`}>
             <div className="w-full md:w-2/3">
               <Tab
                 tab={tab}
@@ -239,67 +257,100 @@ const Home = () => {
               />
             </div>
             {activeTab === 2 ? (
-              <PostList posts={posts} />
+              // <PostList posts={posts} />
+              <div className="flex flex-col gap-4">
+                <div className="h-[200px] w-full bg-red-300"></div>
+                <div className="h-[200px] w-full bg-red-300"></div>
+                <div className="h-[200px] w-full bg-red-300"></div>
+                <div className="h-[200px] w-full bg-red-300"></div>
+                <div className="h-[200px] w-full bg-red-300"></div>
+                <div className="h-[200px] w-full bg-red-300"></div>
+                <div className="h-[200px] w-full bg-red-300"></div>
+                <div className="h-[200px] w-full bg-red-300"></div>
+                <div className="h-[200px] w-full bg-red-300"></div>
+                <div className="h-[200px] w-full bg-red-300"></div>
+                <div className="h-[200px] w-full bg-red-300"></div>
+                <div className="h-[200px] w-full bg-red-300"></div>
+              </div>
             ) : (
               "This is following tab."
             )}
           </div>
 
+
           {/* Right Content */}
-          <div
-            className={`w-[20%] hidden flex-col border-l-[1px] border-gray-lighter pl-5 gap-5 lg:flex`}
-          >
-            <div>
-              <h2 className="mb-4 text-base font-medium">Most viewed</h2>
-              <div className="flex flex-col gap-2">
-                {recommended.map((post) => (
-                  <SmallCardPost key={post._id} post={post} />
-                ))}
+          <div className="relative w-[20%] hidden lg:block" ref={sidebarContainerRef}>
+            <div ref={topRef} className="h-[1px] w-full bg-red-300"></div>
+            {/* SIDEBAR */}
+            <div
+
+              className=""
+            >
+              <div className="flex flex-col border-l pl-5 gap-5 py-8">
+                <div>
+                  <h2 className="mb-4 text-base font-medium">Most viewed</h2>
+                  <div className="flex flex-col gap-2">
+
+
+                    {recommended.map((post) => (
+                      <SmallCardPost key={post._id} post={post} />
+                    ))}
+                    <div className="h-[200px] w-full bg-red-300"></div>
+                    <div className="h-[200px] w-full bg-red-300"></div>
+                    <div className="h-[200px] w-full bg-red-300"></div>
+                    <div className="h-[200px] w-full bg-red-300"></div>
+                    <div className="h-[200px] w-full bg-red-300"></div>
+                    <div className="h-[200px] w-full bg-red-300"></div>
+                  </div>
+                </div>
+                <Separator />
+                <div>
+                  <h2 className="mb-4 text-base font-medium">Recommended tags</h2>
+                  <div className="flex flex-wrap gap-2">
+                    <Badge
+                      variant="secondary"
+                      className="cursor-pointer text-nowrap"
+                    >
+                      Generative AI
+                    </Badge>
+                    <Badge
+                      variant="secondary"
+                      className="cursor-pointer text-nowrap"
+                    >
+                      Medical
+                    </Badge>
+                    <Badge
+                      variant="secondary"
+                      className="cursor-pointer text-nowrap"
+                    >
+                      Technology
+                    </Badge>
+                    <Badge
+                      variant="secondary"
+                      className="cursor-pointer text-nowrap"
+                    >
+                      Generative AI
+                    </Badge>
+                    <Badge
+                      variant="secondary"
+                      className="cursor-pointer text-nowrap"
+                    >
+                      Medical
+                    </Badge>
+                    <Badge
+                      variant="secondary"
+                      className="cursor-pointer text-nowrap"
+                    >
+                      Technology
+                    </Badge>
+                  </div>
+                </div>
               </div>
             </div>
-            <Separator />
-            <div>
-              <h2 className="mb-4 text-base font-medium">Recommended tags</h2>
-              <div className="flex flex-wrap gap-2">
-                <Badge
-                  variant="secondary"
-                  className="cursor-pointer text-nowrap"
-                >
-                  Generative AI
-                </Badge>
-                <Badge
-                  variant="secondary"
-                  className="cursor-pointer text-nowrap"
-                >
-                  Medical
-                </Badge>
-                <Badge
-                  variant="secondary"
-                  className="cursor-pointer text-nowrap"
-                >
-                  Technology
-                </Badge>
-                <Badge
-                  variant="secondary"
-                  className="cursor-pointer text-nowrap"
-                >
-                  Generative AI
-                </Badge>
-                <Badge
-                  variant="secondary"
-                  className="cursor-pointer text-nowrap"
-                >
-                  Medical
-                </Badge>
-                <Badge
-                  variant="secondary"
-                  className="cursor-pointer text-nowrap"
-                >
-                  Technology
-                </Badge>
-              </div>
-            </div>
+
+            <div ref={bottomRef} className="h-[1px] w-full bg-red-300"></div>
           </div>
+
         </div>
       </div>
     </MainLayout>
