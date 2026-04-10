@@ -5,8 +5,12 @@ module.exports = {
   darkMode: ["class", "class"],
   theme: {
     extend: {
+      width: {
+        "8xl": "1440px",
+      },
       screens: {
         xl2: "1440px",
+        xl3: "1580px",
       },
       animation: {
         loader: "loaderAnim 2s linear infinite",

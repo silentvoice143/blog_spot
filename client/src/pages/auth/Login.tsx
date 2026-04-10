@@ -5,9 +5,12 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { login } from "@/services/auth-service";
 import { useStore } from "@/store";
+import { useFormValidation } from "@/hooks/use-zod-form";
+import { loginSchema } from "@/validation/auth-validation";
 
 const Login = () => {
   const navigate = useNavigate();
+  const { errors, validateField, validateForm } = useFormValidation(loginSchema);
   const [form, setForm] = useState({
     email: "",
     password: "",
@@ -23,6 +26,10 @@ const Login = () => {
 
   const handleLogin = async () => {
     try {
+      const error = validateForm(form);
+      if (error) {
+        return;
+      }
       setLoading(true);
       const res = await login({ ...form, deviceIp: "123456" });
 
@@ -59,6 +66,7 @@ const Login = () => {
                 bordered={true}
                 value={form.email}
                 onChange={(e) => handleChange("email", e.target.value)}
+                error={errors.email}
               />
               <div>
                 <div className="relative">
@@ -71,10 +79,11 @@ const Login = () => {
                     type={showPassword ? "text" : "password"}
                     value={form.password}
                     onChange={(e) => handleChange("password", e.target.value)}
+                    error={errors.password}
                   />
                   <button
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute bottom-3 right-4 text-gray-400"
+                    className="absolute top-10 right-4 text-gray-400"
                     type="button"
                   >
                     {!showPassword ? (

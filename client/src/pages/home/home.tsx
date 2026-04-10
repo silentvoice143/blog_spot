@@ -24,7 +24,8 @@ export type TabItem = {
 };
 
 const Home = () => {
-  const { isAuthenticated } = useStore((state) => state);
+  // const { isAuthenticated } = useStore((state) => state);
+  const isAuthenticated = true;
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<number | string>(2);
   const [loading, setLoading] = useState(false);

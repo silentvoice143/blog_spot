@@ -11,8 +11,8 @@ import {
   useLocation,
   useNavigate,
 } from "react-router-dom";
-import Login from "./pages/auth/Login";
-import Register from "./pages/auth/Register";
+import Login from "./pages/auth/login";
+import Register from "./pages/auth/register";
 
 import { LoaderProvider, useLoader } from "./context/LoaderProvider";
 import { Loader } from "./components/loader";

@@ -3,6 +3,7 @@ import React from "react";
 function WriteIcon({ height = 20, width = 20, color = "black" }) {
   return (
     <svg
+      strokeWidth={1}
       width={width}
       height={height}
       viewBox="0 0 20 20"
