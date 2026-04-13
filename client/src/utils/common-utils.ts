@@ -1,5 +1,7 @@
 import { publicIp, publicIpv4, publicIpv6 } from "public-ip";
 import { useStore } from "@/store";
+import { format } from "date-fns";
+
 
 export const getAccessToken = () => {
   return useStore.getState().token;
@@ -34,4 +36,8 @@ export const formatTime = (seconds: number) => {
   const sec = seconds % 60;
 
   return `${min}:${sec < 10 ? "0" : ""}${sec}`;
+};
+
+export const formatDate = (date: Date) => {
+  return format(date, "dd MMM yyyy");
 };

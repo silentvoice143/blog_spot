@@ -10,7 +10,7 @@ import ChangeIcon from "@/components/icons/ChangeIcon";
 import MultiSelect from "@/components/ui-v2/MultiSelect";
 import { useLoader } from "@/context/LoaderProvider";
 
-const CreatePost = ({ setAuthentication }) => {
+const CreatePost = () => {
   const [createdPostData, setCreatedPostData] = useState(null);
   const [step, setStep] = useState(1);
   const navigate = useNavigate();
@@ -95,11 +95,7 @@ const CreatePost = ({ setAuthentication }) => {
       <div className="w-full flex-1 flex flex-col">
         {step === 1 ? (
           <>
-            <NavbarV2
-              handleDraft={() => handleSave("draft")}
-              setAuthentication={setAuthentication}
-              setSteps={(s: number) => setStep(s)}
-            />
+
             <div className="relative flex flex-col items-center flex-1 w-screen h-auto p-8 overflow-x-hidden overflow-y-auto">
               <div className="flex w-[800px]">
                 <div className="flex flex-col flex-1">

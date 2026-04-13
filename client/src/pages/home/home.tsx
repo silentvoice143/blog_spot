@@ -13,6 +13,26 @@ import { Button } from "@/components/ui/button";
 import { FadeIn } from "@/components/animations/fade-in";
 import TypingText from "@/components/animations/typing-text";
 import MainLayout from "@/layout/main-layout";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import Autoplay from "embla-carousel-autoplay";
+import PostCard, { Post } from "@/components/shared/post-card";
+import CardPost from "@/components/posts/cardPost";
+import { formatDate } from "@/utils/common-utils";
+import { CATEGORIES } from "@/constant";
+
 export type TabItem = {
   id: number | string;
   label: React.ReactNode;
@@ -152,9 +172,10 @@ const Home = () => {
   const { ref: bottomRef, inView: bottomInView } = useInView({
     threshold: 1,
   });
-  const [mode, setMode] = useState<"relative" | "fixed" | "absolute">("relative");
+  const [mode, setMode] = useState<"relative" | "fixed" | "absolute">(
+    "relative",
+  );
   const sidebarContainerRef = useRef<HTMLDivElement>(null);
-
 
   const tab: TabItem[] = [
     {
@@ -238,11 +259,147 @@ const Home = () => {
     return <Loader />;
   }
 
+  const dummyPosts: Post[] = [
+    {
+      image:
+        "https://upload.wikimedia.org/wikipedia/commons/b/b6/Image_created_with_a_mobile_phone.png",
+      tags: ["Tech", "AI"],
+      title: "The Rise of Artificial Intelligence",
+      excerpt:
+        "AI is reshaping industries and redefining how humans interact with machines.",
+      author: "Aarav Sharma",
+      date: "Apr 10, 2026",
+      readTime: "6 min",
+    },
+
+    {
+      image:
+        "https://upload.wikimedia.org/wikipedia/commons/b/b6/Image_created_with_a_mobile_phone.png",
+      tags: ["Programming", "React"],
+      title: "Mastering React in 2026",
+      excerpt:
+        "React continues to evolve with new hooks and performance improvements.",
+      author: "Rohan Gupta",
+      date: "Apr 6, 2026",
+      readTime: "7 min",
+    },
+    {
+      image: "",
+      tags: ["Design", "UI/UX"],
+      title: "Design Trends You Should Follow",
+      excerpt:
+        "Minimalism, glassmorphism, and bold typography are leading design trends.",
+      author: "Neha Kapoor",
+      date: "Apr 5, 2026",
+      readTime: "5 min",
+    },
+    {
+      image:
+        "https://upload.wikimedia.org/wikipedia/commons/b/b6/Image_created_with_a_mobile_phone.png",
+      tags: ["Finance", "Crypto"],
+      title: "Understanding Crypto Markets",
+      excerpt:
+        "Crypto markets are volatile but offer huge opportunities for investors.",
+      author: "Karan Mehta",
+      date: "Apr 3, 2026",
+      readTime: "6 min",
+    },
+    {
+      image: "https://source.unsplash.com/random/300x400?productivity",
+      tags: ["Productivity", "Self Growth"],
+      title: "Boost Your Daily Productivity",
+      excerpt:
+        "Simple habits can drastically improve your daily efficiency and focus.",
+      author: "Simran Kaur",
+      date: "Apr 1, 2026",
+      readTime: "3 min",
+    },
+  ];
+
+  const dummyCardPosts = [
+    {
+      _id: "1",
+      title: "Understanding Async JavaScript",
+      description:
+        "Async JavaScript allows non-blocking execution using promises and async/await.",
+      createdAt: "2026-04-10T10:30:00Z",
+      email: "aarav.sharma@example.com",
+      picture:
+        "https://upload.wikimedia.org/wikipedia/commons/b/b6/Image_created_with_a_mobile_phone.png",
+      author: {
+        name: "Aarav Sharma",
+      },
+      tags: ["JavaScript", "Async", "Programming"],
+      comments: [{}, {}, {}], // 3 comments
+    },
+    {
+      _id: "2",
+      title: "React vs Next.js in 2026",
+      description:
+        "Choosing between React and Next.js depends on your app's needs and SEO requirements.",
+      createdAt: "2026-04-08T14:20:00Z",
+      email: "priya.verma@example.com",
+      picture:
+        "https://upload.wikimedia.org/wikipedia/commons/b/b6/Image_created_with_a_mobile_phone.png",
+      author: {
+        name: "Priya Verma",
+      },
+      tags: ["React", "Next.js", "Frontend"],
+      comments: [{}, {}],
+    },
+    {
+      _id: "3",
+      title: "Mastering Tailwind CSS",
+      description:
+        "Tailwind CSS helps you build modern UI faster with utility-first classes.",
+      createdAt: "2026-04-06T09:15:00Z",
+      email: "rohan.gupta@example.com",
+      picture:
+        "https://upload.wikimedia.org/wikipedia/commons/b/b6/Image_created_with_a_mobile_phone.png",
+      author: {
+        name: "Rohan Gupta",
+      },
+      tags: ["CSS", "Tailwind", "Design"],
+      comments: [{}],
+    },
+    {
+      _id: "4",
+      title: "Node.js Performance Tips",
+      description:
+        "Improve Node.js performance using clustering, caching, and async patterns.",
+      createdAt: "2026-04-05T18:00:00Z",
+      email: "neha.kapoor@example.com",
+      picture: "",
+      author: {
+        name: "Neha Kapoor",
+      },
+      tags: ["Node.js", "Backend", "Performance"],
+      comments: [{}, {}, {}, {}],
+    },
+    {
+      _id: "5",
+      title: "Getting Started with MongoDB",
+      description:
+        "MongoDB is a NoSQL database that stores data in flexible JSON-like documents.",
+      createdAt: "2026-04-03T11:45:00Z",
+      email: "karan.mehta@example.com",
+      picture:
+        "https://upload.wikimedia.org/wikipedia/commons/b/b6/Image_created_with_a_mobile_phone.png",
+      author: {
+        name: "Karan Mehta",
+      },
+      tags: ["MongoDB", "Database"],
+      comments: [],
+    },
+  ];
+
   return (
     <MainLayout>
       <div className="min-h-screen px-8 justify-center">
         <div className="h-full flex flex-1 flex-row justify-center">
-          <div className={`h-full flex flex-col flex-1 max-w-[800px] py-8`}>
+          <div
+            className={`h-full flex flex-col flex-1 max-w-[800px] py-8 sm:border-r`}
+          >
             <div className="w-full md:w-2/3">
               <Tab
                 tab={tab}
@@ -259,98 +416,143 @@ const Home = () => {
             {activeTab === 2 ? (
               // <PostList posts={posts} />
               <div className="flex flex-col gap-4">
-                <div className="h-[200px] w-full bg-red-300"></div>
-                <div className="h-[200px] w-full bg-red-300"></div>
-                <div className="h-[200px] w-full bg-red-300"></div>
-                <div className="h-[200px] w-full bg-red-300"></div>
-                <div className="h-[200px] w-full bg-red-300"></div>
-                <div className="h-[200px] w-full bg-red-300"></div>
-                <div className="h-[200px] w-full bg-red-300"></div>
-                <div className="h-[200px] w-full bg-red-300"></div>
-                <div className="h-[200px] w-full bg-red-300"></div>
-                <div className="h-[200px] w-full bg-red-300"></div>
-                <div className="h-[200px] w-full bg-red-300"></div>
-                <div className="h-[200px] w-full bg-red-300"></div>
+                <div className="flex-1 sm:pr-4">
+                  <Carousel
+                    opts={{
+                      align: "start",
+                      loop: true,
+                    }}
+                    plugins={[
+                      Autoplay({
+                        delay: 2000,
+                      }),
+                    ]}
+                  >
+                    <CarouselContent className="">
+                      {dummyPosts.map((post, i) => (
+                        <CarouselItem key={i}>
+                          <PostCard post={post} />
+                        </CarouselItem>
+                      ))}
+                    </CarouselContent>
+                  </Carousel>
+
+                  <div className="my-8">
+                    {dummyCardPosts.map((data, idx) => (
+                      <div key={data._id}>
+                        <CardPost
+                          title={data.title}
+                          content={data.description}
+                          dop={formatDate(new Date(data.createdAt))}
+                          email={data.email}
+                          picture={data.picture}
+                          author={data.author.name}
+                          tags={data.tags.join(",")}
+                          id={data._id}
+                          comments={data.comments.length}
+                        />
+                        {idx !== dummyCardPosts.length - 1 && (
+                          <Separator className="bg-gray-200 my-4" />
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div></div>
               </div>
             ) : (
-              "This is following tab."
+              <div className="flex flex-col gap-4">
+                <div className="flex-1 pr-4">
+                  <Carousel
+                    opts={{
+                      align: "start",
+                      loop: true,
+                    }}
+                    plugins={[
+                      Autoplay({
+                        delay: 2000,
+                      }),
+                    ]}
+                  >
+                    <CarouselContent className="">
+                      {dummyPosts.map((post, i) => (
+                        <CarouselItem key={i}>
+                          <PostCard post={post} />
+                        </CarouselItem>
+                      ))}
+                    </CarouselContent>
+                  </Carousel>
+
+                  <div className="my-8">
+                    {dummyCardPosts.map((data, idx) => (
+                      <div key={data._id}>
+                        <CardPost
+                          title={data.title}
+                          content={data.description}
+                          dop={formatDate(new Date(data.createdAt))}
+                          email={data.email}
+                          picture={data.picture}
+                          author={data.author.name}
+                          tags={data.tags.join(",")}
+                          id={data._id}
+                          comments={data.comments.length}
+                        />
+                        {idx !== dummyCardPosts.length - 1 && (
+                          <Separator className="bg-gray-200 my-4" />
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div></div>
+              </div>
             )}
           </div>
 
-
           {/* Right Content */}
-          <div className="relative w-[20%] hidden lg:block" ref={sidebarContainerRef}>
-            <div ref={topRef} className="h-[1px] w-full bg-red-300"></div>
+          <div
+            className="relative w-[30%] hidden lg:block"
+            ref={sidebarContainerRef}
+          >
+            {/* <div ref={topRef} className="h-[1px] w-full bg-red-300"></div> */}
             {/* SIDEBAR */}
-            <div
-
-              className=""
-            >
-              <div className="flex flex-col border-l pl-5 gap-5 py-8">
+            <div className="">
+              <div className="flex flex-col pl-5 gap-5 py-8">
                 <div>
                   <h2 className="mb-4 text-base font-medium">Most viewed</h2>
                   <div className="flex flex-col gap-2">
-
-
-                    {recommended.map((post) => (
-                      <SmallCardPost key={post._id} post={post} />
+                    {dummyCardPosts.map((post, idx) => (
+                      <div>
+                        <SmallCardPost key={post._id} post={post} />
+                        {idx !== dummyCardPosts.length - 1 && (
+                          <Separator className="bg-gray-200 my-6" />
+                        )}
+                      </div>
                     ))}
-                    <div className="h-[200px] w-full bg-red-300"></div>
-                    <div className="h-[200px] w-full bg-red-300"></div>
-                    <div className="h-[200px] w-full bg-red-300"></div>
-                    <div className="h-[200px] w-full bg-red-300"></div>
-                    <div className="h-[200px] w-full bg-red-300"></div>
-                    <div className="h-[200px] w-full bg-red-300"></div>
                   </div>
                 </div>
                 <Separator />
                 <div>
-                  <h2 className="mb-4 text-base font-medium">Recommended tags</h2>
+                  <h2 className="mb-4 text-base font-medium">
+                    Recommended tags
+                  </h2>
                   <div className="flex flex-wrap gap-2">
-                    <Badge
-                      variant="secondary"
-                      className="cursor-pointer text-nowrap"
-                    >
-                      Generative AI
-                    </Badge>
-                    <Badge
-                      variant="secondary"
-                      className="cursor-pointer text-nowrap"
-                    >
-                      Medical
-                    </Badge>
-                    <Badge
-                      variant="secondary"
-                      className="cursor-pointer text-nowrap"
-                    >
-                      Technology
-                    </Badge>
-                    <Badge
-                      variant="secondary"
-                      className="cursor-pointer text-nowrap"
-                    >
-                      Generative AI
-                    </Badge>
-                    <Badge
-                      variant="secondary"
-                      className="cursor-pointer text-nowrap"
-                    >
-                      Medical
-                    </Badge>
-                    <Badge
-                      variant="secondary"
-                      className="cursor-pointer text-nowrap"
-                    >
-                      Technology
-                    </Badge>
+                    {CATEGORIES.map((category) => (
+                      <Badge
+                        key={category}
+                        variant="secondary"
+                        className="cursor-pointer text-nowrap hover:bg-gray-200"
+                      >
+                        {category}
+                      </Badge>
+                    ))}
                   </div>
                 </div>
               </div>
             </div>
 
-            <div ref={bottomRef} className="h-[1px] w-full bg-red-300"></div>
+            {/* <div ref={bottomRef} className="h-[1px] w-full bg-red-300"></div> */}
           </div>
-
         </div>
       </div>
     </MainLayout>

@@ -6,6 +6,8 @@ import {
   BookmarkPlus,
   MoreHorizontal,
 } from "lucide-react";
+import SmartImage from "../shared/smart-image";
+import { formatDate } from "@/utils/common-utils";
 
 // Mock Card components for the example
 const Card = ({ children, className }) => (
@@ -51,28 +53,6 @@ export default function CardPost(props) {
       });
   };
 
-  const formatDate = (dateString) => {
-    if (!dateString || dateString === "_") return "Just now";
-
-    try {
-      const date = new Date(dateString);
-      const now = new Date();
-      const diffInHours = Math.floor((now - date) / (1000 * 60 * 60));
-
-      if (diffInHours < 1) return "Just now";
-      if (diffInHours < 24) return `${diffInHours}h ago`;
-      if (diffInHours < 168) return `${Math.floor(diffInHours / 24)}d ago`;
-
-      return date.toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: date.getFullYear() !== now.getFullYear() ? "numeric" : undefined,
-      });
-    } catch {
-      return dateString;
-    }
-  };
-
   const getAuthorInitials = (name) => {
     return (
       name
@@ -85,7 +65,7 @@ export default function CardPost(props) {
   };
 
   return (
-    <Card className="p-0 border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200 max-w-[800px] w-full relative group">
+    <Card className="p-0 transition-all duration-200 max-w-[800px] w-full relative group cursor-pointer">
       <CardContent className="p-6">
         {/* Header with author info */}
         <div className="flex items-center justify-between mb-4">
@@ -112,7 +92,7 @@ export default function CardPost(props) {
         {/* Main content */}
         <div className="flex justify-between gap-6">
           <div className="flex-1">
-            <h1 className="text-xl md:text-2xl font-bold font-montserrat text-gray-900 leading-tight mb-3 hover:text-blue-600 cursor-pointer transition-colors">
+            <h1 className="text-xl md:text-2xl font-bold font-montserrat text-gray-900 leading-tight mb-3 transition-colors">
               {props.title}
             </h1>
 
@@ -122,14 +102,11 @@ export default function CardPost(props) {
           </div>
 
           {props.picture && (
-            <div className="flex-shrink-0">
-              <img
-                src={props.picture}
+            <div className="">
+              <SmartImage
+                src={props?.picture}
                 alt={props.title}
-                className="h-24 w-32 md:h-32 md:w-48 object-cover rounded-xl hover:scale-105 transition-transform duration-200 cursor-pointer"
-                onClick={() => {
-                  /* Handle image click */
-                }}
+                className="hidden sm:block h-20 w-40 md:h-32 md:w-48 object-cover rounded-xl hover:scale-105 transition-transform duration-200 cursor-pointer"
               />
             </div>
           )}

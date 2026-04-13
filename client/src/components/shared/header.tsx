@@ -8,29 +8,40 @@ import {
 } from "@heroicons/react/24/outline";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import CustomInput from "../ui-v2/CustomInput";
+import { Button } from "../ui/button";
 
-const Header = () => {
+const Header = ({ toggleSidebar }: { toggleSidebar: () => void }) => {
   return (
     <div className="h-20 flex items-center border-b border-gray-200 shadow-sm">
       <div className="max-w-8xl w-full mx-auto px-4 md:px-6 lg:px-8 xl3:px-0 flex justify-between">
         <div className="flex gap-2 items-center">
-          <button className="p-2 text-black-secondary hover:text-black-primary">
+          <button
+            onClick={toggleSidebar}
+            className="p-2 text-black-secondary hover:text-black-primary"
+          >
             <Menu strokeWidth={1.5} />
           </button>
           <h3>BlogSpot</h3>
         </div>
-        <div className="flex gap-8 items-center">
+        <div className="flex gap-4 sm:gap-8 items-center">
           <CustomInput
             placeholder="Search.."
             bordered
             inputClassName="!rounded-full"
             iconLeft={<SearchIcon strokeWidth={1.5} className="size-5" />}
+            className="hidden sm:flex"
           />
-          <button className="flex gap-2 items-center text-black-secondary hover:text-black-primary">
+          <Button
+            variant="ghost"
+            className="rounded-full p-0 h-10 w-10 [&>svg]:!w-5 [&>svg]:!h-5"
+          >
+            <SearchIcon strokeWidth={2} />
+          </Button>
+          <button className="hidden sm:flex gap-2 items-center text-black-secondary hover:text-black-primary">
             <PencilSquareIcon className="size-5" />
             <span className="font-medium">Write</span>
           </button>
-          <button className="text-black-secondary hover:text-black-primary">
+          <button className="hidden sm:block text-black-secondary hover:text-black-primary">
             <BellIcon className="size-6 " />
           </button>
           <div className="cursor-pointer border p-1 rounded-full hover:border-black-primary">

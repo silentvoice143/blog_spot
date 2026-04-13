@@ -34,11 +34,13 @@ import { useApiError } from "./hooks/use-api-error";
 import { checkAuth } from "./services/auth-service";
 import MainLayout from "./layout/main-layout";
 import VerifyOtp from "./pages/auth/verify-otp";
+import NotFound from "./pages/not-found";
+import CreatePost from "./pages/create/create-post";
 
 const PrivateRoute = ({ isAuthenticated }, ...props) => {
-  const location = useLocation();
-  console.log(location, "---location");
-  return isAuthenticated || location.pathname === "/" ? (
+  console.log(isAuthenticated, "=----isauthenticated")
+
+  return isAuthenticated ? (
     <Outlet />
   ) : (
     <Navigate replace to="/login" />
@@ -71,14 +73,18 @@ function App() {
                     element={<PrivateRoute isAuthenticated={isAuthenticated} />}
                   >
                     <Route path="/" element={<Home />} />
-                    <Route path="/search" element={<SearchPage />} />
-                    {/* <Route path="/post/create" element={<CreatePost />}></Route>
-                    <Route path="/post/edit/:id" element={<EditPost />}></Route> */}
-                    <Route path="/post/:id" element={<Post />} />
-                    <Route path="/profile/:userId" element={<Profile />} />
-                    <Route path="/stories" element={<Stories />} />
-                    <Route path="/settings" element={<Settings />} />
+                    <Route element={<MainLayout children={<Outlet />} />}>
+                      <Route path="/search" element={<SearchPage />} />
+                      <Route path="/post/create" element={<CreatePost />}></Route>
+                      {/* <Route path="/post/edit/:id" element={<EditPost />}></Route> */}
+                      <Route path="/post/:id" element={<Post />} />
+                      <Route path="/profile/:userId" element={<Profile />} />
+                      <Route path="/stories" element={<Stories />} />
+                      <Route path="/settings" element={<Settings />} />
+                    </Route>
                   </Route>
+
+                  <Route path="*" element={<NotFound />} />
                 </Routes>
               </BrowserRouter>
             </NotificationProvider>
