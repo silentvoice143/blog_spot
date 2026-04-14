@@ -36,16 +36,11 @@ import MainLayout from "./layout/main-layout";
 import VerifyOtp from "./pages/auth/verify-otp";
 import NotFound from "./pages/not-found";
 import CreatePost from "./pages/create/create-post";
+import PrivateRoute from "./routes/protected-route";
+import { ROLES } from "./constant/roles";
+import Dashboard from "./pages/dashboard";
 
-const PrivateRoute = ({ isAuthenticated }, ...props) => {
-  console.log(isAuthenticated, "=----isauthenticated")
 
-  return isAuthenticated ? (
-    <Outlet />
-  ) : (
-    <Navigate replace to="/login" />
-  );
-};
 
 function App() {
   const userId = sessionStorage.getItem("userId");
@@ -70,7 +65,7 @@ function App() {
                   />
 
                   <Route
-                    element={<PrivateRoute isAuthenticated={isAuthenticated} />}
+                    element={<PrivateRoute isAuthenticated={isAuthenticated} allowedRoles={[ROLES.SUPER_ADMIN, ROLES.USER]} />}
                   >
                     <Route path="/" element={<Home />} />
                     <Route element={<MainLayout children={<Outlet />} />}>
@@ -81,6 +76,14 @@ function App() {
                       <Route path="/profile/:userId" element={<Profile />} />
                       <Route path="/stories" element={<Stories />} />
                       <Route path="/settings" element={<Settings />} />
+                    </Route>
+                  </Route>
+
+                  <Route
+                    element={<PrivateRoute isAuthenticated={isAuthenticated} allowedRoles={[ROLES.SUPER_ADMIN]} />}
+                  >
+                    <Route element={<MainLayout children={<Outlet />} />}>
+                      <Route path="/dashboard" element={<Dashboard />} />
                     </Route>
                   </Route>
 

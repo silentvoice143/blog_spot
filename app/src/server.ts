@@ -9,8 +9,7 @@ import http from "http";
 import { initSocket } from "./socket.js";
 import { globalException } from "./middleware/exception-handler.js";
 import RedisService from "./config/redis.js";
-
-
+import { seedSuperAdmin } from "./seeds/super-admin.js";
 
 const app = express();
 const PORT = 5000;
@@ -31,6 +30,8 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 connectDB();
 const redis = RedisService.getInstance();
 await redis.connect();
+
+await seedSuperAdmin();
 
 app.use("/api/auth", authRoutes);
 

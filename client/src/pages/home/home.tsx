@@ -32,6 +32,7 @@ import PostCard, { Post } from "@/components/shared/post-card";
 import CardPost from "@/components/posts/cardPost";
 import { formatDate } from "@/utils/common-utils";
 import { CATEGORIES } from "@/constant";
+import { useStore } from "@/store";
 
 export type TabItem = {
   id: number | string;
@@ -41,8 +42,8 @@ export type TabItem = {
 };
 
 const Home = () => {
-  // const { isAuthenticated } = useStore((state) => state);
-  const isAuthenticated = true;
+  const { isAuthenticated } = useStore();
+  // const isAuthenticated = true;
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<number | string>(2);
   const [loading, setLoading] = useState(false);

@@ -19,6 +19,7 @@ export interface IUser extends Document {
   otpExpires: Date;
   status: string;
   address: string;
+  role: "SUPER_ADMIN" | "USER";
 }
 
 const UserSchema: Schema = new Schema(
@@ -82,6 +83,11 @@ const UserSchema: Schema = new Schema(
         },
       ],
       default: [],
+    },
+    role: {
+      type: String,
+      enum: ["SUPER_ADMIN", "USER"],
+      default: "USER",
     },
   },
   { timestamps: true },
