@@ -42,7 +42,7 @@ export type TabItem = {
 };
 
 const Home = () => {
-  const { isAuthenticated } = useStore();
+  const { isAuthenticated, clearPost } = useStore();
   // const isAuthenticated = true;
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<number | string>(2);
@@ -72,7 +72,10 @@ const Home = () => {
       id: 1,
       label: <PlusIcon className="w-5 h-5 text-gray-tertiary1" />,
       nav: false,
-      onPress: () => navigate("/post/create"),
+      onPress: () => {
+        clearPost()
+        navigate("/post/create")
+      },
     },
     {
       id: 2,

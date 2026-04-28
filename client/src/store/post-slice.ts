@@ -7,13 +7,21 @@ export interface PostSlice {
     content?: string;
     pictures?: string[];
   };
+  step: number;
 
+  setStep: (step: number) => void;
   setPost: (post: any) => void;
   clearPost: () => void;
 }
 
 export const createPostSlice: StateCreator<PostSlice> = (set) => ({
   post: null,
+  step: 1,
+
+  setStep: (step) =>
+    set({
+      step,
+    }),
 
   setPost: (post) =>
     set({
@@ -22,6 +30,7 @@ export const createPostSlice: StateCreator<PostSlice> = (set) => ({
 
   clearPost: () =>
     set({
-      post: null,
+      post: null, step: 1,
+
     }),
 });

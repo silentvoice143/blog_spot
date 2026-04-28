@@ -9,8 +9,14 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import CustomInput from "../ui-v2/CustomInput";
 import { Button } from "../ui/button";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useStore } from "@/store";
 
 const Header = ({ toggleSidebar }: { toggleSidebar: () => void }) => {
+  const location = useLocation();
+  const { clearPost, setStep, post } = useStore();
+  const navigate = useNavigate()
+
   return (
     <div className="h-20 flex items-center border-b border-gray-200 shadow-sm">
       <div className="max-w-8xl w-full mx-auto px-4 md:px-6 lg:px-8 xl3:px-0 flex justify-between">
@@ -21,26 +27,41 @@ const Header = ({ toggleSidebar }: { toggleSidebar: () => void }) => {
           >
             <Menu strokeWidth={1.5} />
           </button>
-          <h3>BlogSpot</h3>
+          <Link to="/"><h4>BlogSpot</h4></Link>
         </div>
         <div className="flex gap-4 sm:gap-8 items-center">
-          <CustomInput
+
+
+          {location.pathname === "/post/create" ? <Button onClick={() => {
+            const hasContents = post?.title?.trim() ||
+              post?.description?.trim() ||
+              post?.content?.trim();
+
+            if (hasContents) {
+              setStep(2)
+            }
+          }} className="hidden sm:flex gap-2 items-center rounded-full !text-xs !h-8">
+            Publish
+
+          </Button> : location.pathname === "/post/preview" ? null : <><CustomInput
             placeholder="Search.."
             bordered
             inputClassName="!rounded-full"
             iconLeft={<SearchIcon strokeWidth={1.5} className="size-5" />}
             className="hidden sm:flex"
           />
-          <Button
-            variant="ghost"
-            className="rounded-full p-0 h-10 w-10 [&>svg]:!w-5 [&>svg]:!h-5"
-          >
-            <SearchIcon strokeWidth={2} />
-          </Button>
-          <button className="hidden sm:flex gap-2 items-center text-black-secondary hover:text-black-primary">
-            <PencilSquareIcon className="size-5" />
-            <span className="font-medium">Write</span>
-          </button>
+            <Button
+              variant="ghost"
+              className="sm:hidden rounded-full p-0 h-10 w-10 [&>svg]:!w-5 [&>svg]:!h-5"
+            >
+              <SearchIcon strokeWidth={2} />
+            </Button><button onClick={() => {
+              clearPost();
+              navigate("/post/create")
+            }} className="hidden sm:flex gap-2 items-center text-black-secondary hover:text-black-primary">
+              <PencilSquareIcon className="size-5" />
+              <span className="font-medium">Write</span>
+            </button></>}
           <button className="hidden sm:block text-black-secondary hover:text-black-primary">
             <BellIcon className="size-6 " />
           </button>
