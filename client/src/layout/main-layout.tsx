@@ -54,20 +54,26 @@ const MainLayout = ({ children }: { children: ReactNode }) => {
 
   return (
     <div
-      className={`min-h-screen w-full flex flex-col relative ${isOpen && "h-screen overflow-hidden sm:h-auto sm:overflow-auto"}`}
+      className={`min-h-screen w-full flex flex-col relative ${
+        isOpen ? "h-screen overflow-hidden sm:h-auto sm:overflow-auto" : ""
+      }`}
     >
-      <div className="sticky top-0 z-[9999] bg-white">
+      {/* Fixed Header */}
+      <div className="fixed top-0 w-full z-[9999] h-20">
         <Header
           toggleSidebar={() => {
             setIsOpen(!isOpen);
           }}
         />
       </div>
-      <div className="flex-1 flex w-full">
+
+      {/* Main Layout */}
+      <div className="flex flex-1 pt-20">
         <Sidebar isOpen={isOpen} menu={menu} />
 
+        {/* Scroll starts after header */}
         <div
-          className={`flex-1 overflow-y-auto transition-all duration-300 ${
+          className={`flex-1 h-[calc(100vh-80px)] overflow-y-auto transition-all duration-300 ${
             isOpen ? "ml-[220px]" : "ml-0"
           }`}
         >
@@ -76,7 +82,6 @@ const MainLayout = ({ children }: { children: ReactNode }) => {
           </div>
         </div>
       </div>
-      {/* <div className="bg-green-primary text-white">Footer</div> */}
     </div>
   );
 };

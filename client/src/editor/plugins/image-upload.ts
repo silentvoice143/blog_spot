@@ -1,11 +1,10 @@
-import { Response } from "express";
 import { Extension } from "@tiptap/core";
 import { Plugin, PluginKey } from "@tiptap/pm/state";
 import { EditorView } from "@tiptap/pm/view";
 import { Slice } from "@tiptap/pm/model";
 import { toast } from "sonner";
 import { Editor } from "@tiptap/core";
-import { uploadFile } from "@/services/apiService";
+import { uploadSingleFile } from "@/services/upload-service";
 
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {
@@ -34,7 +33,7 @@ export const ImageUploadPlugin = Extension.create({
               // const fileUrl = URL.createObjectURL(file);
               const formData = new FormData();
               formData.append("file", file);
-              const response = await uploadFile(formData);
+              const response = await uploadSingleFile(formData);
               if (response.status !== 200) {
                 console.log("Uplaod failed");
                 return;
@@ -65,7 +64,7 @@ export const ImageUploadPlugin = Extension.create({
                 range.from,
                 Math.min(doc.nodeSize - 2, range.from + 50),
                 "\n",
-                "\n"
+                "\n",
               );
 
               if (contentAfterCursor.length === 0) {
@@ -98,13 +97,13 @@ export const ImageUploadPlugin = Extension.create({
             view: EditorView,
             event: DragEvent,
             _slice: Slice,
-            _moved: boolean
+            _moved: boolean,
           ) {
             const hasFiles = event.dataTransfer?.files?.length;
             if (!hasFiles) return false;
 
             const images = Array.from(event.dataTransfer.files).filter((file) =>
-              file.type.startsWith("image/")
+              file.type.startsWith("image/"),
             );
 
             if (images.length === 0) return false;
@@ -119,13 +118,13 @@ export const ImageUploadPlugin = Extension.create({
 
             images.forEach(async (image) => {
               try {
-                const response = await uploadFile(image);
+                const response = await uploadSingleFile(image);
                 const node = schema.nodes.image.create({
                   src: response.imgURL,
                 });
                 const transaction = view.state.tr.insert(
                   coordinates?.pos || 0,
-                  node
+                  node,
                 );
                 view.dispatch(transaction);
               } catch (error) {
@@ -138,7 +137,7 @@ export const ImageUploadPlugin = Extension.create({
           handlePaste(view: EditorView, event: ClipboardEvent, _slice: Slice) {
             const items = Array.from(event.clipboardData?.items || []);
             const images = items.filter((item) =>
-              item.type.startsWith("image/")
+              item.type.startsWith("image/"),
             );
 
             if (images.length === 0) return false;
@@ -153,7 +152,7 @@ export const ImageUploadPlugin = Extension.create({
               if (!file) return;
 
               try {
-                const response = await uploadFile(file);
+                const response = await uploadSingleFile(file);
                 const node = schema.nodes.image.create({
                   src: response.imgURL,
                 });

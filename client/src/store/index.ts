@@ -2,26 +2,25 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 import { createAuthSlice, AuthSlice } from "./auth-slice";
+import { createPostSlice, PostSlice } from "./post-slice";
 
-// type Store = AuthSlice & UserSlice & PostSlice & ChatSlice;
-type Store = AuthSlice;
+// Combine slices using intersection (&), not union (|)
+type Store = AuthSlice & PostSlice;
 
 export const useStore = create<Store>()(
   persist(
     (...a) => ({
       ...createAuthSlice(...a),
-      //   ...createUserSlice(...a),
-      //   ...createPostSlice(...a),
-      //   ...createChatSlice(...a),
+      ...createPostSlice(...a),
     }),
     {
       name: "app-storage",
 
-      // ⚠️ Persist only what you need
       partialize: (state) => ({
         user: state.user,
         token: state.token,
         isAuthenticated: state.isAuthenticated,
+        post: state.post,
       }),
     },
   ),

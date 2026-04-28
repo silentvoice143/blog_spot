@@ -10,7 +10,7 @@ import { generateOTP } from "../utils/generate-otp.js";
 import { CustomException } from "../utils/custom-exception.js";
 import { AuthRequest } from "../types/index.js";
 import RedisService from "../config/redis.js";
-import { sendEmail } from "../services/email.service.js";
+import { sendOTPEmail } from "../services/email.service.js";
 const redis = RedisService.getInstance().getClient();
 
 export const registerUser = async (req: Request, res: Response) => {
@@ -18,29 +18,25 @@ export const registerUser = async (req: Request, res: Response) => {
   const existingOtp = await redis.get(`otp:${email}`);
 
   if (existingOtp) {
-
     const ttl = await redis.ttl(`otp:${email}`);
 
     throw new CustomException(
-      `OTP already sent. Please wait ${ttl} seconds to resend.`, 400
+      `OTP already sent. Please wait ${ttl} seconds to resend.`,
+      400,
     );
   }
   const otp = generateOTP();
   await redis.set(`otp:${email}`, otp, {
     EX: 40,
   });
-  console.log(email, name)
-  sendEmail({
-    to: email,
-    subject: "OTP",
-    text: `Your OTP is ${otp}`,
-  });
+  console.log(email, name);
+  sendOTPEmail({ email, otp });
 
   console.log("Generated OTP:", otp);
 
   return res.json({
     message: "OTP sent",
-    user: { email, name }
+    user: { email, name },
   });
 };
 
@@ -56,13 +52,13 @@ export const verifyOtp = async (req: Request, res: Response) => {
   // Delete OTP after successful verification
   await redis.del(`otp:${email}`);
 
-
   const hashedPassword = await bcrypt.hash(password, 10);
 
   const user = await User.create({
     email: email,
     name: name,
-    password: hashedPassword
+    password: hashedPassword,
+    status: "ACTIVE",
   });
 
   const userObj = user.toObject();

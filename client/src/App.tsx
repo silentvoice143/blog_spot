@@ -39,8 +39,7 @@ import CreatePost from "./pages/create/create-post";
 import PrivateRoute from "./routes/protected-route";
 import { ROLES } from "./constant/roles";
 import Dashboard from "./pages/dashboard";
-
-
+import Preview from "./pages/create/components/preview";
 
 function App() {
   const userId = sessionStorage.getItem("userId");
@@ -65,12 +64,22 @@ function App() {
                   />
 
                   <Route
-                    element={<PrivateRoute isAuthenticated={isAuthenticated} allowedRoles={[ROLES.SUPER_ADMIN, ROLES.USER]} />}
+                    element={
+                      <PrivateRoute
+                        isAuthenticated={isAuthenticated}
+                        allowedRoles={[ROLES.SUPER_ADMIN, ROLES.USER]}
+                      />
+                    }
                   >
                     <Route path="/" element={<Home />} />
                     <Route element={<MainLayout children={<Outlet />} />}>
                       <Route path="/search" element={<SearchPage />} />
-                      <Route path="/post/create" element={<CreatePost />}></Route>
+                      <Route
+                        path="/post/create"
+                        element={<CreatePost />}
+                      ></Route>
+                      <Route path="/post/preview" element={<Preview />}></Route>
+
                       {/* <Route path="/post/edit/:id" element={<EditPost />}></Route> */}
                       <Route path="/post/:id" element={<Post />} />
                       <Route path="/profile/:userId" element={<Profile />} />
@@ -80,7 +89,12 @@ function App() {
                   </Route>
 
                   <Route
-                    element={<PrivateRoute isAuthenticated={isAuthenticated} allowedRoles={[ROLES.SUPER_ADMIN]} />}
+                    element={
+                      <PrivateRoute
+                        isAuthenticated={isAuthenticated}
+                        allowedRoles={[ROLES.SUPER_ADMIN]}
+                      />
+                    }
                   >
                     <Route element={<MainLayout children={<Outlet />} />}>
                       <Route path="/dashboard" element={<Dashboard />} />

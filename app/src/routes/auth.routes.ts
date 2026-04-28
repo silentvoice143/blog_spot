@@ -1,4 +1,4 @@
-import { authenticateToken } from "./../middleware/auth-middleware";
+import { authenticateToken } from "./../middleware/auth-middleware.js";
 import express from "express";
 
 import {
@@ -7,8 +7,8 @@ import {
   logoutUser,
   registerUser,
   verifyOtp,
-} from "../controllers/auth.controller";
-import { catchAsync } from "../utils/try-catch";
+} from "../controllers/auth.controller.js";
+import { catchAsync } from "../utils/try-catch.js";
 
 const router = express.Router();
 

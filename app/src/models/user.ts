@@ -17,7 +17,7 @@ export interface IUser extends Document {
   step: number;
   otp: String;
   otpExpires: Date;
-  status: string;
+  status: "ACTIVE" | "INACTIVE" | "BLOCKED";
   address: string;
   role: "SUPER_ADMIN" | "USER";
 }
@@ -43,8 +43,8 @@ const UserSchema: Schema = new Schema(
     },
     status: {
       type: String,
-      enum: ["pending", "active"],
-      default: "pending",
+      enum: ["ACTIVE", "INACTIVE", "BLOCKED"],
+      default: "INACTIVE",
     },
     otp: {
       type: String,

@@ -17,9 +17,9 @@ services:
     volumes:
       - .:/app # Mount local code into container (for dev hot reload)
       - /app/node_modules
+      - ./uploads:/app/uploads
 
     restart: always # Restart container if it crashes
-
 
   mongo:
     image: mongo # Official MongoDB image
@@ -33,7 +33,6 @@ services:
 
     restart: always
 
-
   redis:
     image: redis # Official Redis image
     container_name: redis-server
@@ -42,7 +41,6 @@ services:
       - "6379:6379" # Expose Redis locally
 
     restart: always
-
 
 # Named volume for MongoDB persistence
 volumes:

@@ -1,6 +1,7 @@
 import express from "express";
 import connectDB from "./db/connect-db.js";
 import authRoutes from "./routes/auth.routes.js";
+import uploadRoutes from "./routes/upload.routes.js";
 
 import cors from "cors";
 import swaggerUi from "swagger-ui-express";
@@ -10,6 +11,7 @@ import { initSocket } from "./socket.js";
 import { globalException } from "./middleware/exception-handler.js";
 import RedisService from "./config/redis.js";
 import { seedSuperAdmin } from "./seeds/super-admin.js";
+import path from "path";
 
 const app = express();
 const PORT = 5000;
@@ -32,10 +34,9 @@ const redis = RedisService.getInstance();
 await redis.connect();
 
 await seedSuperAdmin();
-
+app.use("/uploads", express.static(path.resolve("uploads")));
 app.use("/api/auth", authRoutes);
-
-
+app.use("/api/file", uploadRoutes);
 app.use(globalException);
 
 app.get("/", (req, res) => {

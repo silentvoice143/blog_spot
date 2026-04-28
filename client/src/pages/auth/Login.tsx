@@ -10,7 +10,8 @@ import { loginSchema } from "@/validation/auth-validation";
 
 const Login = () => {
   const navigate = useNavigate();
-  const { errors, validateField, validateForm } = useFormValidation(loginSchema);
+  const { errors, validateField, validateForm } =
+    useFormValidation(loginSchema);
   const [form, setForm] = useState({
     email: "",
     password: "",
@@ -26,11 +27,13 @@ const Login = () => {
 
   const handleLogin = async () => {
     try {
-      const error = validateForm(form);
-      if (error) {
+      const validate = validateForm(form);
+
+      if (!validate.success) {
         return;
       }
       setLoading(true);
+
       const res = await login({ ...form, deviceIp: "123456" });
 
       console.log("Login success:", res);
@@ -101,7 +104,9 @@ const Login = () => {
               </div>
               <div className="">
                 <Button
-                  onClick={handleLogin}
+                  onClick={() => {
+                    handleLogin();
+                  }}
                   disabled={loading}
                   className="w-full px-2 py-1 h-10 hover:bg-green-tertiary bg-green-primary text-white"
                 >

@@ -9,8 +9,14 @@ import { Button } from "@/components/ui/button";
 import ChangeIcon from "@/components/icons/ChangeIcon";
 import MultiSelect from "@/components/ui-v2/MultiSelect";
 import { useLoader } from "@/context/LoaderProvider";
+import TextEditorPage from "./components/text-editor-page";
+import MarkDownEditorPage from "./components/markdown-editor-page";
+import { Eye } from "lucide-react";
+import { useStore } from "@/store";
+import { uploadSingleFile } from "@/services/upload-service";
 
 const CreatePost = () => {
+  const { post, setPost } = useStore((state) => state);
   const [createdPostData, setCreatedPostData] = useState(null);
   const [step, setStep] = useState(1);
   const navigate = useNavigate();
@@ -37,7 +43,7 @@ const CreatePost = () => {
         if (selectedFile) {
           const formData = new FormData();
           formData.append("file", selectedFile);
-          imgRes = await uploadFile(formData);
+          imgRes = await uploadSingleFile(formData);
           if (imgRes.status !== 200) {
             console.log("failed to upload image");
             return;
@@ -86,49 +92,75 @@ const CreatePost = () => {
     }
   };
 
+  // const handleChange = (key: string, value: string) => {
+  //   setCreatedPostData?.({ ...createdPostData, [key]: value });
+  // };
   const handleChange = (key: string, value: string) => {
-    setCreatedPostData?.({ ...createdPostData, [key]: value });
+    setPost({
+      ...post,
+      [key]: value,
+    });
   };
+
+  const handlePreview = () => {
+    if (!post) return;
+
+    // open preview page
+    window.open("/post/preview", "_blank");
+  };
+
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkScreen = () => {
+      setIsMobile(window.innerWidth < 768); // mobile breakpoint
+    };
+
+    checkScreen();
+    window.addEventListener("resize", checkScreen);
+
+    return () => {
+      window.removeEventListener("resize", checkScreen);
+    };
+  }, []);
+
+  if (isMobile) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-6 bg-white">
+        <div className="max-w-md text-center">
+          <h1 className="text-xl font-semibold text-gray-800 mb-3">
+            Desktop Only Feature
+          </h1>
+          <p className="text-gray-600">
+            This feature is not available for mobile yet. Please open it on
+            desktop or laptop for the best experience.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="h-full overflow-y-auto overflow-x-hidden">
       <div className="w-full flex-1 flex flex-col">
         {step === 1 ? (
-          <>
-
-            <div className="relative flex flex-col items-center flex-1 w-screen h-auto p-8 overflow-x-hidden overflow-y-auto">
-              <div className="flex w-[800px]">
-                <div className="flex flex-col flex-1">
-                  <CustomTextArea
-                    showCharCount={false}
-                    expandable={true}
-                    value={createdPostData?.title}
-                    onChange={(e) => handleChange("title", e.target.value)}
-                    className="px-0 !font-semibold !text-40-48 placeholder:text-gray-secondary2 text-gray-secondary1"
-                    placeholder="Type your title here..."
-                  />
-                  <CustomTextArea
-                    showCharCount={false}
-                    expandable={true}
-                    value={createdPostData?.description}
-                    onChange={(e) =>
-                      handleChange("description", e.target.value)
-                    }
-                    className="px-0 text-lg placeholder:text-gray-secondary2 text-gray-secondary1"
-                    placeholder="Type your description here..."
-                  />
-                  <div className="mt-4 ">
-                    <Tiptap
-                      placeholder="Write your post content here..."
-                      value={createdPostData?.content || ""}
-                      onChange={(value) => handleChange("content", value)}
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </>
+          <div className="flex flex-1 relative">
+            <TextEditorPage
+              createdPostData={post}
+              handleChange={handleChange}
+            />
+            <button
+              onClick={() => handlePreview()}
+              className="flex items-center justify-center border border-neutral-200 shadow-sm h-10 w-10 rounded-full fixed top-[100px] right-12 bg-transparent hover:bg-neutral-200 transition-all duration-300"
+            >
+              <Eye size={20} className="text-black-secondary" />
+            </button>
+          </div>
         ) : (
+          // <MarkDownEditorPage
+          //   createdPostData={createdPostData}
+          //   handleChange={handleChange}
+          // />
           <div className="flex flex-1 items-center justify-center p-8">
             <div className="w-[800px] border-1 flex gap-6">
               <div className="flex-1">

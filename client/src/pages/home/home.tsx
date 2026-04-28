@@ -55,6 +55,100 @@ const Home = () => {
   let [searchParams] = useSearchParams();
   const category = searchParams.get("category");
 
+  const { ref: topRef, inView: topInView } = useInView({
+    threshold: 0,
+  });
+
+  const { ref: bottomRef, inView: bottomInView } = useInView({
+    threshold: 1,
+  });
+  const [mode, setMode] = useState<"relative" | "fixed" | "absolute">(
+    "relative",
+  );
+  const sidebarContainerRef = useRef<HTMLDivElement>(null);
+
+  const tab: TabItem[] = [
+    {
+      id: 1,
+      label: <PlusIcon className="w-5 h-5 text-gray-tertiary1" />,
+      nav: false,
+      onPress: () => navigate("/post/create"),
+    },
+    {
+      id: 2,
+      label: <p className="text-base">For you</p>,
+      nav: true,
+      onPress: () => setActiveTab(2),
+    },
+    {
+      id: 3,
+      label: <p className="text-base">Following</p>,
+      nav: true,
+      onPress: () => setActiveTab(3),
+    },
+  ];
+
+  const [recommended, setRecommended] = useState([]);
+
+  const getRecommendedPostData = async () => {
+    try {
+      setLoadingRecommendation(true);
+      const response = await getRecommendedPost();
+      console.log(response, "-----res");
+      if (response.data.success) {
+        setRecommended(response.data.recommendedPost);
+      }
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setLoadingRecommendation(false);
+    }
+  };
+
+  useEffect(() => {
+    const fetchDAta = async (page = 1, limit = 10) => {
+      try {
+        if (loadingMore || loading || !hasMore) return;
+        setLoading(true);
+        let data = await getAllPost(category, `?page=${page}&limit=${limit}`);
+
+        if (data.success) {
+          setPosts([...posts, ...data.posts]);
+          const pagination = data.pagination;
+          if (pagination.page >= pagination.totalPages) {
+            setHasMore(false);
+          }
+          setCurrentPage(pagination.page);
+        } else {
+          setPosts([]);
+        }
+      } catch (err: any) {
+        console.log(err?.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDAta(1);
+  }, []);
+
+  useEffect(() => {
+    getRecommendedPostData();
+  }, []);
+
+  useEffect(() => {
+    if (bottomInView) {
+      setMode("absolute");
+    } else if (!topInView) {
+      setMode("fixed");
+    } else {
+      setMode("relative");
+    }
+  }, [topInView, bottomInView]);
+
+  if (loading) {
+    return <Loader />;
+  }
+
   if (!isAuthenticated) {
     return (
       <div className="h-full flex flex-col bg-gradient-to-tl from-green-tertiary/80 to-green-primary text-white">
@@ -164,100 +258,6 @@ const Home = () => {
         </div>
       </div>
     );
-  }
-
-  const { ref: topRef, inView: topInView } = useInView({
-    threshold: 0,
-  });
-
-  const { ref: bottomRef, inView: bottomInView } = useInView({
-    threshold: 1,
-  });
-  const [mode, setMode] = useState<"relative" | "fixed" | "absolute">(
-    "relative",
-  );
-  const sidebarContainerRef = useRef<HTMLDivElement>(null);
-
-  const tab: TabItem[] = [
-    {
-      id: 1,
-      label: <PlusIcon className="w-5 h-5 text-gray-tertiary1" />,
-      nav: false,
-      onPress: () => navigate("/post/create"),
-    },
-    {
-      id: 2,
-      label: <p className="text-base">For you</p>,
-      nav: true,
-      onPress: () => setActiveTab(2),
-    },
-    {
-      id: 3,
-      label: <p className="text-base">Following</p>,
-      nav: true,
-      onPress: () => setActiveTab(3),
-    },
-  ];
-
-  const [recommended, setRecommended] = useState([]);
-
-  const getRecommendedPostData = async () => {
-    try {
-      setLoadingRecommendation(true);
-      const response = await getRecommendedPost();
-      console.log(response, "-----res");
-      if (response.data.success) {
-        setRecommended(response.data.recommendedPost);
-      }
-    } catch (err) {
-      console.log(err);
-    } finally {
-      setLoadingRecommendation(false);
-    }
-  };
-
-  useEffect(() => {
-    const fetchDAta = async (page = 1, limit = 10) => {
-      try {
-        if (loadingMore || loading || !hasMore) return;
-        setLoading(true);
-        let data = await getAllPost(category, `?page=${page}&limit=${limit}`);
-
-        if (data.success) {
-          setPosts([...posts, ...data.posts]);
-          const pagination = data.pagination;
-          if (pagination.page >= pagination.totalPages) {
-            setHasMore(false);
-          }
-          setCurrentPage(pagination.page);
-        } else {
-          setPosts([]);
-        }
-      } catch (err: any) {
-        console.log(err?.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchDAta(1);
-  }, []);
-
-  useEffect(() => {
-    getRecommendedPostData();
-  }, []);
-
-  useEffect(() => {
-    if (bottomInView) {
-      setMode("absolute");
-    } else if (!topInView) {
-      setMode("fixed");
-    } else {
-      setMode("relative");
-    }
-  }, [topInView, bottomInView]);
-
-  if (loading) {
-    return <Loader />;
   }
 
   const dummyPosts: Post[] = [
