@@ -1,4 +1,4 @@
-import { Menu, SearchIcon } from "lucide-react";
+import { DoorClosed, DoorOpen, Menu, SearchIcon, Settings, User } from "lucide-react";
 import React from "react";
 import WriteIcon from "../icons/write";
 import {
@@ -11,12 +11,18 @@ import CustomInput from "../ui-v2/CustomInput";
 import { Button } from "../ui/button";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useStore } from "@/store";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu";
 
 const Header = ({ toggleSidebar }: { toggleSidebar: () => void }) => {
   const location = useLocation();
-  const { clearPost, setStep, post } = useStore();
+  const { clearPost, setStep, post, logout } = useStore();
   const navigate = useNavigate()
 
+
+  const handleLogout = () => {
+    logout()
+    navigate("/login")
+  }
   return (
     <div className="h-20 flex items-center border-b border-gray-200 shadow-sm">
       <div className="max-w-8xl w-full mx-auto px-4 md:px-6 lg:px-8 xl3:px-0 flex justify-between">
@@ -66,10 +72,27 @@ const Header = ({ toggleSidebar }: { toggleSidebar: () => void }) => {
             <BellIcon className="size-6 " />
           </button>
           <div className="cursor-pointer border p-1 rounded-full hover:border-black-primary">
-            <Avatar className="">
-              <AvatarImage src="https://github.com/shadcn.png" />
-              <AvatarFallback>CN</AvatarFallback>
-            </Avatar>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Avatar className="">
+                  <AvatarImage src="https://github.com/shadcn.png" />
+                  <AvatarFallback>CN</AvatarFallback>
+                </Avatar>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuGroup>
+                  <DropdownMenuLabel className="text-black-primary">Account</DropdownMenuLabel>
+                  <DropdownMenuItem className=""><User />My Profile</DropdownMenuItem>
+                  <DropdownMenuItem className=""><Settings />Settings</DropdownMenuItem>
+
+                </DropdownMenuGroup>
+                <DropdownMenuSeparator className="my-1 bg-black-secondary/20" />
+                <DropdownMenuGroup>
+                  <DropdownMenuItem className="text-red-500" onClick={handleLogout}><DoorOpen />Logout</DropdownMenuItem>
+                </DropdownMenuGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </div>

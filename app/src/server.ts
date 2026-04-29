@@ -2,6 +2,7 @@ import express from "express";
 import connectDB from "./db/connect-db.js";
 import authRoutes from "./routes/auth.routes.js";
 import uploadRoutes from "./routes/upload.routes.js";
+import postRoutes from "./routes/post.routes.js"
 
 import cors from "cors";
 import swaggerUi from "swagger-ui-express";
@@ -37,6 +38,7 @@ await seedSuperAdmin();
 app.use("/uploads", express.static(path.resolve("uploads")));
 app.use("/api/auth", authRoutes);
 app.use("/api/file", uploadRoutes);
+app.use("/api/post", postRoutes);
 app.use(globalException);
 
 app.get("/", (req, res) => {
