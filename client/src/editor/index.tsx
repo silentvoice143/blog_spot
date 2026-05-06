@@ -22,7 +22,7 @@ import { useEffect, useState } from "react";
 import Placeholder from "@tiptap/extension-placeholder";
 
 const Tiptap = ({ value = "", onChange, placeholder }) => {
-  console.log(value, "-----value");
+
   // define your extension array
   const [isMounted, setIsMounted] = useState(false);
   const extensions = [

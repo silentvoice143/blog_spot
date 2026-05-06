@@ -5,18 +5,33 @@ export interface PostSlice {
     title?: string;
     description?: string;
     content?: string;
-    pictures?: string[];
+    postId?: string;
   };
+
   step: number;
+  isSaving: boolean;
+  isPublishing: boolean;
+  isScheduling: boolean;
 
   setStep: (step: number) => void;
   setPost: (post: any) => void;
+  setIsSaving: (isSaving: boolean) => void;
+  setIsPublishing: (isPublishing: boolean) => void;
+  setIsScheduling: (isScheduling: boolean) => void;
   clearPost: () => void;
 }
 
 export const createPostSlice: StateCreator<PostSlice> = (set) => ({
-  post: null,
+  post: {
+    title: "",
+    description: "",
+    content: "",
+    postId: "",
+  },
   step: 1,
+  isPublishing: false,
+  isSaving: false,
+  isScheduling: false,
 
   setStep: (step) =>
     set({
@@ -32,5 +47,20 @@ export const createPostSlice: StateCreator<PostSlice> = (set) => ({
     set({
       post: null, step: 1,
 
+    }),
+
+  setIsSaving: (isSaving: boolean) =>
+    set({
+      isSaving,
+    }),
+
+  setIsPublishing: (isPublishing: boolean) =>
+    set({
+      isPublishing,
+    }),
+
+  setIsScheduling: (isScheduling: boolean) =>
+    set({
+      isScheduling,
     }),
 });

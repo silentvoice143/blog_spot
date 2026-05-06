@@ -14,10 +14,12 @@ import MarkDownEditorPage from "./components/markdown-editor-page";
 import { Eye, X } from "lucide-react";
 import { useStore } from "@/store";
 import { uploadSingleFile } from "@/services/upload-service";
+import { draftPost, publishPost } from "@/services/post-service";
+import { toast } from "sonner";
 
 const CreatePost = () => {
-  const { post, setPost, step, setStep } = useStore((state) => state);
-
+  const { post, setPost, step, setStep, isSaving, setIsSaving, isPublishing, setIsPublishing, isScheduling, setIsScheduling } = useStore((state) => state);
+  const lastSavedRef = useRef("");
 
   const navigate = useNavigate();
   const { setLoading } = useLoader();
@@ -35,66 +37,7 @@ const CreatePost = () => {
       setSelectedFile(file);
     }
   };
-  const handleSave = async (type: "publish" | "draft") => {
-    if (type === "publish") {
-      try {
-        setLoading(true);
-        let imgRes;
-        if (selectedFile) {
-          const formData = new FormData();
-          formData.append("file", selectedFile);
-          imgRes = await uploadSingleFile(formData);
-          if (imgRes.status !== 200) {
-            console.log("failed to upload image");
-            return;
-          }
-        }
-        const dataObj = {
-          title: post.title,
-          description: post.description,
-          content: post.content,
-          picture: imgRes?.data?.fileUrl ?? "",
-          tags: selectedTags,
-          status: type,
-        };
-        console.log("Saving as publish", dataObj);
-        const response = await savePost(dataObj);
-        if (response.status === 201) {
-          setPost(null);
-          navigate(`/post/${response?.data?.post._id}`, { replace: true });
-        }
-      } catch (err) {
-        console.log(err);
-      } finally {
-        setLoading(false);
-      }
-    } else {
-      try {
-        setLoading(true);
-        const dataObj = {
-          title: post.title,
-          description: post.description,
-          content: post.content,
-          status: type,
-        };
 
-        const response = await savePost(dataObj);
-        if (response.status === 201) {
-          console.log(response.data);
-          setPost(null);
-          navigate(`/post/${response.data.post._id}`, { replace: true });
-        }
-      } catch (err) {
-        console.log(err);
-      } finally {
-        setLoading(false);
-      }
-    }
-  };
-
-  // const handleChange = (key: string, value: string) => {
-  //   setCreatedPostData?.({ ...createdPostData, [key]: value });
-  // };
   const handleChange = (key: string, value: string) => {
     setPost({
       ...post,
@@ -110,6 +53,39 @@ const CreatePost = () => {
 
   const [isMobile, setIsMobile] = useState(false);
 
+  const handlePublish = async (type: "publish" | "schedule") => {
+
+    try {
+      setIsPublishing(true);
+      let pictureUrl = "";
+
+      // upload thumbnail if selected
+      if (selectedFile) {
+        const formData = new FormData();
+        formData.append("file", selectedFile);
+
+        const uploadResponse = await uploadSingleFile(formData);
+
+        pictureUrl =
+          uploadResponse?.data?.url ||
+          uploadResponse?.data?.fileUrl ||
+          "";
+      }
+
+      const response = await publishPost({ postId: post?.postId, tags: ["hello"], picture: pictureUrl });
+      if (response?.data?.success) {
+        toast.success(response?.data?.message);
+        setPost({});
+        navigate("/");
+      }
+    } catch (err: any) {
+      toast.error(err.message);
+    } finally {
+      setIsPublishing(false);
+    }
+  }
+
+
   useEffect(() => {
     const checkScreen = () => {
       setIsMobile(window.innerWidth < 768); // mobile breakpoint
@@ -124,26 +100,134 @@ const CreatePost = () => {
   }, []);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      const hasContent =
-        post?.title?.trim() ||
-        post?.description?.trim() ||
-        post?.content?.trim();
+    const interval = setInterval(async () => {
+      if (step !== 1) {
+        setIsSaving(false);
+        return
+      };
+      if (isSaving) return;
 
-      if (hasContent) {
-        localStorage.setItem(
-          "preview_post",
-          JSON.stringify(post)
-        );
-        window.dispatchEvent(new StorageEvent('storage', {
-          key: 'preview_post',
-          newValue: JSON.stringify(post)
-        }));
+      try {
+        const hasContent =
+          post?.title?.trim() ||
+          post?.description?.trim() ||
+          post?.content?.trim();
+
+        if (hasContent) {
+
+          const currentPost = JSON.stringify({
+            title: post?.title || "",
+            description: post?.description || "",
+            content: post?.content || "",
+          });
+
+          if (lastSavedRef.current === currentPost) {
+            return;
+          }
+
+          setIsSaving(true)
+
+          localStorage.setItem(
+            "preview_post",
+            JSON.stringify(post)
+          );
+          window.dispatchEvent(new StorageEvent('storage', {
+            key: 'preview_post',
+            newValue: JSON.stringify(post)
+          }));
+
+
+
+          const payload = {
+            ...post,
+            status: "draft",
+          }
+
+          const response = await draftPost(payload);
+
+          console.log(response?.data.post?._id, payload, response?.data?.post, "-----response of post auto save")
+
+          // save returned postId
+          if (response?.data.post?._id) {
+            setPost({
+              ...post,
+              postId: response.data.post._id,
+            });
+          }
+
+          lastSavedRef.current = currentPost;
+        }
+      } catch (err) {
+
+      } finally {
+        if (isSaving) {
+          setTimeout(() => {
+            setIsSaving(false)
+          }, 500);
+        }
       }
-    }, 5000);
+    }, 2000);
 
     return () => clearInterval(interval);
-  }, [post]);
+  }, [post, step]);
+
+  // useEffect(() => {
+  //   if (step !== 1) return;
+
+  //   const hasContent =
+  //     post?.title?.trim() ||
+  //     post?.description?.trim() ||
+  //     post?.content?.trim();
+
+  //   if (!hasContent) return;
+
+  //   const currentPost = JSON.stringify({
+  //     title: post?.title || "",
+  //     description: post?.description || "",
+  //     content: post?.content || "",
+  //   });
+
+  //   // no changes
+  //   if (lastSavedRef.current === currentPost) {
+  //     return;
+  //   }
+
+  //   const timeout = setTimeout(async () => {
+  //     try {
+  //       setIsSaving(true);
+
+  //       localStorage.setItem(
+  //         "preview_post",
+  //         JSON.stringify(post)
+  //       );
+
+  //       const payload = {
+  //         ...post,
+  //         status: "draft",
+  //       };
+
+  //       const response = await draftPost(payload);
+
+  //       // save postId
+  //       if (response?.data?.post?._id) {
+  //         setPost((prev) => ({
+  //           ...prev,
+  //           postId: response.data.post._id,
+  //         }));
+  //       }
+
+  //       lastSavedRef.current = currentPost;
+
+  //       console.log("Draft auto-saved");
+  //     } catch (err) {
+  //       console.log(err);
+  //     } finally {
+  //       setIsSaving(false);
+  //     }
+  //   }, 2000);
+
+  //   return () => clearTimeout(timeout);
+  // }, [post, step]);
 
   if (isMobile) {
     return (
@@ -264,13 +348,13 @@ const CreatePost = () => {
                     <div className="flex gap-4 mt-8">
                       <Button
                         className="px-6 h-9 rounded-full text-xs "
-                        onClick={() => handleSave("publish")}
+                        onClick={() => handlePublish("publish")}
                       >
                         Publish now
                       </Button>
                       <Button
                         className="px-6 h-9 hover:bg-gray-200/80 bg-white text-black-primary rounded-full text-xs"
-                        onClick={() => handleSave("publish")}
+                        onClick={() => handlePublish("schedule")}
                       >
                         Schedule for later
                       </Button>

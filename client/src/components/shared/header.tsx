@@ -1,8 +1,7 @@
-import { DoorClosed, DoorOpen, Menu, SearchIcon, Settings, User } from "lucide-react";
-import React from "react";
-import WriteIcon from "../icons/write";
+import { DoorOpen, Menu, SearchIcon, Settings, User } from "lucide-react";
+
 import {
-  BellAlertIcon,
+
   BellIcon,
   PencilSquareIcon,
 } from "@heroicons/react/24/outline";
@@ -12,10 +11,12 @@ import { Button } from "../ui/button";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useStore } from "@/store";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu";
+import { draftPost } from "@/services/post-service";
+import { toast } from "sonner";
 
 const Header = ({ toggleSidebar }: { toggleSidebar: () => void }) => {
   const location = useLocation();
-  const { clearPost, setStep, post, logout } = useStore();
+  const { clearPost, setStep, step, post, setPost, isSaving, setIsSaving, logout } = useStore();
   const navigate = useNavigate()
 
 
@@ -23,6 +24,41 @@ const Header = ({ toggleSidebar }: { toggleSidebar: () => void }) => {
     logout()
     navigate("/login")
   }
+
+  const saveDraftNow = async () => {
+    try {
+      const hasContent =
+        post?.title?.trim() ||
+        post?.description?.trim() ||
+        post?.content?.trim();
+
+      if (!hasContent) return true;
+
+      const payload = {
+        ...post,
+        status: "draft",
+      };
+
+      setIsSaving(true);
+
+      const response = await draftPost(payload);
+
+      if (response?.data?.post?._id) {
+        setPost({
+          ...post,
+          postId: response.data.post._id,
+        });
+      }
+
+      return true;
+    } catch (err) {
+      toast.error("Failed to save draft");
+      return false;
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return (
     <div className="h-20 flex items-center border-b border-gray-200 shadow-sm">
       <div className="max-w-8xl w-full mx-auto px-4 md:px-6 lg:px-8 xl3:px-0 flex justify-between">
@@ -34,22 +70,28 @@ const Header = ({ toggleSidebar }: { toggleSidebar: () => void }) => {
             <Menu strokeWidth={1.5} />
           </button>
           <Link to="/"><h4>BlogSpot</h4></Link>
+
+          {isSaving && <p className="text-black-secondary ml-4">Saving..</p>}
         </div>
         <div className="flex gap-4 sm:gap-8 items-center">
 
 
-          {location.pathname === "/post/create" ? <Button onClick={() => {
+          {location.pathname === "/post/create" && step !== 2 ? <Button onClick={() => {
             const hasContents = post?.title?.trim() ||
               post?.description?.trim() ||
               post?.content?.trim();
 
             if (hasContents) {
+              saveDraftNow()
               setStep(2)
+            } else {
+
+              toast.error("Please add some title, description and content.")
             }
           }} className="hidden sm:flex gap-2 items-center rounded-full !text-xs !h-8">
             Publish
 
-          </Button> : location.pathname === "/post/preview" ? null : <><CustomInput
+          </Button> : location.pathname !== "/" ? null : <><CustomInput
             placeholder="Search.."
             bordered
             inputClassName="!rounded-full"
@@ -62,6 +104,7 @@ const Header = ({ toggleSidebar }: { toggleSidebar: () => void }) => {
             >
               <SearchIcon strokeWidth={2} />
             </Button><button onClick={() => {
+              localStorage.removeItem("preview_post");
               clearPost();
               navigate("/post/create")
             }} className="hidden sm:flex gap-2 items-center text-black-secondary hover:text-black-primary">

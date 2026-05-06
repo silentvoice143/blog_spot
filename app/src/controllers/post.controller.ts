@@ -17,10 +17,6 @@ export const saveDraft = async (req: AuthRequest, res: Response) => {
         title,
         description,
         content,
-        picture,
-        tags,
-        status,
-        scheduledFor,
     } = req.body;
 
     const userId = req.user.id;
@@ -38,11 +34,7 @@ export const saveDraft = async (req: AuthRequest, res: Response) => {
                 title: title || "",
                 description: description || "",
                 content: content || "",
-                picture: picture || "",
-                tags: tags || [],
-                status: status || "draft",
-                scheduledFor:
-                    status === "scheduled" ? scheduledFor : null,
+                status: "draft",
                 lastSavedAt: new Date(),
             },
             {
@@ -61,12 +53,8 @@ export const saveDraft = async (req: AuthRequest, res: Response) => {
             title: title || "",
             description: description || "",
             content: content || "",
-            picture: picture || "",
-            tags: tags || [],
             author: userId,
-            status: status || "draft",
-            scheduledFor:
-                status === "scheduled" ? scheduledFor : null,
+            status: "draft",
             lastSavedAt: new Date(),
         });
     }
@@ -85,7 +73,7 @@ export const saveDraft = async (req: AuthRequest, res: Response) => {
 //
 export const publishPost = async (req: AuthRequest, res: Response) => {
 
-    const { postId } = req.body;
+    const { postId, tags, picture } = req.body;
     const userId = req.user.id;
 
     const post = await Post.findOne({
@@ -112,6 +100,8 @@ export const publishPost = async (req: AuthRequest, res: Response) => {
     post.status = "publish";
     post.publishedAt = new Date();
     post.scheduledFor = null;
+    post.tags = tags || [];
+    post.picture = picture || "";
 
     await post.save();
 
@@ -121,6 +111,47 @@ export const publishPost = async (req: AuthRequest, res: Response) => {
         post,
     });
 
+};
+
+
+//
+// SCHEDULE POST
+//
+export const schedulePost = async (req: AuthRequest, res: Response) => {
+    const userId = req.user.id;
+    const { postId, scheduledAt, picture, tags } = req.body;
+
+    if (!scheduledAt) {
+        return res.status(400).json({
+            success: false,
+            message: "scheduledAt is required",
+        });
+    }
+
+    const post = await Post.findOne({
+        _id: postId,
+        author: userId,
+    });
+
+    if (!post) {
+        return res.status(404).json({
+            success: false,
+            message: "Post not found",
+        });
+    }
+
+    post.status = "scheduled";
+    post.scheduledFor = new Date(scheduledAt);
+    post.tags = tags || [];
+    post.picture = picture || "";
+
+    await post.save();
+
+    res.status(200).json({
+        success: true,
+        message: "Post scheduled successfully",
+        data: post,
+    });
 };
 
 

@@ -6,6 +6,7 @@ import {
     publishPost,
     getMyDrafts,
     deleteDraft,
+    schedulePost,
 } from "../controllers/post.controller.js";
 
 const router = express.Router();
@@ -27,6 +28,15 @@ router.post(
     "/publish",
     authenticateToken,
     catchAsync(publishPost)
+);
+
+//
+// SCHEDULE POST
+//
+router.post(
+    "/schedule",
+    authenticateToken,
+    catchAsync(schedulePost)
 );
 
 //

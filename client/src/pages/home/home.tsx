@@ -73,6 +73,7 @@ const Home = () => {
       label: <PlusIcon className="w-5 h-5 text-gray-tertiary1" />,
       nav: false,
       onPress: () => {
+        localStorage.removeItem("preview_post");
         clearPost()
         navigate("/post/create")
       },
