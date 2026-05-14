@@ -112,7 +112,7 @@ const Home = () => {
   useEffect(() => {
     const fetchDAta = async (page = 1, limit = 10) => {
       try {
-        if (loadingMore || loading || !hasMore) return;
+        if (loadingMore || loading || !hasMore || !isAuthenticated) return;
         setLoading(true);
         let data = await getAllPost(category, `?page=${page}&limit=${limit}`);
 
@@ -133,11 +133,12 @@ const Home = () => {
       }
     };
     fetchDAta(1);
+    if (isAuthenticated) {
+      getRecommendedPostData();
+    }
   }, []);
 
-  useEffect(() => {
-    getRecommendedPostData();
-  }, []);
+
 
   useEffect(() => {
     if (bottomInView) {

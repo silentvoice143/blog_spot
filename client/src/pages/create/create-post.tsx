@@ -14,8 +14,9 @@ import MarkDownEditorPage from "./components/markdown-editor-page";
 import { Eye, X } from "lucide-react";
 import { useStore } from "@/store";
 import { uploadSingleFile } from "@/services/upload-service";
-import { draftPost, publishPost } from "@/services/post-service";
+import { draftPost, publishPost, schedulePost } from "@/services/post-service";
 import { toast } from "sonner";
+import { DateTimePicker } from "@/components/shared/date-time-picker";
 
 const CreatePost = () => {
   const { post, setPost, step, setStep, isSaving, setIsSaving, isPublishing, setIsPublishing, isScheduling, setIsScheduling } = useStore((state) => state);
@@ -26,6 +27,9 @@ const CreatePost = () => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState(null);
   const [selectedTags, setSelectedTags] = useState([]);
+  const [isMobile, setIsMobile] = useState(false);
+  const [openTimePicker, setOpenTimePicker] = useState(false);
+  const [date, setDate] = useState<Date | undefined>(undefined)
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -51,7 +55,7 @@ const CreatePost = () => {
     window.open("/post/preview", "_blank");
   };
 
-  const [isMobile, setIsMobile] = useState(false);
+
 
   const handlePublish = async (type: "publish" | "schedule") => {
 
@@ -72,7 +76,7 @@ const CreatePost = () => {
           "";
       }
 
-      const response = await publishPost({ postId: post?.postId, tags: ["hello"], picture: pictureUrl });
+      const response = await (type === "publish" ? publishPost : schedulePost)({ postId: post?.postId, tags: ["hello"], picture: pictureUrl, scheduledAt: date });
       if (response?.data?.success) {
         toast.success(response?.data?.message);
         setPost({});
@@ -160,74 +164,13 @@ const CreatePost = () => {
       } catch (err) {
 
       } finally {
-        if (isSaving) {
-          setTimeout(() => {
-            setIsSaving(false)
-          }, 500);
-        }
+        setIsSaving(false)
       }
     }, 2000);
 
     return () => clearInterval(interval);
   }, [post, step]);
 
-  // useEffect(() => {
-  //   if (step !== 1) return;
-
-  //   const hasContent =
-  //     post?.title?.trim() ||
-  //     post?.description?.trim() ||
-  //     post?.content?.trim();
-
-  //   if (!hasContent) return;
-
-  //   const currentPost = JSON.stringify({
-  //     title: post?.title || "",
-  //     description: post?.description || "",
-  //     content: post?.content || "",
-  //   });
-
-  //   // no changes
-  //   if (lastSavedRef.current === currentPost) {
-  //     return;
-  //   }
-
-  //   const timeout = setTimeout(async () => {
-  //     try {
-  //       setIsSaving(true);
-
-  //       localStorage.setItem(
-  //         "preview_post",
-  //         JSON.stringify(post)
-  //       );
-
-  //       const payload = {
-  //         ...post,
-  //         status: "draft",
-  //       };
-
-  //       const response = await draftPost(payload);
-
-  //       // save postId
-  //       if (response?.data?.post?._id) {
-  //         setPost((prev) => ({
-  //           ...prev,
-  //           postId: response.data.post._id,
-  //         }));
-  //       }
-
-  //       lastSavedRef.current = currentPost;
-
-  //       console.log("Draft auto-saved");
-  //     } catch (err) {
-  //       console.log(err);
-  //     } finally {
-  //       setIsSaving(false);
-  //     }
-  //   }, 2000);
-
-  //   return () => clearTimeout(timeout);
-  // }, [post, step]);
 
   if (isMobile) {
     return (
@@ -247,6 +190,7 @@ const CreatePost = () => {
 
   return (
     <div className="h-full overflow-y-auto overflow-x-hidden">
+
       <div className="w-full flex-1 flex flex-col">
         {step === 1 ? (
           <div className="flex flex-1 relative">
@@ -352,12 +296,16 @@ const CreatePost = () => {
                       >
                         Publish now
                       </Button>
-                      <Button
-                        className="px-6 h-9 hover:bg-gray-200/80 bg-white text-black-primary rounded-full text-xs"
-                        onClick={() => handlePublish("schedule")}
-                      >
-                        Schedule for later
-                      </Button>
+                      <DateTimePicker onSubmit={() => {
+                        console.log("submit clicked");
+                        handlePublish("schedule")
+                      }} onCancel={() => setDate(undefined)} value={date} onChange={(date) => setDate(date)}>
+                        <Button
+                          className="px-6 h-9 hover:bg-gray-200/80 bg-white text-black-primary rounded-full text-xs"
+                        >
+                          Schedule for later
+                        </Button>
+                      </DateTimePicker>
                     </div>
                   </div>
 
