@@ -1,20 +1,11 @@
 import React, { useMemo } from "react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import SmartImage from "./smart-image";
+import { Post } from "@/lib/types/post";
 
-export interface Post {
-  image?: string;
-  tags: string[];
-  title: string;
-  excerpt: string;
-  author: string;
-  date: string;
-  readTime: string;
-}
 
-interface PostCardProps {
-  post: Post;
-}
+
+
 
 const gradients = [
   "from-purple-600 to-blue-500",
@@ -25,8 +16,8 @@ const gradients = [
   "from-cyan-500 to-blue-400",
 ];
 
-const PostCard: React.FC<PostCardProps> = ({ post }) => {
-  const initials = post.author
+const PostCard = ({ post }: { post: Post }) => {
+  const initials = post.author.name
     .split(" ")
     .map((n) => n[0])
     .join("")
@@ -38,11 +29,11 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
   }, []);
 
   return (
-    <div className="relative aspect-[2/1] rounded-md overflow-hidden cursor-pointer">
+    <div className="relative aspect-[1/1] sm:aspect-[2/1] rounded-md overflow-hidden cursor-pointer ">
       {/* Image / fallback */}
-      {post.image ? (
+      {post.picture ? (
         <SmartImage
-          src={post.image}
+          src={post.picture}
           alt={post.title}
           className="absolute inset-0"
           showGradientFallback={true}
@@ -54,10 +45,10 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
       )}
 
       {/* Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/10" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black-primary/85 via-black-primary/40 to-black-primary/10" />
 
       {/* Content */}
-      <div className="absolute inset-0 flex flex-col justify-end p-4 gap-2">
+      <div className="absolute inset-0 flex flex-col justify-end p-4 gap-2 ">
         {/* Tags */}
         <div className="flex gap-1.5 flex-wrap">
           {post.tags.map((t) => (
@@ -78,7 +69,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
 
         {/* Excerpt */}
         <p className="text-xs text-white/75 leading-relaxed line-clamp-2">
-          {post.excerpt}
+          {post.description}
         </p>
 
         {/* Author */}
@@ -90,13 +81,13 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
           </Avatar>
 
           <div>
-            <p className="text-[11px] font-medium text-white">{post.author}</p>
-            <p className="text-[10px] text-white/60">{post.date}</p>
+            <p className="text-[11px] font-medium text-white">{post?.author?.name}</p>
+            <p className="text-[10px] text-white/60">{new Date(post.publishedAt as string).toLocaleDateString()}</p>
           </div>
 
-          <span className="ml-auto text-[10px] text-white/60">
+          {/* <span className="ml-auto text-[10px] text-white/60">
             {post.readTime} read
-          </span>
+          </span> */}
         </div>
       </div>
     </div>

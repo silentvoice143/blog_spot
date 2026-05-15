@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import SmartImage from "../shared/smart-image";
 import { formatDate } from "@/utils/common-utils";
+import { Button } from "../ui/button";
 
 // Mock Card components for the example
 const Card = ({ children, className }) => (
@@ -71,12 +72,14 @@ export default function CardPost(props) {
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
             <div className="flex items-center justify-center w-8 h-8 text-sm font-medium bg-gradient-to-br from-blue-400 to-purple-500 text-white rounded-full">
-              {getAuthorInitials(props.author)}
+              <span>{getAuthorInitials(props.author)}</span>
             </div>
             <div>
-              <p className="text-sm font-medium text-gray-800">
-                {props.author}
-              </p>
+              <div className="flex items-center gap-2 flex-wrap">
+                <p className="text-sm font-medium text-gray-800">
+                  {props.author}
+                </p><Button className="rounded-full h-6 px-2 text-xs" variant="outline">Follow</Button>
+              </div>
               <p className="text-xs text-gray-500">in {props.tags}</p>
             </div>
           </div>
@@ -124,14 +127,12 @@ export default function CardPost(props) {
             {/* Like button */}
             <button
               onClick={handleLike}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all duration-200 hover:bg-gray-100 ${
-                isLiked ? "text-red-500 bg-red-50" : "text-gray-600"
-              }`}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all duration-200 hover:bg-gray-100 ${isLiked ? "text-red-500 bg-red-50" : "text-gray-600"
+                }`}
             >
               <ThumbsUp
-                className={`h-4 w-4 transition-transform duration-200 ${
-                  isLiked ? "fill-current scale-110" : ""
-                }`}
+                className={`h-4 w-4 transition-transform duration-200 ${isLiked ? "fill-current scale-110" : ""
+                  }`}
               />
               <span className="text-sm font-medium">{likeCount}</span>
             </button>
@@ -139,9 +140,8 @@ export default function CardPost(props) {
             {/* Comment button */}
             <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-gray-600 hover:bg-gray-100 hover:text-blue-600 transition-all duration-200">
               <MessageCircle
-                className={`h-4 w-4 transition-transform duration-200 ${
-                  isLiked ? "fill-current scale-110" : ""
-                }`}
+                className={`h-4 w-4 transition-transform duration-200 ${isLiked ? "fill-current scale-110" : ""
+                  }`}
               />
               <span className="text-sm font-medium">{props.comments || 0}</span>
             </button>
@@ -149,14 +149,12 @@ export default function CardPost(props) {
             {/* Bookmark button */}
             <button
               onClick={handleBookmark}
-              className={`p-1.5 rounded-full transition-all duration-200 hover:bg-gray-100 ${
-                isBookmarked ? "text-yellow-500 bg-yellow-50" : "text-gray-600"
-              }`}
+              className={`p-1.5 rounded-full transition-all duration-200 hover:bg-gray-100 ${isBookmarked ? "text-yellow-500 bg-yellow-50" : "text-gray-600"
+                }`}
             >
               <BookmarkPlus
-                className={`h-4 w-4 transition-transform duration-200 ${
-                  isBookmarked ? "fill-current scale-110" : ""
-                }`}
+                className={`h-4 w-4 transition-transform duration-200 ${isBookmarked ? "fill-current scale-110" : ""
+                  }`}
               />
             </button>
 

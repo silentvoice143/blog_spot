@@ -15,7 +15,7 @@ import Login from "./pages/auth/login";
 import Register from "./pages/auth/register";
 
 import { LoaderProvider, useLoader } from "./context/LoaderProvider";
-import { Loader } from "./components/loader";
+
 import Post from "./pages/post";
 
 import Profile from "./pages/profile";
@@ -40,10 +40,11 @@ import PrivateRoute from "./routes/protected-route";
 import { ROLES } from "./constant/roles";
 import Dashboard from "./pages/dashboard";
 import Preview from "./pages/create/components/preview";
+import { Spinner } from "./components/shared/loader";
 
 function App() {
   const userId = sessionStorage.getItem("userId");
-  const { isAuthenticated, token } = useStore((state) => state);
+  const { isAuthenticated, token, globalLoading } = useStore((state) => state);
   const { handleError } = useApiError();
   const { isConnected } = useRegisterSocket(token, userId);
 
@@ -53,7 +54,7 @@ function App() {
         <DataProvider>
           <NavProvider>
             <NotificationProvider>
-              <Loader />
+              {globalLoading && <Spinner />}
               <BrowserRouter>
                 <Routes>
                   <Route path="/login" element={<Login />} />

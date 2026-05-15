@@ -5,6 +5,26 @@ module.exports = {
   darkMode: ["class", "class"],
   theme: {
     extend: {
+      keyframes: {
+        "loading-bar": {
+          "0%": {
+            width: "0%",
+            opacity: "0.5",
+          },
+          "50%": {
+            width: "70%",
+            opacity: "1",
+          },
+          "100%": {
+            width: "0%",
+            opacity: "0.5",
+          },
+        },
+      },
+
+      animation: {
+        "loading-bar": "loading-bar 2s ease-in-out infinite",
+      },
       width: {
         "8xl": "1440px",
       },

@@ -49,6 +49,7 @@ export interface AuthSlice {
   user: any;
   token: string | null;
   isAuthenticated: boolean;
+  globalLoading: boolean;
 
   login: (user: any, token: string) => void;
   logout: () => void;
@@ -58,6 +59,7 @@ export const createAuthSlice: StateCreator<AuthSlice> = (set) => ({
   user: null,
   token: null,
   isAuthenticated: false,
+  globalLoading: false,
 
   login: (user, token) =>
     set({
@@ -71,5 +73,10 @@ export const createAuthSlice: StateCreator<AuthSlice> = (set) => ({
       user: null,
       token: null,
       isAuthenticated: false,
+    }),
+
+  setGlobalLoading: (loading: boolean) =>
+    set({
+      globalLoading: loading,
     }),
 });

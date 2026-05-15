@@ -191,7 +191,6 @@ export const deleteDraft = async (req, res) => {
     });
 
     if (!post) {
-
         return new CustomException("Draft not found", 404)
     }
 
@@ -200,4 +199,77 @@ export const deleteDraft = async (req, res) => {
         message: "Draft deleted successfully",
     });
 
+};
+
+export const getAllPosts = async (req: Request, res: Response) => {
+    const { search, category, page = 1, limit = 10 } = req.query;
+    const skip = (parseInt(page as string) - 1) * parseInt(limit as string);
+    const query: any = {};
+
+    if (category) {
+        query.category = category;
+    }
+    if (search) {
+        query.$or = [
+            { title: { $regex: search, $options: "i" } },
+            { description: { $regex: search, $options: "i" } },
+            { content: { $regex: search, $options: "i" } },
+        ];
+    }
+
+    // ✅ Run both queries in parallel
+    const [posts, totalCount] = await Promise.all([
+        Post.find(query)
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(parseInt(limit as string))
+            .populate("author", "username name picture"),
+        Post.countDocuments(query), // ✅ Total docs matching query, not just current page
+    ]);
+
+    return res.status(200).json({
+        success: true,
+        pagination: {
+            count: totalCount,                                                      // ✅ total docs
+            totalPages: Math.ceil(totalCount / parseInt(limit as string)),          // ✅ correct
+            page: parseInt(page as string),
+            limit: parseInt(limit as string),
+        },
+        posts,
+    });
+};
+
+export const getUserPosts = async (req: AuthRequest, res: Response) => {
+    const userId = req.user.id;
+    const { page = 1, limit = 10, search } = req.query;
+    const skip = (parseInt(page as string) - 1) * parseInt(limit as string);
+    const query: any = { author: userId };
+
+    if (search) {
+        query.$or = [
+            { title: { $regex: search, $options: "i" } },
+            { description: { $regex: search, $options: "i" } },
+            { content: { $regex: search, $options: "i" } },
+        ];
+    }
+
+    const [posts, totalCount] = await Promise.all([
+        Post.find(query)
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(parseInt(limit as string))
+            .populate("author", "username name picture"),
+        Post.countDocuments(query),
+    ]);
+
+    return res.status(200).json({
+        success: true,
+        pagination: {
+            count: totalCount,
+            totalPages: Math.ceil(totalCount / parseInt(limit as string)),
+            page: parseInt(page as string),
+            limit: parseInt(limit as string),
+        },
+        posts,
+    });
 };

@@ -7,8 +7,8 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import SmallCardPost from "@/components/posts/smallCardPost";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { getAllPost, getRecommendedPost } from "@/services/apiService";
-import Loader from "@/components/ui/loader";
+
+
 import { Button } from "@/components/ui/button";
 import { FadeIn } from "@/components/animations/fade-in";
 import TypingText from "@/components/animations/typing-text";
@@ -17,22 +17,20 @@ import {
   Carousel,
   CarouselContent,
   CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
+
 } from "@/components/ui/carousel";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+
 import Autoplay from "embla-carousel-autoplay";
-import PostCard, { Post } from "@/components/shared/post-card";
+import PostCard from "@/components/shared/post-card";
 import CardPost from "@/components/posts/cardPost";
-import { formatDate } from "@/utils/common-utils";
 import { CATEGORIES } from "@/constant";
 import { useStore } from "@/store";
+import { getAllPosts } from "@/services/post-service";
+import { Post } from "@/lib/types/post";
+import { formatDate } from "@/utils/date-utils";
+import { Spinner } from "@/components/shared/loader";
+
+
 
 export type TabItem = {
   id: number | string;
@@ -47,13 +45,17 @@ const Home = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<number | string>(2);
   const [loading, setLoading] = useState(false);
-  const [loadingRecommendation, setLoadingRecommendation] = useState(false);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
-  const [currentPage, setCurrentPage] = useState(1);
   const [posts, setPosts] = useState([]);
-  let [searchParams] = useSearchParams();
-  const category = searchParams.get("category");
+  const { ref: lastPostRef, inView: lastPostInView } = useInView({
+    /* Optional options */
+    threshold: 0,
+  });
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 10,
+    count: 0,
+    totalPages: 1
+  })
 
   const { ref: topRef, inView: topInView } = useInView({
     threshold: 0,
@@ -61,6 +63,7 @@ const Home = () => {
 
   const { ref: bottomRef, inView: bottomInView } = useInView({
     threshold: 1,
+
   });
   const [mode, setMode] = useState<"relative" | "fixed" | "absolute">(
     "relative",
@@ -94,50 +97,53 @@ const Home = () => {
 
   const [recommended, setRecommended] = useState([]);
 
-  const getRecommendedPostData = async () => {
+  const fetchPosts = async (page: number = 1, limit: number = 10) => {
+    if (loading || page > pagination.totalPages) {
+      return
+    }
+    setLoading(true)
     try {
-      setLoadingRecommendation(true);
-      const response = await getRecommendedPost();
-      console.log(response, "-----res");
-      if (response.data.success) {
-        setRecommended(response.data.recommendedPost);
+      const response = await getAllPosts({
+        limit,
+        page,
+      });
+      console.log(response)
+      if (response.success) {
+
+        setPosts([...posts, ...response.posts]);
+        const pagination = response.pagination;
+        setPagination({
+          ...pagination,
+        })
+
+      } else {
+        setPosts([]);
       }
-    } catch (err) {
-      console.log(err);
+    } catch (err: any) {
+      console.log(err?.message);
     } finally {
-      setLoadingRecommendation(false);
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    const fetchDAta = async (page = 1, limit = 10) => {
-      try {
-        if (loadingMore || loading || !hasMore || !isAuthenticated) return;
-        setLoading(true);
-        let data = await getAllPost(category, `?page=${page}&limit=${limit}`);
+    fetchPosts(1, pagination.limit)
+  }, [])
 
-        if (data.success) {
-          setPosts([...posts, ...data.posts]);
-          const pagination = data.pagination;
-          if (pagination.page >= pagination.totalPages) {
-            setHasMore(false);
-          }
-          setCurrentPage(pagination.page);
-        } else {
-          setPosts([]);
-        }
-      } catch (err: any) {
-        console.log(err?.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchDAta(1);
-    if (isAuthenticated) {
-      getRecommendedPostData();
+  useEffect(() => {
+    if (
+      lastPostInView
+
+    ) {
+      fetchPosts(
+        pagination.page + 1,
+        pagination.limit
+      );
     }
-  }, []);
+  }, [
+    lastPostInView,
 
+  ]);
 
 
   useEffect(() => {
@@ -150,9 +156,9 @@ const Home = () => {
     }
   }, [topInView, bottomInView]);
 
-  if (loading) {
-    return <Loader />;
-  }
+  // if (loading) {
+  //   return <Spinner size="large" />;
+  // }
 
   if (!isAuthenticated) {
     return (
@@ -265,146 +271,14 @@ const Home = () => {
     );
   }
 
-  const dummyPosts: Post[] = [
-    {
-      image:
-        "https://upload.wikimedia.org/wikipedia/commons/b/b6/Image_created_with_a_mobile_phone.png",
-      tags: ["Tech", "AI"],
-      title: "The Rise of Artificial Intelligence",
-      excerpt:
-        "AI is reshaping industries and redefining how humans interact with machines.",
-      author: "Aarav Sharma",
-      date: "Apr 10, 2026",
-      readTime: "6 min",
-    },
 
-    {
-      image:
-        "https://upload.wikimedia.org/wikipedia/commons/b/b6/Image_created_with_a_mobile_phone.png",
-      tags: ["Programming", "React"],
-      title: "Mastering React in 2026",
-      excerpt:
-        "React continues to evolve with new hooks and performance improvements.",
-      author: "Rohan Gupta",
-      date: "Apr 6, 2026",
-      readTime: "7 min",
-    },
-    {
-      image: "",
-      tags: ["Design", "UI/UX"],
-      title: "Design Trends You Should Follow",
-      excerpt:
-        "Minimalism, glassmorphism, and bold typography are leading design trends.",
-      author: "Neha Kapoor",
-      date: "Apr 5, 2026",
-      readTime: "5 min",
-    },
-    {
-      image:
-        "https://upload.wikimedia.org/wikipedia/commons/b/b6/Image_created_with_a_mobile_phone.png",
-      tags: ["Finance", "Crypto"],
-      title: "Understanding Crypto Markets",
-      excerpt:
-        "Crypto markets are volatile but offer huge opportunities for investors.",
-      author: "Karan Mehta",
-      date: "Apr 3, 2026",
-      readTime: "6 min",
-    },
-    {
-      image: "https://source.unsplash.com/random/300x400?productivity",
-      tags: ["Productivity", "Self Growth"],
-      title: "Boost Your Daily Productivity",
-      excerpt:
-        "Simple habits can drastically improve your daily efficiency and focus.",
-      author: "Simran Kaur",
-      date: "Apr 1, 2026",
-      readTime: "3 min",
-    },
-  ];
-
-  const dummyCardPosts = [
-    {
-      _id: "1",
-      title: "Understanding Async JavaScript",
-      description:
-        "Async JavaScript allows non-blocking execution using promises and async/await.",
-      createdAt: "2026-04-10T10:30:00Z",
-      email: "aarav.sharma@example.com",
-      picture:
-        "https://upload.wikimedia.org/wikipedia/commons/b/b6/Image_created_with_a_mobile_phone.png",
-      author: {
-        name: "Aarav Sharma",
-      },
-      tags: ["JavaScript", "Async", "Programming"],
-      comments: [{}, {}, {}], // 3 comments
-    },
-    {
-      _id: "2",
-      title: "React vs Next.js in 2026",
-      description:
-        "Choosing between React and Next.js depends on your app's needs and SEO requirements.",
-      createdAt: "2026-04-08T14:20:00Z",
-      email: "priya.verma@example.com",
-      picture:
-        "https://upload.wikimedia.org/wikipedia/commons/b/b6/Image_created_with_a_mobile_phone.png",
-      author: {
-        name: "Priya Verma",
-      },
-      tags: ["React", "Next.js", "Frontend"],
-      comments: [{}, {}],
-    },
-    {
-      _id: "3",
-      title: "Mastering Tailwind CSS",
-      description:
-        "Tailwind CSS helps you build modern UI faster with utility-first classes.",
-      createdAt: "2026-04-06T09:15:00Z",
-      email: "rohan.gupta@example.com",
-      picture:
-        "https://upload.wikimedia.org/wikipedia/commons/b/b6/Image_created_with_a_mobile_phone.png",
-      author: {
-        name: "Rohan Gupta",
-      },
-      tags: ["CSS", "Tailwind", "Design"],
-      comments: [{}],
-    },
-    {
-      _id: "4",
-      title: "Node.js Performance Tips",
-      description:
-        "Improve Node.js performance using clustering, caching, and async patterns.",
-      createdAt: "2026-04-05T18:00:00Z",
-      email: "neha.kapoor@example.com",
-      picture: "",
-      author: {
-        name: "Neha Kapoor",
-      },
-      tags: ["Node.js", "Backend", "Performance"],
-      comments: [{}, {}, {}, {}],
-    },
-    {
-      _id: "5",
-      title: "Getting Started with MongoDB",
-      description:
-        "MongoDB is a NoSQL database that stores data in flexible JSON-like documents.",
-      createdAt: "2026-04-03T11:45:00Z",
-      email: "karan.mehta@example.com",
-      picture:
-        "https://upload.wikimedia.org/wikipedia/commons/b/b6/Image_created_with_a_mobile_phone.png",
-      author: {
-        name: "Karan Mehta",
-      },
-      tags: ["MongoDB", "Database"],
-      comments: [],
-    },
-  ];
 
   return (
     <MainLayout>
       <div className="min-h-screen px-8 justify-center">
         <div className="h-full flex flex-1 flex-row justify-center">
           <div
-            className={`h-full flex flex-col flex-1 max-w-[800px] py-8 sm:border-r`}
+            className={`h-full flex flex-col flex-1 max-w-[800px] py-8 lg:border-r`}
           >
             <div className="w-full md:w-2/3">
               <Tab
@@ -435,7 +309,7 @@ const Home = () => {
                     ]}
                   >
                     <CarouselContent className="">
-                      {dummyPosts.map((post, i) => (
+                      {posts.map((post, i) => (
                         <CarouselItem key={i}>
                           <PostCard post={post} />
                         </CarouselItem>
@@ -444,24 +318,24 @@ const Home = () => {
                   </Carousel>
 
                   <div className="my-8">
-                    {dummyCardPosts.map((data, idx) => (
-                      <div key={data._id}>
+                    {posts.length != 0 ? posts.map((data: Post, idx) => (
+                      <div key={data._id} ref={idx === posts.length - 1 ? lastPostRef : null}>
                         <CardPost
                           title={data.title}
                           content={data.description}
                           dop={formatDate(new Date(data.createdAt))}
-                          email={data.email}
                           picture={data.picture}
                           author={data.author.name}
                           tags={data.tags.join(",")}
                           id={data._id}
                           comments={data.comments.length}
                         />
-                        {idx !== dummyCardPosts.length - 1 && (
+                        {idx !== posts.length - 1 && (
                           <Separator className="bg-gray-200 my-4" />
                         )}
                       </div>
-                    ))}
+                    )) : <div className="text-center mt-20 text-lg font-bold text-black-secondary">No posts found</div>}
+                    {(posts.length != 0 && loading) && <div className="flex justify-center"><Spinner size="small" /></div>}
                   </div>
                 </div>
                 <div></div>
@@ -481,7 +355,7 @@ const Home = () => {
                     ]}
                   >
                     <CarouselContent className="">
-                      {dummyPosts.map((post, i) => (
+                      {posts.map((post, i) => (
                         <CarouselItem key={i}>
                           <PostCard post={post} />
                         </CarouselItem>
@@ -490,24 +364,24 @@ const Home = () => {
                   </Carousel>
 
                   <div className="my-8">
-                    {dummyCardPosts.map((data, idx) => (
+                    {posts.length != 0 ? posts.map((data: Post, idx) => (
                       <div key={data._id}>
                         <CardPost
                           title={data.title}
                           content={data.description}
                           dop={formatDate(new Date(data.createdAt))}
-                          email={data.email}
                           picture={data.picture}
                           author={data.author.name}
                           tags={data.tags.join(",")}
                           id={data._id}
                           comments={data.comments.length}
                         />
-                        {idx !== dummyCardPosts.length - 1 && (
+                        {idx !== posts.length - 1 && (
                           <Separator className="bg-gray-200 my-4" />
                         )}
                       </div>
-                    ))}
+                    )) : <div className="text-center mt-20 text-lg">No posts found</div>}
+                    {(posts.length != 0 && loading) && <div className="flex justify-center"><Spinner size="small" /></div>}
                   </div>
                 </div>
                 <div></div>
@@ -527,10 +401,10 @@ const Home = () => {
                 <div>
                   <h2 className="mb-4 text-base font-medium">Most viewed</h2>
                   <div className="flex flex-col gap-2">
-                    {dummyCardPosts.map((post, idx) => (
+                    {posts.map((post: Post, idx) => (
                       <div>
                         <SmallCardPost key={post._id} post={post} />
-                        {idx !== dummyCardPosts.length - 1 && (
+                        {idx !== posts.length - 1 && (
                           <Separator className="bg-gray-200 my-6" />
                         )}
                       </div>

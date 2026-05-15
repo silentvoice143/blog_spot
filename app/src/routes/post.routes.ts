@@ -7,6 +7,8 @@ import {
     getMyDrafts,
     deleteDraft,
     schedulePost,
+    getUserPosts,
+    getAllPosts,
 } from "../controllers/post.controller.js";
 
 const router = express.Router();
@@ -56,5 +58,33 @@ router.delete(
     authenticateToken,
     catchAsync(deleteDraft)
 );
+
+//
+// GET ALL MY POST
+//
+router.get(
+    "/my-posts",
+    authenticateToken,
+    catchAsync(getUserPosts)
+);
+
+//
+// GET ALL POSTS
+//
+router.get(
+    "/all-posts",
+    catchAsync(getAllPosts)
+);
+
+//
+// UPDATE POST
+//
+// router.put(
+//     "/update/:postId",
+//     authenticateToken,
+//     catchAsync(updatePost)
+// );
+
+
 
 export default router;

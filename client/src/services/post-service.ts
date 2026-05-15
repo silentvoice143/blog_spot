@@ -28,4 +28,50 @@ export const schedulePost = async (data) => {
   }
 };
 
+//
+// GET ALL POSTS
+//
+type GetAllPostsParams = {
+  category?: string;
+  page?: number;
+  limit?: number;
+  search?: string;
+  sortBy?: string;
+  order?: "asc" | "desc";
+};
+
+export const getAllPosts = async (params: GetAllPostsParams) => {
+  try {
+    const response = await API.get("/post/all-posts", {
+      params,
+    });
+
+    return response.data;
+  } catch (err) {
+    throw err;
+  }
+};
+
+//
+// GET ALL POSTS
+//
+type GetMyPostsParams = {
+  page?: number;
+  limit?: number;
+  search?: string;
+};
+
+export const getMyPosts = async (params: GetMyPostsParams) => {
+  try {
+    const response = await API.get("/post/my-posts", {
+      params,
+    });
+
+    return response.data;
+  } catch (err) {
+    throw err;
+  }
+};
+
+
 
