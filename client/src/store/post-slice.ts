@@ -19,6 +19,8 @@ export interface PostSlice {
   setIsPublishing: (isPublishing: boolean) => void;
   setIsScheduling: (isScheduling: boolean) => void;
   clearPost: () => void;
+  submitRef: React.MutableRefObject<(() => Promise<void>) | null>;
+  setSubmitRef: (ref: React.MutableRefObject<(() => Promise<void>) | null>) => void;
 }
 
 export const createPostSlice: StateCreator<PostSlice> = (set) => ({
@@ -63,4 +65,6 @@ export const createPostSlice: StateCreator<PostSlice> = (set) => ({
     set({
       isScheduling,
     }),
+  submitRef: { current: null },
+  setSubmitRef: (ref) => set({ submitRef: ref }),
 });

@@ -19,10 +19,7 @@ const CardContent = ({ children, className }) => (
   <div className={className}>{children}</div>
 );
 
-// Mock CommentIcon component
-const CommentIcon = ({ className }) => (
-  <MessageCircle className={`h-4 w-4 ${className}`} />
-);
+
 
 export default function CardPost(props) {
   const [isLiked, setIsLiked] = useState(false);
@@ -80,7 +77,7 @@ export default function CardPost(props) {
                   {props.author}
                 </p><Button className="rounded-full h-6 px-2 text-xs" variant="outline">Follow</Button>
               </div>
-              <p className="text-xs text-gray-500">in {props.tags}</p>
+              {props.tags && <p className="text-xs text-gray-500 text-ellipsis  overflow-hidden text-nowrap">in {props.tags}</p>}
             </div>
           </div>
 

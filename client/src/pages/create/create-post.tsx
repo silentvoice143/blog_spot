@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import CustomTextArea from "@/components/ui-v2/CustomTextArea";
 import Tiptap from "@/editor";
 import { DataContext } from "@/context/Dataprovider";
@@ -17,10 +17,17 @@ import { uploadSingleFile } from "@/services/upload-service";
 import { draftPost, publishPost, schedulePost } from "@/services/post-service";
 import { toast } from "sonner";
 import { DateTimePicker } from "@/components/shared/date-time-picker";
+import { CustomSelect } from "@/components/shared/custom-select";
+import { CATEGORIES } from "@/constant/category";
 
 const CreatePost = () => {
-  const { post, setPost, step, setStep, isSaving, setIsSaving, isPublishing, setIsPublishing, isScheduling, setIsScheduling } = useStore((state) => state);
+  const {
+    post, setPost, step, setStep, isSaving,
+    setIsSaving, isPublishing, setIsPublishing, setIsScheduling, isScheduling, setSubmitRef
+  } = useStore((state) => state);
   const lastSavedRef = useRef("");
+  const debouncedSaveRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isSavingRef = useRef(false);
 
   const navigate = useNavigate();
   const { setLoading } = useLoader();
@@ -28,8 +35,8 @@ const CreatePost = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [selectedTags, setSelectedTags] = useState([]);
   const [isMobile, setIsMobile] = useState(false);
-  const [openTimePicker, setOpenTimePicker] = useState(false);
   const [date, setDate] = useState<Date | undefined>(undefined)
+  const [categoryOptions, setCategoryOptions] = useState(CATEGORIES.options)
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -76,7 +83,7 @@ const CreatePost = () => {
           "";
       }
 
-      const response = await (type === "publish" ? publishPost : schedulePost)({ postId: post?.postId, tags: ["hello"], picture: pictureUrl, scheduledAt: date });
+      const response = await (type === "publish" ? publishPost : schedulePost)({ postId: post?.postId, tags: selectedTags.map((tag: string) => tag.toLowerCase()), picture: pictureUrl, scheduledAt: date });
       if (response?.data?.success) {
         toast.success(response?.data?.message);
         setPost({});
@@ -103,73 +110,87 @@ const CreatePost = () => {
     };
   }, []);
 
-  useEffect(() => {
-    const interval = setInterval(async () => {
-      if (step !== 1) {
-        setIsSaving(false);
-        return
-      };
-      if (isSaving) return;
-
-      try {
-        const hasContent =
-          post?.title?.trim() ||
-          post?.description?.trim() ||
-          post?.content?.trim();
-
-        if (hasContent) {
-
-          const currentPost = JSON.stringify({
-            title: post?.title || "",
-            description: post?.description || "",
-            content: post?.content || "",
-          });
-
-          if (lastSavedRef.current === currentPost) {
-            return;
-          }
-
-          setIsSaving(true)
-
-          localStorage.setItem(
-            "preview_post",
-            JSON.stringify(post)
-          );
-          window.dispatchEvent(new StorageEvent('storage', {
-            key: 'preview_post',
-            newValue: JSON.stringify(post)
-          }));
 
 
 
-          const payload = {
-            ...post,
-            status: "draft",
-          }
+  // Core save logic — extracted so both autosave and submit can call it
+  const savePost = useCallback(async (postData: typeof post, forceSave = false) => {
+    const hasContent =
+      postData?.title?.trim() ||
+      postData?.description?.trim() ||
+      postData?.content?.trim();
 
-          const response = await draftPost(payload);
+    if (!hasContent) return;
 
-          console.log(response?.data.post?._id, payload, response?.data?.post, "-----response of post auto save")
+    const currentPost = JSON.stringify({
+      title: postData?.title || "",
+      description: postData?.description || "",
+      content: postData?.content || "",
+    });
 
-          // save returned postId
-          if (response?.data.post?._id) {
-            setPost({
-              ...post,
-              postId: response.data.post._id,
-            });
-          }
+    // Skip if nothing changed (unless forced by submit)
+    if (!forceSave && lastSavedRef.current === currentPost) return;
+    if (isSavingRef.current) return;
 
-          lastSavedRef.current = currentPost;
-        }
-      } catch (err) {
+    try {
+      isSavingRef.current = true;
+      setIsSaving(true);
 
-      } finally {
-        setIsSaving(false)
+      localStorage.setItem("preview_post", JSON.stringify(postData));
+      window.dispatchEvent(new StorageEvent("storage", {
+        key: "preview_post",
+        newValue: JSON.stringify(postData),
+      }));
+
+      const payload = { ...postData, status: "draft" };
+      const response = await draftPost(payload);
+
+      if (response?.data.post?._id) {
+        setPost({ ...postData, postId: response.data.post._id });
       }
+
+      lastSavedRef.current = currentPost;
+    } catch (err) {
+      // handle error
+    } finally {
+      isSavingRef.current = false;
+      setTimeout(() => setIsSaving(false), 1000);
+    }
+  }, []);
+
+  // Debounced autosave — runs 2s after last change, only on step 1
+  useEffect(() => {
+    if (step !== 1) return;
+
+    // Cancel any pending debounce
+    if (debouncedSaveRef.current) clearTimeout(debouncedSaveRef.current);
+
+    debouncedSaveRef.current = setTimeout(() => {
+      savePost(post);
     }, 2000);
 
-    return () => clearInterval(interval);
-  }, [post, step]);
+    return () => {
+      if (debouncedSaveRef.current) clearTimeout(debouncedSaveRef.current);
+    };
+  }, [post, step, savePost]);
+
+  const submitRef = useRef<(() => Promise<void>) | null>(null);
+
+
+  const handleSubmit = useCallback(async () => {
+    if (debouncedSaveRef.current) {
+      clearTimeout(debouncedSaveRef.current);
+      debouncedSaveRef.current = null;
+    }
+    await savePost(post, true);
+    // ...rest of submit logic
+  }, [post, savePost]);
+
+  // Register it so Header can call it
+  useEffect(() => {
+    submitRef.current = handleSubmit;
+    setSubmitRef(submitRef);
+  }, [handleSubmit, setSubmitRef]);
 
 
   if (isMobile) {
@@ -187,6 +208,7 @@ const CreatePost = () => {
       </div>
     );
   }
+
 
   return (
     <div className="h-full overflow-y-auto overflow-x-hidden">
@@ -272,21 +294,17 @@ const CreatePost = () => {
                       <span className="font-semibold">Satyam Kumar</span>
                     </h2>
                     <div className="">
-                      <MultiSelect
-                        subheading="Select the categories for your post and let user find it conveniently."
-                        onChange={(selected) => setSelectedTags(selected)}
+                      <CustomSelect
+                        multiSelect
+                        selected={selectedTags}
+                        onChange={(selected) => setSelectedTags(selected as any)}
                         placeholder="Select upto four tags..."
-                        options={[
-                          { value: "one", label: "1" },
-                          { value: "two", label: "2" },
-                          { value: "three", label: "3" },
-                          { value: "4", label: "4" },
-                          { value: "5", label: "5" },
-                          { value: "6", label: "6" },
-                          { value: "7", label: "7" },
-                          { value: "8", label: "8" },
-                          { value: "9", label: "9" },
-                        ]}
+                        options={categoryOptions}
+                        enableCreateOption
+                        onCreateOption={(value) => {
+                          setCategoryOptions((prev) => [...prev, { label: value, value }]);
+                          setSelectedTags((prev) => [...prev, value])
+                        }}
                       />
                     </div>
                     <div className="flex gap-4 mt-8">

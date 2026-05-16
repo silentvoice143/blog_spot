@@ -95,7 +95,6 @@ const Home = () => {
     },
   ];
 
-  const [recommended, setRecommended] = useState([]);
 
   const fetchPosts = async (page: number = 1, limit: number = 10) => {
     if (loading || page > pagination.totalPages) {
@@ -156,9 +155,6 @@ const Home = () => {
     }
   }, [topInView, bottomInView]);
 
-  // if (loading) {
-  //   return <Spinner size="large" />;
-  // }
 
   if (!isAuthenticated) {
     return (
@@ -326,7 +322,7 @@ const Home = () => {
                           dop={formatDate(new Date(data.createdAt))}
                           picture={data.picture}
                           author={data.author.name}
-                          tags={data.tags.join(",")}
+                          tags={data.tags.join(", ")}
                           id={data._id}
                           comments={data.comments.length}
                         />

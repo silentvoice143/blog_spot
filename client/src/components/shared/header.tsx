@@ -16,7 +16,7 @@ import { toast } from "sonner";
 
 const Header = ({ toggleSidebar }: { toggleSidebar: () => void }) => {
   const location = useLocation();
-  const { clearPost, setStep, step, post, setPost, isSaving, setIsSaving, logout } = useStore();
+  const { clearPost, setStep, step, post, setPost, isSaving, setIsSaving, logout, submitRef } = useStore();
   const navigate = useNavigate()
 
 
@@ -25,39 +25,39 @@ const Header = ({ toggleSidebar }: { toggleSidebar: () => void }) => {
     navigate("/login")
   }
 
-  const saveDraftNow = async () => {
-    try {
-      const hasContent =
-        post?.title?.trim() ||
-        post?.description?.trim() ||
-        post?.content?.trim();
+  // const saveDraftNow = async () => {
+  //   try {
+  //     const hasContent =
+  //       post?.title?.trim() ||
+  //       post?.description?.trim() ||
+  //       post?.content?.trim();
 
-      if (!hasContent) return true;
+  //     if (!hasContent) return true;
 
-      const payload = {
-        ...post,
-        status: "draft",
-      };
+  //     const payload = {
+  //       ...post,
+  //       status: "draft",
+  //     };
 
-      setIsSaving(true);
+  //     setIsSaving(true);
 
-      const response = await draftPost(payload);
+  //     const response = await draftPost(payload);
 
-      if (response?.data?.post?._id) {
-        setPost({
-          ...post,
-          postId: response.data.post._id,
-        });
-      }
+  //     if (response?.data?.post?._id) {
+  //       setPost({
+  //         ...post,
+  //         postId: response.data.post._id,
+  //       });
+  //     }
 
-      return true;
-    } catch (err) {
-      toast.error("Failed to save draft");
-      return false;
-    } finally {
-      setIsSaving(false);
-    }
-  };
+  //     return true;
+  //   } catch (err) {
+  //     toast.error("Failed to save draft");
+  //     return false;
+  //   } finally {
+  //     setIsSaving(false);
+  //   }
+  // };
 
   return (
     <div className="h-20 flex items-center border-b border-gray-200 shadow-sm">
@@ -80,9 +80,10 @@ const Header = ({ toggleSidebar }: { toggleSidebar: () => void }) => {
             const hasContents = post?.title?.trim() ||
               post?.description?.trim() ||
               post?.content?.trim();
+            console.log("hasContents", hasContents, post?.title, post?.description, post?.content);
 
             if (hasContents) {
-              saveDraftNow()
+              submitRef.current?.();
               setStep(2)
             } else {
 
