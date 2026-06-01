@@ -13,11 +13,13 @@ import { useStore } from "@/store";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu";
 import { draftPost } from "@/services/post-service";
 import { toast } from "sonner";
+import { useState } from "react";
 
 const Header = ({ toggleSidebar }: { toggleSidebar: () => void }) => {
   const location = useLocation();
   const { clearPost, setStep, step, post, setPost, isSaving, setIsSaving, logout, submitRef } = useStore();
   const navigate = useNavigate()
+  const [search, setSearch] = useState("")
 
 
   const handleLogout = () => {
@@ -93,11 +95,18 @@ const Header = ({ toggleSidebar }: { toggleSidebar: () => void }) => {
             Publish
 
           </Button> : location.pathname !== "/" ? null : <><CustomInput
-            placeholder="Search.."
+            placeholder="Search articles and press Enter..."
             bordered
             inputClassName="!rounded-full"
             iconLeft={<SearchIcon strokeWidth={1.5} className="size-5" />}
             className="hidden sm:flex"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && search.trim()) {
+                navigate(`/search?q=${encodeURIComponent(search)}`);
+              }
+            }}
           />
             <Button
               variant="ghost"
