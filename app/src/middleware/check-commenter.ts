@@ -1,5 +1,5 @@
-import Comment from "../models/comment";
-import Post from "../models/post";
+import Comment from "../models/comment.js";
+import Post from "../models/post.js";
 
 const checkCommentOwner = async (req: any, res: any, next: any) => {
   try {

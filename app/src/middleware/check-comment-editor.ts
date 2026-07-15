@@ -1,4 +1,4 @@
-import Comment from "../models/comment";
+import Comment from "../models/comment.js";
 
 const checkCommentEditor = async (req: any, res: any, next: any) => {
   try {
