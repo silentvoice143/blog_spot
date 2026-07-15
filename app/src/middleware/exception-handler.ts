@@ -1,4 +1,4 @@
-import { CustomException } from "../utils/custom-exception";
+import { CustomException } from "../utils/custom-exception.js";
 import { Request, Response, NextFunction } from "express";
 
 export const globalException = (

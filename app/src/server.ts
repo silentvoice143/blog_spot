@@ -16,7 +16,7 @@ import path from "path";
 import { agenda } from "./config/agenda.js";
 
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 const server = http.createServer(app);
 initSocket(server);
 
