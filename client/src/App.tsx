@@ -2,19 +2,11 @@ import "./App.css";
 
 import DataProvider, { DataContext } from "./context/Dataprovider";
 import Home from "./pages/home/home";
-import {
-  BrowserRouter,
-  Route,
-  Routes,
-  Outlet,
-  Navigate,
-  useLocation,
-  useNavigate,
-} from "react-router-dom";
+import { BrowserRouter, Route, Routes, Outlet } from "react-router-dom";
 import Login from "./pages/auth/login";
 import Register from "./pages/auth/register";
 
-import { LoaderProvider, useLoader } from "./context/LoaderProvider";
+import { LoaderProvider } from "./context/LoaderProvider";
 
 import Post from "./pages/post";
 
@@ -22,16 +14,14 @@ import Profile from "./pages/profile";
 import Stories from "./pages/stories";
 import Settings from "./pages/settings";
 import { NotificationProvider } from "./context/NotificationProvider";
-import socket from "./socket";
-import NotificationLoader from "./components/notification-loader";
-import NotificationListener from "./components/notification-listener";
+
 import useRegisterSocket from "./hooks/useRegisterSocket";
-import Notification from "./pages/notification";
-import { NavProvider, useNavbarContext } from "./context/Navbar";
+
+import { NavProvider } from "./context/Navbar";
 import SearchPage from "./pages/search";
 import { useStore } from "./store";
 import { useApiError } from "./hooks/use-api-error";
-import { checkAuth } from "./services/auth-service";
+
 import MainLayout from "./layout/main-layout";
 import VerifyOtp from "./pages/auth/verify-otp";
 import NotFound from "./pages/not-found";
