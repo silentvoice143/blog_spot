@@ -8,7 +8,6 @@ import SmallCardPost from "@/components/posts/smallCardPost";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 
-
 import { Button } from "@/components/ui/button";
 import { FadeIn } from "@/components/animations/fade-in";
 import TypingText from "@/components/animations/typing-text";
@@ -17,7 +16,6 @@ import {
   Carousel,
   CarouselContent,
   CarouselItem,
-
 } from "@/components/ui/carousel";
 
 import Autoplay from "embla-carousel-autoplay";
@@ -29,8 +27,6 @@ import { getAllPosts } from "@/services/post-service";
 import { Post } from "@/lib/types/post";
 import { formatDate } from "@/utils/date-utils";
 import { Spinner } from "@/components/shared/loader";
-
-
 
 export type TabItem = {
   id: number | string;
@@ -54,8 +50,8 @@ const Home = () => {
     page: 1,
     limit: 10,
     count: 0,
-    totalPages: 1
-  })
+    totalPages: 1,
+  });
 
   const { ref: topRef, inView: topInView } = useInView({
     threshold: 0,
@@ -63,7 +59,6 @@ const Home = () => {
 
   const { ref: bottomRef, inView: bottomInView } = useInView({
     threshold: 1,
-
   });
   const [mode, setMode] = useState<"relative" | "fixed" | "absolute">(
     "relative",
@@ -77,8 +72,8 @@ const Home = () => {
       nav: false,
       onPress: () => {
         localStorage.removeItem("preview_post");
-        clearPost()
-        navigate("/post/create")
+        clearPost();
+        navigate("/post/create");
       },
     },
     {
@@ -87,34 +82,31 @@ const Home = () => {
       nav: true,
       onPress: () => setActiveTab(2),
     },
-    {
-      id: 3,
-      label: <p className="text-base">Following</p>,
-      nav: true,
-      onPress: () => setActiveTab(3),
-    },
+    // {
+    //   id: 3,
+    //   label: <p className="text-base">Following</p>,
+    //   nav: true,
+    //   onPress: () => setActiveTab(3),
+    // },
   ];
-
 
   const fetchPosts = async (page: number = 1, limit: number = 10) => {
     if (loading || page > pagination.totalPages) {
-      return
+      return;
     }
-    setLoading(true)
+    setLoading(true);
     try {
       const response = await getAllPosts({
         limit,
         page,
       });
-      console.log(response)
+      console.log(response);
       if (response.success) {
-
         setPosts([...posts, ...response.posts]);
         const pagination = response.pagination;
         setPagination({
           ...pagination,
-        })
-
+        });
       } else {
         setPosts([]);
       }
@@ -126,24 +118,14 @@ const Home = () => {
   };
 
   useEffect(() => {
-    fetchPosts(1, pagination.limit)
-  }, [])
+    fetchPosts(1, pagination.limit);
+  }, []);
 
   useEffect(() => {
-    if (
-      lastPostInView
-
-    ) {
-      fetchPosts(
-        pagination.page + 1,
-        pagination.limit
-      );
+    if (lastPostInView) {
+      fetchPosts(pagination.page + 1, pagination.limit);
     }
-  }, [
-    lastPostInView,
-
-  ]);
-
+  }, [lastPostInView]);
 
   useEffect(() => {
     if (bottomInView) {
@@ -154,7 +136,6 @@ const Home = () => {
       setMode("relative");
     }
   }, [topInView, bottomInView]);
-
 
   if (!isAuthenticated) {
     return (
@@ -267,8 +248,6 @@ const Home = () => {
     );
   }
 
-
-
   return (
     <MainLayout>
       <div className="min-h-screen px-8 justify-center">
@@ -314,24 +293,37 @@ const Home = () => {
                   </Carousel>
 
                   <div className="my-8">
-                    {posts.length != 0 ? posts.map((data: Post, idx) => (
-                      <div key={data._id} ref={idx === posts.length - 1 ? lastPostRef : null}>
-                        <CardPost
-                          title={data.title}
-                          content={data.description}
-                          dop={formatDate(new Date(data.createdAt))}
-                          picture={data.picture}
-                          author={data.author.name}
-                          tags={data.tags.join(", ")}
-                          id={data._id}
-                          comments={data.comments.length}
-                        />
-                        {idx !== posts.length - 1 && (
-                          <Separator className="bg-gray-200 my-4" />
-                        )}
+                    {posts.length != 0 ? (
+                      posts.map((data: Post, idx) => (
+                        <div
+                          key={data._id}
+                          ref={idx === posts.length - 1 ? lastPostRef : null}
+                        >
+                          <CardPost
+                            title={data.title}
+                            content={data.description}
+                            dop={formatDate(new Date(data.createdAt))}
+                            picture={data.picture}
+                            author={data.author.name}
+                            tags={data.tags.join(", ")}
+                            id={data._id}
+                            comments={data.comments.length}
+                          />
+                          {idx !== posts.length - 1 && (
+                            <Separator className="bg-gray-200 my-4" />
+                          )}
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-center mt-20 text-lg font-bold text-black-secondary">
+                        No posts found
                       </div>
-                    )) : <div className="text-center mt-20 text-lg font-bold text-black-secondary">No posts found</div>}
-                    {(posts.length != 0 && loading) && <div className="flex justify-center"><Spinner size="small" /></div>}
+                    )}
+                    {posts.length != 0 && loading && (
+                      <div className="flex justify-center">
+                        <Spinner size="small" />
+                      </div>
+                    )}
                   </div>
                 </div>
                 <div></div>
@@ -360,24 +352,34 @@ const Home = () => {
                   </Carousel>
 
                   <div className="my-8">
-                    {posts.length != 0 ? posts.map((data: Post, idx) => (
-                      <div key={data._id}>
-                        <CardPost
-                          title={data.title}
-                          content={data.description}
-                          dop={formatDate(new Date(data.createdAt))}
-                          picture={data.picture}
-                          author={data.author.name}
-                          tags={data.tags.join(",")}
-                          id={data._id}
-                          comments={data.comments.length}
-                        />
-                        {idx !== posts.length - 1 && (
-                          <Separator className="bg-gray-200 my-4" />
-                        )}
+                    {posts.length != 0 ? (
+                      posts.map((data: Post, idx) => (
+                        <div key={data._id}>
+                          <CardPost
+                            title={data.title}
+                            content={data.description}
+                            dop={formatDate(new Date(data.createdAt))}
+                            picture={data.picture}
+                            author={data.author.name}
+                            tags={data.tags.join(",")}
+                            id={data._id}
+                            comments={data.comments.length}
+                          />
+                          {idx !== posts.length - 1 && (
+                            <Separator className="bg-gray-200 my-4" />
+                          )}
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-center mt-20 text-lg">
+                        No posts found
                       </div>
-                    )) : <div className="text-center mt-20 text-lg">No posts found</div>}
-                    {(posts.length != 0 && loading) && <div className="flex justify-center"><Spinner size="small" /></div>}
+                    )}
+                    {posts.length != 0 && loading && (
+                      <div className="flex justify-center">
+                        <Spinner size="small" />
+                      </div>
+                    )}
                   </div>
                 </div>
                 <div></div>

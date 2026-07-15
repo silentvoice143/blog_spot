@@ -18,6 +18,7 @@
   "description": "",
   "devDependencies": {
     "@eslint/js": "^9.20.0",
+    "@types/agenda": "^3.0.2",
     "@types/bcrypt": "^6.0.0",
     "@types/express": "^4.17.21",
     "@types/multer": "^1.4.12",
@@ -30,6 +31,8 @@
     "typescript-eslint": "^8.23.0"
   },
   "dependencies": {
+    "@agendajs/mongo-backend": "^4.0.2",
+    "agenda": "^6.2.5",
     "axios": "^1.8.1",
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",

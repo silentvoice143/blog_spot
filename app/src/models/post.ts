@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 
-
 const postSchema = new mongoose.Schema(
   {
     title: {
@@ -43,15 +42,15 @@ const postSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: ["draft", "scheduled", "publish", "private"],
+      enum: ["draft", "scheduled", "published", "private"],
       default: "draft",
     },
 
     scheduledFor: {
       type: Date,
+      required: false,
       default: null,
     },
-
     publishedAt: {
       type: Date,
       default: null,
@@ -71,10 +70,9 @@ const postSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 const Post = mongoose.model("post", postSchema);
 
 export default Post;
-

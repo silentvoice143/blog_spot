@@ -22,8 +22,17 @@ import { CATEGORIES } from "@/constant/category";
 
 const CreatePost = () => {
   const {
-    post, setPost, step, setStep, isSaving,
-    setIsSaving, isPublishing, setIsPublishing, setIsScheduling, isScheduling, setSubmitRef
+    post,
+    setPost,
+    step,
+    setStep,
+    isSaving,
+    setIsSaving,
+    isPublishing,
+    setIsPublishing,
+    setIsScheduling,
+    isScheduling,
+    setSubmitRef,
   } = useStore((state) => state);
   const lastSavedRef = useRef("");
   const debouncedSaveRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -35,8 +44,8 @@ const CreatePost = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [selectedTags, setSelectedTags] = useState([]);
   const [isMobile, setIsMobile] = useState(false);
-  const [date, setDate] = useState<Date | undefined>(undefined)
-  const [categoryOptions, setCategoryOptions] = useState(CATEGORIES.options)
+  const [date, setDate] = useState<Date | undefined>(undefined);
+  const [categoryOptions, setCategoryOptions] = useState(CATEGORIES.options);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -57,15 +66,11 @@ const CreatePost = () => {
   };
 
   const handlePreview = () => {
-
     // open preview page
     window.open("/post/preview", "_blank");
   };
 
-
-
   const handlePublish = async (type: "publish" | "schedule") => {
-
     try {
       setIsPublishing(true);
       let pictureUrl = "";
@@ -78,12 +83,16 @@ const CreatePost = () => {
         const uploadResponse = await uploadSingleFile(formData);
 
         pictureUrl =
-          uploadResponse?.data?.url ||
-          uploadResponse?.data?.fileUrl ||
-          "";
+          uploadResponse?.data?.url || uploadResponse?.data?.fileUrl || "";
       }
 
-      const response = await (type === "publish" ? publishPost : schedulePost)({ postId: post?.postId, tags: selectedTags.map((tag: string) => tag.toLowerCase()), picture: pictureUrl, scheduledAt: date });
+      const response = await (type === "publish" ? publishPost : schedulePost)({
+        postId: post?.postId,
+        tags: selectedTags.map((tag: string) => tag.toLowerCase()),
+        picture: pictureUrl,
+        scheduledAt: date,
+      });
+      console.log("response we get");
       if (response?.data?.success) {
         toast.success(response?.data?.message);
         setPost({});
@@ -94,8 +103,7 @@ const CreatePost = () => {
     } finally {
       setIsPublishing(false);
     }
-  }
-
+  };
 
   useEffect(() => {
     const checkScreen = () => {
@@ -110,53 +118,55 @@ const CreatePost = () => {
     };
   }, []);
 
-
-
-
   // Core save logic — extracted so both autosave and submit can call it
-  const savePost = useCallback(async (postData: typeof post, forceSave = false) => {
-    const hasContent =
-      postData?.title?.trim() ||
-      postData?.description?.trim() ||
-      postData?.content?.trim();
+  const savePost = useCallback(
+    async (postData: typeof post, forceSave = false) => {
+      const hasContent =
+        postData?.title?.trim() ||
+        postData?.description?.trim() ||
+        postData?.content?.trim();
 
-    if (!hasContent) return;
+      if (!hasContent) return;
 
-    const currentPost = JSON.stringify({
-      title: postData?.title || "",
-      description: postData?.description || "",
-      content: postData?.content || "",
-    });
+      const currentPost = JSON.stringify({
+        title: postData?.title || "",
+        description: postData?.description || "",
+        content: postData?.content || "",
+      });
 
-    // Skip if nothing changed (unless forced by submit)
-    if (!forceSave && lastSavedRef.current === currentPost) return;
-    if (isSavingRef.current) return;
+      // Skip if nothing changed (unless forced by submit)
+      if (!forceSave && lastSavedRef.current === currentPost) return;
+      if (isSavingRef.current) return;
 
-    try {
-      isSavingRef.current = true;
-      setIsSaving(true);
+      try {
+        isSavingRef.current = true;
+        setIsSaving(true);
 
-      localStorage.setItem("preview_post", JSON.stringify(postData));
-      window.dispatchEvent(new StorageEvent("storage", {
-        key: "preview_post",
-        newValue: JSON.stringify(postData),
-      }));
+        localStorage.setItem("preview_post", JSON.stringify(postData));
+        window.dispatchEvent(
+          new StorageEvent("storage", {
+            key: "preview_post",
+            newValue: JSON.stringify(postData),
+          }),
+        );
 
-      const payload = { ...postData, status: "draft" };
-      const response = await draftPost(payload);
+        const payload = { ...postData, status: "draft" };
+        const response = await draftPost(payload);
 
-      if (response?.data.post?._id) {
-        setPost({ ...postData, postId: response.data.post._id });
+        if (response?.data.post?._id) {
+          setPost({ ...postData, postId: response.data.post._id });
+        }
+
+        lastSavedRef.current = currentPost;
+      } catch (err) {
+        // handle error
+      } finally {
+        isSavingRef.current = false;
+        setTimeout(() => setIsSaving(false), 1000);
       }
-
-      lastSavedRef.current = currentPost;
-    } catch (err) {
-      // handle error
-    } finally {
-      isSavingRef.current = false;
-      setTimeout(() => setIsSaving(false), 1000);
-    }
-  }, []);
+    },
+    [],
+  );
 
   // Debounced autosave — runs 2s after last change, only on step 1
   useEffect(() => {
@@ -176,7 +186,6 @@ const CreatePost = () => {
 
   const submitRef = useRef<(() => Promise<void>) | null>(null);
 
-
   const handleSubmit = useCallback(async () => {
     if (debouncedSaveRef.current) {
       clearTimeout(debouncedSaveRef.current);
@@ -191,7 +200,6 @@ const CreatePost = () => {
     submitRef.current = handleSubmit;
     setSubmitRef(submitRef);
   }, [handleSubmit, setSubmitRef]);
-
 
   if (isMobile) {
     return (
@@ -209,10 +217,8 @@ const CreatePost = () => {
     );
   }
 
-
   return (
     <div className="h-full overflow-y-auto overflow-x-hidden">
-
       <div className="w-full flex-1 flex flex-col">
         {step === 1 ? (
           <div className="flex flex-1 relative">
@@ -234,7 +240,15 @@ const CreatePost = () => {
           // />
           <div className="flex flex-col flex-1  justify-center p-8">
             <div className="max-w-[800px] mx-auto">
-              <div className="text-right mb-4"><Button variant="ghost" className="rounded-full !h-10 !w-10" onClick={() => setStep(1)}><X /></Button></div>
+              <div className="text-right mb-4">
+                <Button
+                  variant="ghost"
+                  className="rounded-full !h-10 !w-10"
+                  onClick={() => setStep(1)}
+                >
+                  <X />
+                </Button>
+              </div>
               <div className=" flex flex-col gap-6">
                 <div className="flex-1 flex gap-6 md:gap-10">
                   <div className="flex-1">
@@ -297,13 +311,18 @@ const CreatePost = () => {
                       <CustomSelect
                         multiSelect
                         selected={selectedTags}
-                        onChange={(selected) => setSelectedTags(selected as any)}
+                        onChange={(selected) =>
+                          setSelectedTags(selected as any)
+                        }
                         placeholder="Select upto four tags..."
                         options={categoryOptions}
                         enableCreateOption
                         onCreateOption={(value) => {
-                          setCategoryOptions((prev) => [...prev, { label: value, value }]);
-                          setSelectedTags((prev) => [...prev, value])
+                          setCategoryOptions((prev) => [
+                            ...prev,
+                            { label: value, value },
+                          ]);
+                          setSelectedTags((prev) => [...prev, value]);
                         }}
                       />
                     </div>
@@ -314,19 +333,21 @@ const CreatePost = () => {
                       >
                         Publish now
                       </Button>
-                      <DateTimePicker onSubmit={() => {
-                        console.log("submit clicked");
-                        handlePublish("schedule")
-                      }} onCancel={() => setDate(undefined)} value={date} onChange={(date) => setDate(date)}>
-                        <Button
-                          className="px-6 h-9 hover:bg-gray-200/80 bg-white text-black-primary rounded-full text-xs"
-                        >
+                      <DateTimePicker
+                        onSubmit={() => {
+                          console.log("submit clicked");
+                          handlePublish("schedule");
+                        }}
+                        onCancel={() => setDate(undefined)}
+                        value={date}
+                        onChange={(date) => setDate(date)}
+                      >
+                        <Button className="px-6 h-9 hover:bg-gray-200/80 bg-white text-black-primary rounded-full text-xs">
                           Schedule for later
                         </Button>
                       </DateTimePicker>
                     </div>
                   </div>
-
                 </div>
                 <div className="space-y-4">
                   <h1 className="px-0 placeholder:text-gray-secondary2 text-gray-secondary1">
@@ -340,7 +361,6 @@ const CreatePost = () => {
                     dangerouslySetInnerHTML={{ __html: post.content }}
                   />
                 </div>
-
               </div>
             </div>
           </div>
