@@ -3,8 +3,6 @@ import "./App.css";
 import DataProvider, { DataContext } from "./context/Dataprovider";
 import Home from "./pages/home/home";
 import { BrowserRouter, Route, Routes, Outlet } from "react-router-dom";
-import Login from "./pages/auth/login";
-import Register from "./pages/auth/register";
 
 import { LoaderProvider } from "./context/LoaderProvider";
 
@@ -31,6 +29,8 @@ import { ROLES } from "./constant/roles";
 import Dashboard from "./pages/dashboard";
 import Preview from "./pages/create/components/preview";
 import { Spinner } from "./components/shared/loader";
+import Login from "./pages/auth/Login";
+import Register from "./pages/auth/Register";
 
 function App() {
   const userId = sessionStorage.getItem("userId");
